@@ -98,12 +98,32 @@ const Scanner = (function () {
             bins[b] = count > 0 ? sum / count : 0;
         }
 
-        const max = Math.max(...bins, 1e-6);
-        return bins.map(v => Math.max(0, Math.min(1, v / max)));
+        const max = Math.max(...bins);
+        // Minimum peak height requirement: waveform height must be at least 8% of frame height
+        if (max < h * 0.08) {
+            return null;
+        }
+
+        const normalized = bins.map(v => Math.max(0, Math.min(1, v / max)));
+        
+        // Calculate standard deviation to ensure a true waveform structure exists (not flat background noise)
+        const mean = normalized.reduce((a, b) => a + b, 0) / N_BINS;
+        const variance = normalized.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / N_BINS;
+        const stdDev = Math.sqrt(variance);
+
+        if (stdDev < 0.08) {
+            return null;
+        }
+
+        return normalized;
     }
 
     async function analyzeCanvas(canvas, soundCodeText) {
         const fingerprint = imageToProfile(canvas);
+
+        if (!fingerprint) {
+            return { success: false, message: 'No sound motif detected in target frame.' };
+        }
 
         const res = await fetch('/api/scan', {
             method: 'POST',

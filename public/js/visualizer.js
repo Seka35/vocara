@@ -175,6 +175,7 @@ const Visualizer = (function () {
      */
     function attachSeekHandler(canvas, audioEl, fingerprint, soundCode, opts) {
         opts = opts || {};
+        audioEl.loop = false; // Ensure audio never loops automatically
         let isDragging = false;
         let hoverProgress = null;
         let animFrameId = null;
@@ -209,15 +210,27 @@ const Visualizer = (function () {
             }
         }
 
-        function seekToEvent(e) {
-            const p = getProgressFromEvent(e);
+        function applySeek(p) {
             if (audioEl.duration && isFinite(audioEl.duration) && audioEl.duration > 0) {
                 const targetTime = p * audioEl.duration;
                 if (isFinite(targetTime)) {
-                    audioEl.currentTime = targetTime;
+                    try {
+                        audioEl.currentTime = targetTime;
+                    } catch (err) {}
                 }
             }
             renderCurrentState();
+        }
+
+        function seekToEvent(e) {
+            const p = getProgressFromEvent(e);
+            applySeek(p);
+
+            if (audioEl.paused) {
+                audioEl.play().then(() => {
+                    applySeek(p);
+                }).catch(() => {});
+            }
         }
 
         // Mouse Events
@@ -236,9 +249,6 @@ const Visualizer = (function () {
         canvas.addEventListener('mousedown', (e) => {
             isDragging = true;
             seekToEvent(e);
-            if (audioEl.paused) {
-                audioEl.play().catch(() => {});
-            }
         });
 
         window.addEventListener('mouseup', () => {
@@ -251,9 +261,6 @@ const Visualizer = (function () {
         canvas.addEventListener('touchstart', (e) => {
             isDragging = true;
             seekToEvent(e);
-            if (audioEl.paused) {
-                audioEl.play().catch(() => {});
-            }
         }, { passive: true });
 
         canvas.addEventListener('touchmove', (e) => {
@@ -285,6 +292,7 @@ const Visualizer = (function () {
 
         audioEl.addEventListener('ended', () => {
             if (animFrameId) cancelAnimationFrame(animFrameId);
+            audioEl.currentTime = 0; // Reset position to start when finished
             renderCurrentState();
         });
 

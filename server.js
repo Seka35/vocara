@@ -173,6 +173,14 @@ app.post('/api/scan', async (req, res) => {
 
         // 2. Waveform Fingerprint Correlation Match
         if (fingerprint && Array.isArray(fingerprint) && fingerprint.length > 0) {
+            // Ensure fingerprint has sufficient variance (not flat noise)
+            const meanF = fingerprint.reduce((a, b) => a + b, 0) / fingerprint.length;
+            const stdDevF = Math.sqrt(fingerprint.reduce((a, b) => a + Math.pow(b - meanF, 2), 0) / fingerprint.length);
+            
+            if (stdDevF < 0.06) {
+                return res.json({ success: false, message: 'Fingerprint has insufficient contrast.' });
+            }
+
             const allSounds = await db.getAllSounds();
             let bestMatch = null;
             let bestScore = -1;
@@ -201,8 +209,8 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Lower threshold slightly to 0.38 for high camera tolerance while keeping high precision
-            if (bestMatch && bestScore >= 0.38) {
+            // Requires high confidence score (>= 0.58) for reliable matching
+            if (bestMatch && bestScore >= 0.58) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',
