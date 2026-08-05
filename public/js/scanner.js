@@ -133,8 +133,8 @@ const Scanner = (function () {
         }
 
         const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
-        // Require symmetry (>= 0.38) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
-        if (avgSymmetry < 0.38) {
+        // Require minimal symmetry (>= 0.15) to allow noisy live camera frames through to server AI
+        if (avgSymmetry < 0.15) {
             return null;
         }
 
@@ -313,16 +313,14 @@ const Scanner = (function () {
 
     async function analyzeCanvas(canvas, soundCodeText) {
         const fingerprint = imageToProfile(canvas);
-
-        if (!fingerprint) {
-            return { success: false, message: 'No sound motif detected in target frame.' };
-        }
+        const imageBase64 = canvas ? canvas.toDataURL('image/jpeg', 0.8) : null;
 
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-                fingerprint,
+                fingerprint: fingerprint || [],
+                image: imageBase64,
                 soundCode: soundCodeText || null
             })
         });

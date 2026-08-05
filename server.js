@@ -390,7 +390,7 @@ app.post('/api/scan', async (req, res) => {
             candidateMatches.sort((a, b) => b.score - a.score);
             const top5 = candidateMatches.slice(0, 5);
 
-            if (top5.length > 0) {
+            if (top5.length > 0 && top5[0].score >= 0.45) {
                 return res.json({
                     success: true,
                     matchType: 'onnx_embedding',

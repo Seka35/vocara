@@ -505,7 +505,7 @@
                         // Evaluate multi-candidates to select the highest confidence verified sound
                         let bestVerified = null;
                         for (const candItem of candidates) {
-                            if (candItem.score >= 0.72) {
+                            if (candItem.score >= 0.48) {
                                 bestVerified = candItem;
                                 break;
                             }
