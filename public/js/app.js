@@ -562,6 +562,12 @@
     }
 
     function handleMatchedSound(sound, confidence) {
+        // Stop continuous auto-scanning loop immediately while sound memory is playing!
+        if (autoScanInterval) {
+            clearInterval(autoScanInterval);
+            autoScanInterval = null;
+        }
+
         // Play success chime sound immediately
         playSuccessChime();
 
@@ -612,8 +618,25 @@
             if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>`;
         };
 
-        resultAudio.onpause = resultAudio.onended = () => {
+        resultAudio.onpause = () => {
             if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg class="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+        };
+
+        resultAudio.onended = () => {
+            if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg class="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
+            
+            // Auto-resume camera scanner 3.5s after audio finishes playing
+            setTimeout(() => {
+                if (camStream && !autoScanInterval) {
+                    lastMatchedCode = null;
+                    const b = document.getElementById('autoScanBadge');
+                    if (b) {
+                        b.style.color = '#ff6b00';
+                        b.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#ff6b00; border-radius:50%; box-shadow:0 0 10px #ff6b00; animation:pulse 1.2s infinite;"></span><span>AUTO SCANNING LIVE — ALIGN TATTOO IN TARGET AREA</span>`;
+                    }
+                    startLiveCameraScanner();
+                }
+            }, 3500);
         };
 
         // Auto play retrieved sound memory instantly with real-time waveform progress lighting

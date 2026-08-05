@@ -276,8 +276,8 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Requires correlation score >= 0.58 for reliable matching
-            if (bestMatch && bestScore >= 0.58) {
+            // Requires correlation score >= 0.72 for reliable matching (prevents false positives from faces & clothes)
+            if (bestMatch && bestScore >= 0.72) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',

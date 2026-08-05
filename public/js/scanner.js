@@ -133,8 +133,8 @@ const Scanner = (function () {
         }
 
         const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
-        // Require symmetry (>= 0.30) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
-        if (avgSymmetry < 0.30) {
+        // Require symmetry (>= 0.38) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
+        if (avgSymmetry < 0.38) {
             return null;
         }
 
@@ -197,7 +197,7 @@ const Scanner = (function () {
             }
         }
 
-        if (peakCount < 1) {
+        if (peakCount < 2) {
             return null;
         }
 
