@@ -151,10 +151,14 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
             mimeType = req.file.mimetype;
             try { fs.copyFileSync(req.file.path, path.join(publicAudioDir, filename)); } catch (e) {}
         } else if (req.body.audioBase64) {
-            // Handle base64 fallback from mobile / web recorder
-            const base64Data = req.body.audioBase64.replace(/^data:audio\/\w+;base64,/, '');
+            // Handle base64 fallback from mobile / web recorder (strip any data:*;base64, header cleanly)
+            const base64Data = req.body.audioBase64.replace(/^data:.*?;base64,/, '');
             mimeType = req.body.mimeType || 'audio/webm';
-            const ext = mimeType.includes('mp4') ? '.m4a' : '.webm';
+            let ext = '.webm';
+            if (mimeType.includes('mp4') || mimeType.includes('m4a') || mimeType.includes('aac')) ext = '.m4a';
+            else if (mimeType.includes('mp3') || mimeType.includes('mpeg')) ext = '.mp3';
+            else if (mimeType.includes('wav')) ext = '.wav';
+
             filename = `sound-${Date.now()}-${Math.round(Math.random() * 1E6)}${ext}`;
             const filePath = path.join(uploadsDir, filename);
             fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
