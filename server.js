@@ -276,8 +276,8 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Requires correlation score >= 0.65 for reliable matching
-            if (bestMatch && bestScore >= 0.65) {
+            // Requires correlation score >= 0.74 to prevent false matches against wrong sound motifs
+            if (bestMatch && bestScore >= 0.74) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',
