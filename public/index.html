@@ -385,125 +385,141 @@
                 </div>
                 <div class="gallery-grid" id="galleryGrid">
                     <!-- Dynamic Gallery Cards populated by app.js -->
-                </div>
-            </div>
-
-            <!-- ===================== CUSTOMER REVIEWS / TESTIMONIALS ===================== -->
+                </d            <!-- ===================== CUSTOMER REVIEWS / TESTIMONIALS ===================== -->
             <section class="card" style="margin-top:24px; background:linear-gradient(180deg, rgba(20,20,28,0.95), rgba(16,14,20,0.9)); border:1px solid var(--border-color);">
-                <div style="text-align:center; margin-bottom:24px;">
+                <div style="text-align:center; margin-bottom:20px;">
                     <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">LIVING MEMORIES</div>
-                    <h2 style="font-size:24px; font-weight:800;">Loved by Sound Memory Holders</h2>
-                    <p style="font-size:13px; color:var(--text-muted); max-width:540px; margin:6px auto 0;">Real stories from people who turned precious voices into permanent living tattoos.</p>
+                    <h2 style="font-size:24px; font-weight:800; margin-bottom:12px;">Loved by Sound Memory Holders</h2>
+                    
+                    <!-- Trustpilot Style Header Rating Bar -->
+                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 16px; width:fit-content; margin:0 auto 12px;">
+                        <div style="display:inline-flex; align-items:center; gap:3px;">
+                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                        </div>
+                        <span style="font-size:15px; font-weight:800; color:#ffffff;">4.9 / 5</span>
+                        <span style="font-size:13px; color:var(--text-muted);">based on <strong>87,450 reviews</strong></span>
+                    </div>
+
+                    <p style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:6px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                        <span>Swipe to explore customer stories</span>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+                    </p>
                 </div>
 
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+                <!-- Single Line Slidable Horizontal Carousel (Mobile & Desktop) -->
+                <div class="reviews-slider">
                     <!-- Review 1: Sophie L. -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div class="review-card">
                         <div>
-                            <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-                                <img src="assets/profile/femme-27ans.webp" alt="Sophie L." style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 12px rgba(255,107,0,0.3);">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <img src="assets/profile/femme-27ans.webp" alt="Sophie L." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
                                 <div>
                                     <div style="font-size:15px; font-weight:700; color:#ffffff;">Sophie L.</div>
-                                    <div style="font-size:12px; color:var(--text-muted);">27 years old • Wrist Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:3px; margin-top:3px;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <div style="font-size:11px; color:var(--text-muted);">27 years old • Wrist Tattoo</div>
+                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Child's First Laugh</div>
-                            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; font-style:italic;">
+                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Child's First Laugh</div>
+                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
                                 "I engraved my daughter's very first baby laugh when she was 8 months old. Every time I scan my wrist tattoo with the app camera, hearing her giggles instantly brings tears to my eyes."
                             </p>
                         </div>
-                        <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
+                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             <span>Verified Lifetime Memory</span>
                         </div>
                     </div>
 
                     <!-- Review 2: Marcus D. -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div class="review-card">
                         <div>
-                            <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-                                <img src="assets/profile/homme-45ans.webp" alt="Marcus D." style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 12px rgba(255,107,0,0.3);">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <img src="assets/profile/homme-45ans.webp" alt="Marcus D." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
                                 <div>
                                     <div style="font-size:15px; font-weight:700; color:#ffffff;">Marcus D.</div>
-                                    <div style="font-size:12px; color:var(--text-muted);">45 years old • Arm Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:3px; margin-top:3px;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <div style="font-size:11px; color:var(--text-muted);">45 years old • Arm Tattoo</div>
+                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Wedding Vows</div>
-                            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; font-style:italic;">
+                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Wedding Vows</div>
+                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
                                 "My wife and I engraved our 10th anniversary vows into matching tattoos. The stencil generated by Vocara was pixel-perfect for our tattoo artist. Scanning it on our phone brings back all the magic."
                             </p>
                         </div>
-                        <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
+                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             <span>Verified Lifetime Memory</span>
                         </div>
                     </div>
 
                     <!-- Review 3: Clara M. -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div class="review-card">
                         <div>
-                            <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-                                <img src="assets/profile/femme-34ans.webp" alt="Clara M." style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 12px rgba(255,107,0,0.3);">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <img src="assets/profile/femme-34ans.webp" alt="Clara M." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
                                 <div>
                                     <div style="font-size:15px; font-weight:700; color:#ffffff;">Clara M.</div>
-                                    <div style="font-size:12px; color:var(--text-muted);">34 years old • Forearm Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:3px; margin-top:3px;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <div style="font-size:11px; color:var(--text-muted);">34 years old • Forearm Tattoo</div>
+                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Grandmother's Voicemail</div>
-                            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; font-style:italic;">
+                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Grandmother's Voicemail</div>
+                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
                                 "When my grandmother passed away, I only had a short 12-second voicemail left. Vocara turned her voice into a wave motif. Knowing I can hear her voice anytime gives me immense comfort."
                             </p>
                         </div>
-                        <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
+                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             <span>Verified Lifetime Memory</span>
                         </div>
                     </div>
 
                     <!-- Review 4: Robert T. -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:20px; display:flex; flex-direction:column; justify-content:space-between;">
+                    <div class="review-card">
                         <div>
-                            <div style="display:flex; align-items:center; gap:14px; margin-bottom:14px;">
-                                <img src="assets/profile/homme-60ans.webp" alt="Robert T." style="width:52px; height:52px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 12px rgba(255,107,0,0.3);">
+                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
+                                <img src="assets/profile/homme-60ans.webp" alt="Robert T." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
                                 <div>
                                     <div style="font-size:15px; font-weight:700; color:#ffffff;">Robert T.</div>
-                                    <div style="font-size:12px; color:var(--text-muted);">60 years old • Shoulder Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:3px; margin-top:3px;">
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                                        <svg width="13" height="13" viewBox="0 0 24 24" fill="#ffb800"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                                    <div style="font-size:11px; color:var(--text-muted);">60 years old • Shoulder Tattoo</div>
+                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
+                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
                                     </div>
                                 </div>
                             </div>
-                            <div style="font-size:12px; font-weight:700; color:var(--primary); margin-bottom:8px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Son's Acoustic Song</div>
-                            <p style="font-size:13px; color:var(--text-muted); line-height:1.6; font-style:italic;">
+                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Son's Acoustic Song</div>
+                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
                                 "Got my son's acoustic guitar song engraved on my shoulder as a surprise for his graduation. The camera scanner recognizes it instantly under room light. Simply incredible technology."
                             </p>
                         </div>
-                        <div style="margin-top:14px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
+                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
                             <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                             <span>Verified Lifetime Memory</span>
                         </div>
