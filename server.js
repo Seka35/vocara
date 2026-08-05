@@ -265,6 +265,59 @@ function pearsonCorrelation(a, b) {
     return den === 0 ? 0 : num / den;
 }
 
+const ort = require('onnxruntime-node');
+let onnxSession = null;
+
+// Initialize ONNX AI Model Session
+(async () => {
+    try {
+        const modelPath = path.join(__dirname, 'public', 'models', 'vocara_embed.onnx');
+        if (fs.existsSync(modelPath)) {
+            onnxSession = await ort.InferenceSession.create(modelPath);
+            console.log('✅ ONNX AI Embedding Engine initialized successfully in server.js!');
+        }
+    } catch (e) {
+        console.warn('⚠️ ONNX Session init warning:', e.message);
+    }
+})();
+
+// Helper to convert 64-bin fingerprint or 2D array into ONNX Float32 Tensor (1, 1, 128, 128)
+function fingerprintToTensor(fp) {
+    const tensorData = new Float32Array(128 * 128);
+    // Fill white canvas background (1.0 normalized)
+    tensorData.fill(1.0);
+    
+    const cy = 64;
+    const barW = 128 / fp.length;
+    for (let i = 0; i < fp.length; i++) {
+        const val = Math.max(0, Math.min(1, fp[i]));
+        const barH = Math.round(val * 50);
+        const xStart = Math.floor(i * barW);
+        const xEnd = Math.floor((i + 1) * barW);
+        for (let x = xStart; x < xEnd && x < 128; x++) {
+            for (let y = Math.max(0, cy - barH); y <= Math.min(127, cy + barH); y++) {
+                tensorData[y * 128 + x] = -1.0; // Dark ink waveform line (-1.0 in [-1, 1] scale)
+            }
+        }
+    }
+    return new ort.Tensor('float32', tensorData, [1, 1, 128, 128]);
+}
+
+async function extractOnnxEmbedding(fp) {
+    if (!onnxSession) return null;
+    try {
+        const tensor = fingerprintToTensor(fp);
+        const feeds = {};
+        feeds[onnxSession.inputNames[0]] = tensor;
+        const results = await onnxSession.run(feeds);
+        const emb = results[onnxSession.outputNames[0]].data;
+        return Array.from(emb);
+    } catch (e) {
+        console.error('ONNX embedding error:', e);
+        return null;
+    }
+}
+
 // Scan API Endpoint (Handles fingerprint matching and/or sound code lookup)
 app.post('/api/scan', async (req, res) => {
     try {
@@ -283,62 +336,64 @@ app.post('/api/scan', async (req, res) => {
             }
         }
 
-        // 2. Waveform Fingerprint Correlation Match
+        // 2. ONNX AI Embedding Cosine Similarity Match
         if (fingerprint && Array.isArray(fingerprint) && fingerprint.length > 0) {
-            // Ensure fingerprint has sufficient variance (not flat noise)
-            const meanF = fingerprint.reduce((a, b) => a + b, 0) / fingerprint.length;
-            const stdDevF = Math.sqrt(fingerprint.reduce((a, b) => a + Math.pow(b - meanF, 2), 0) / fingerprint.length);
-            
-            if (stdDevF < 0.06) {
-                return res.json({ success: false, message: 'Fingerprint has insufficient contrast.' });
-            }
-
+            const queryEmb = await extractOnnxEmbedding(fingerprint);
             const allSounds = await db.getAllSounds();
             let candidateMatches = [];
 
             for (const s of allSounds) {
                 if (!s.fingerprint || !Array.isArray(s.fingerprint)) continue;
 
-                let soundBestScore = -1;
-                // Try both normal and inverted fingerprints (light-on-dark vs dark-on-light)
-                const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
-
-                for (const candidateFp of fpCandidates) {
-                    for (let shift = -12; shift <= 12; shift++) {
-                        let subA = [];
-                        let subB = [];
-                        for (let i = 0; i < fingerprint.length; i++) {
-                            const j = i + shift;
-                            if (j >= 0 && j < candidateFp.length) {
-                                subA.push(fingerprint[i]);
-                                subB.push(candidateFp[j]);
-                            }
+                let score = 0;
+                if (queryEmb) {
+                    const dbEmb = await extractOnnxEmbedding(s.fingerprint);
+                    if (dbEmb) {
+                        let dot = 0;
+                        for (let k = 0; k < queryEmb.length; k++) {
+                            dot += queryEmb[k] * dbEmb[k];
                         }
-                        if (subA.length >= fingerprint.length * 0.65) {
-                            const score = pearsonCorrelation(subA, subB);
-                            if (score > soundBestScore) {
-                                soundBestScore = score;
+                        score = Math.max(0, Math.min(1, dot));
+                    }
+                }
+
+                // Fallback / ensemble with Pearson correlation if ONNX score isn't available
+                if (score < 0.1) {
+                    const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
+                    for (const candidateFp of fpCandidates) {
+                        for (let shift = -8; shift <= 8; shift++) {
+                            let subA = [], subB = [];
+                            for (let i = 0; i < fingerprint.length; i++) {
+                                const j = i + shift;
+                                if (j >= 0 && j < candidateFp.length) {
+                                    subA.push(fingerprint[i]);
+                                    subB.push(candidateFp[j]);
+                                }
+                            }
+                            if (subA.length >= fingerprint.length * 0.65) {
+                                const pScore = pearsonCorrelation(subA, subB);
+                                if (pScore > score) score = pScore;
                             }
                         }
                     }
                 }
 
-                if (soundBestScore >= 0.55) {
+                if (score >= 0.50) {
                     candidateMatches.push({
                         sound: s,
-                        score: Math.min(0.99, Math.round(soundBestScore * 100) / 100)
+                        score: Math.min(0.99, Math.round(score * 100) / 100)
                     });
                 }
             }
 
-            // Sort candidates descending by correlation score
+            // Sort candidates descending by match score
             candidateMatches.sort((a, b) => b.score - a.score);
             const top5 = candidateMatches.slice(0, 5);
 
-            if (top5.length > 0 && top5[0].score >= 0.68) {
+            if (top5.length > 0) {
                 return res.json({
                     success: true,
-                    matchType: 'fingerprint',
+                    matchType: 'onnx_embedding',
                     confidence: top5[0].score,
                     sound: top5[0].sound,
                     candidates: top5
