@@ -124,9 +124,31 @@ const Recorder = (function () {
         return bins.map(v => Math.max(0, Math.min(1, v / max)));
     }
 
+    async function processAudioFile(file) {
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+            const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer);
+            const fingerprint = computeFingerprint(audioBuffer, N_BINS);
+            const duration = audioBuffer.duration;
+            const blob = new Blob([arrayBuffer], { type: file.type || 'audio/webm' });
+
+            return {
+                blob,
+                mime: file.type || 'audio/webm',
+                duration,
+                fingerprint
+            };
+        } catch (e) {
+            console.error("Audio decoding error:", e);
+            throw new Error("Unable to decode audio file. Please upload a valid MP3, WAV, or M4A file.");
+        }
+    }
+
     return {
         setCallbacks,
         start,
-        stop
+        stop,
+        processAudioFile
     };
 })();

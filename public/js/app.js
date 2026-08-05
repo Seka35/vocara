@@ -114,6 +114,46 @@
         }
     });
 
+    // Custom Audio File Upload handling
+    const triggerAudioFileBtn = document.getElementById('triggerAudioFileBtn');
+    const audioFileInput = document.getElementById('audioFileInput');
+
+    if (triggerAudioFileBtn && audioFileInput) {
+        triggerAudioFileBtn.addEventListener('click', () => {
+            audioFileInput.click();
+        });
+
+        audioFileInput.addEventListener('change', async (e) => {
+            const file = e.target.files && e.target.files[0];
+            if (!file) return;
+
+            recStatus.textContent = 'Processing uploaded audio file...';
+            try {
+                const data = await Recorder.processAudioFile(file);
+                currentRecordingData = data;
+                currentSoundCode = generateCode();
+
+                // Setup Pre-save Audio Player
+                const audioUrl = URL.createObjectURL(data.blob);
+                preSaveAudio.src = audioUrl;
+                preSavePlayerContainer.style.display = 'block';
+
+                // Render visual motif
+                Visualizer.drawWaveform(waveCanvas, data.fingerprint, currentSoundCode);
+                waveShell.style.display = 'block';
+                saveRow.style.display = 'flex';
+                labelInput.value = file.name.replace(/\.[^/.]+$/, "");
+                labelInput.focus();
+
+                recStatus.textContent = 'Uploaded sound ready! Listen to preview or engrave below.';
+                toast('Audio file loaded successfully!');
+            } catch (err) {
+                toast(err.message || 'Error processing audio file.');
+                recStatus.textContent = 'Tap microphone to start recording';
+            }
+        });
+    }
+
     // Reset recording
     document.getElementById('discardBtn').addEventListener('click', () => {
         waveShell.style.display = 'none';
