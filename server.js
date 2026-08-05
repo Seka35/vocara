@@ -21,7 +21,17 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        const ext = file.mimetype.includes('mp4') || file.mimetype.includes('m4a') ? '.m4a' : '.webm';
+        let ext = '.webm';
+        if (file.mimetype.includes('mp4') || file.mimetype.includes('m4a') || file.mimetype.includes('aac')) {
+            ext = '.m4a';
+        } else if (file.mimetype.includes('mp3') || file.mimetype.includes('mpeg')) {
+            ext = '.mp3';
+        } else if (file.mimetype.includes('wav')) {
+            ext = '.wav';
+        } else if (file.originalname) {
+            const origExt = path.extname(file.originalname).toLowerCase();
+            if (origExt) ext = origExt;
+        }
         cb(null, `sound-${uniqueSuffix}${ext}`);
     }
 });

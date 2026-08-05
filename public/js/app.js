@@ -334,7 +334,16 @@
                     if (audio.paused) {
                         // Pause any other playing audio in page
                         document.querySelectorAll('audio').forEach(a => { if (a !== audio) a.pause(); });
-                        audio.play().catch(() => toast('Playback error'));
+                        audio.play().catch(err => {
+                            console.error('Gallery audio playback error:', err, audio.error);
+                            if (audio.error && audio.error.code === 4) {
+                                toast('Audio file missing on server.');
+                            } else if (err.name === 'NotSupportedError') {
+                                toast('Audio format (.webm) not supported on iOS Safari.');
+                            } else {
+                                toast('Playback error. Tap play again.');
+                            }
+                        });
                     } else {
                         audio.pause();
                     }
