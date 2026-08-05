@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOCARA — Sound Engraving &amp; Scanner</title>
+    <title>VOCARA — Turn Precious Voices into Eternal Sound Tattoos</title>
     <meta name="description" content="Engrave your voice and precious audio into visual sound wave motifs for tattoos and prints. Scan and listen back anytime via web or mobile app.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -26,8 +26,60 @@
             </div>
         </header>
 
+        <!-- ===================== HERO EMOTIONAL SECTION ===================== -->
+        <section class="hero-section">
+            <div class="hero-grid">
+                <!-- Hero Left Text Content -->
+                <div class="hero-content">
+                    <div class="hero-pill">
+                        <span class="hero-pill-dot"></span>
+                        <span>ETERNAL AUDIO ENGRAVING TECHNOLOGY</span>
+                    </div>
+                    <h1 class="hero-title">
+                        Turn Precious Voices into <span class="gradient-text">Eternal Sound Tattoos</span>
+                    </h1>
+                    <p class="hero-subtitle">
+                        Hear your child’s first "I love you", cherish the laugh of a departed loved one, or wear your wedding vow forever on your skin. Scan the motif anytime to relive the sound memory.
+                    </p>
+                    
+                    <div class="hero-features">
+                        <div class="hero-feat-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>100% Pure Black Transparent Stencils for Tattoo Artists</span>
+                        </div>
+                        <div class="hero-feat-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Instant Camera Scanning &amp; Offline Audio Storage</span>
+                        </div>
+                        <div class="hero-feat-item">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                            <span>Listen Before Saving &amp; Permanent Database Cloud Backup</span>
+                        </div>
+                    </div>
+
+                    <div class="hero-cta-row">
+                        <button class="btn btn-primary" onclick="document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'})">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                            <span>Engrave Sound Now</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Hero Right Media Card -->
+                <div class="hero-media-card">
+                    <img src="assets/hero-tattoo.jpg" alt="Sound Tattoo Visual Motif" class="hero-img">
+                    <div class="hero-img-overlay">
+                        <div class="hero-badge-floating">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b00"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                            <span>"I Love You Daddy" — Audio Motif</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- Navigation Tabs -->
-        <nav class="tab-nav">
+        <nav class="tab-nav" style="margin-top:20px;">
             <button class="tab-btn active" data-tab="engrave">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
                 <span>Record &amp; Engrave</span>
@@ -40,7 +92,7 @@
 
         <!-- ===================== PANEL 1: ENGRAVE ===================== -->
         <section class="panel active" id="panel-engrave">
-            <div class="card">
+            <div class="card" id="recorderCard">
                 <div class="card-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
                     <span>Record Voice / Audio</span>
@@ -79,6 +131,27 @@
                     <button class="btn btn-primary" id="saveBtn">Engrave Sound</button>
                     <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--border-highlight); color:var(--primary);">Download Tattoo Stencil (PNG)</button>
                     <button class="btn btn-secondary" id="discardBtn">Reset</button>
+                </div>
+            </div>
+
+            <!-- Emotional Story & Memory Showcase Card -->
+            <div class="card">
+                <div class="emotional-showcase-grid">
+                    <div class="emotional-img-wrap">
+                        <img src="assets/sound-moments.jpg" alt="Preserve Voice Memories" class="emotional-img">
+                    </div>
+                    <div class="emotional-text-wrap">
+                        <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">EMOTIONAL MEMORIES FOR LIFE</div>
+                        <h2 style="font-size:22px; font-weight:800; margin-bottom:10px;">Keep Their Voice Close to Your Heart</h2>
+                        <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+                            Audio passes, but sound tattoos stay forever. From the innocent laughter of your children growing up to the comforting voice of loved ones, Vocara turns sound into living art you can carry and play anytime.
+                        </p>
+                        <div class="memory-tag-list">
+                            <span class="memory-tag">👶 Child's First Words</span>
+                            <span class="memory-tag">🕊️ Departed Loved Ones</span>
+                            <span class="memory-tag">💍 Wedding Vows</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
