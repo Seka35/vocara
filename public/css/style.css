@@ -762,13 +762,38 @@ body {
 }
 
 /* Responsive Rules for Mobile */
-@media (max-width: 640px) {
+@media (max-width: 768px) {
     .app-wrap {
         padding: 16px 12px 60px;
     }
 
     .hero-grid {
         grid-template-columns: 1fr;
+    }
+
+    .hero-content {
+        text-align: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .hero-pill {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .hero-features {
+        align-items: center;
+    }
+
+    .hero-feat-item {
+        justify-content: center;
+    }
+
+    .hero-cta-row {
+        width: 100%;
+        justify-content: center;
     }
 
     .hero-title {
@@ -818,6 +843,27 @@ body {
         width: 85%;
         height: 40%;
     }
+}
+
+/* Accordion FAQ Styling */
+details.faq-item summary::-webkit-details-marker {
+    display: none;
+}
+
+details.faq-item summary {
+    list-style: none;
+    outline: none;
+    user-select: none;
+}
+
+details.faq-item[open] .faq-chevron {
+    transform: rotate(180deg);
+    stroke: var(--primary);
+}
+
+details.faq-item[open] {
+    border-color: var(--border-highlight) !important;
+    background: rgba(255, 107, 0, 0.04) !important;
 }
 
 /* ===================== NEW MODERN SCANNER HUD & WAVEFORM PLAYER FX ===================== */
