@@ -412,7 +412,7 @@
 
                             resultBox.classList.remove('show', 'match', 'no-match');
                             resultBox.classList.add('show', 'match');
-                            document.getElementById('resultHeader').textContent = '✨ MATCH FOUND — SOUND RETRIEVED';
+                            document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND RETRIEVED';
                             document.getElementById('resultTitle').textContent = scanRes.sound.label;
                             document.getElementById('resultMeta').textContent = `Match Confidence: ${(scanRes.confidence * 100).toFixed(0)}% • Code: ${scanRes.sound.sound_code}`;
 
@@ -480,7 +480,7 @@
             resultBox.classList.add('show');
             if (scanRes.success && scanRes.sound) {
                 resultBox.classList.add('match');
-                document.getElementById('resultHeader').textContent = '✨ MATCH FOUND — SOUND RETRIEVED';
+                document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND RETRIEVED';
                 document.getElementById('resultTitle').textContent = scanRes.sound.label;
                 document.getElementById('resultMeta').textContent = `Match Confidence: ${(scanRes.confidence * 100).toFixed(0)}% • Code: ${scanRes.sound.sound_code}`;
 
@@ -490,7 +490,7 @@
                 toast('Match found! Playing sound memory.');
             } else {
                 resultBox.classList.add('no-match');
-                document.getElementById('resultHeader').textContent = '⚠️ NO MATCH FOUND';
+                document.getElementById('resultHeader').textContent = 'NO MATCH FOUND';
                 document.getElementById('resultTitle').textContent = 'Motif Unrecognized';
                 document.getElementById('resultMeta').textContent = 'Could not match sound motif in database. Please ensure lighting is bright and tattoo/motif is clearly aligned.';
                 document.getElementById('resultAudio').removeAttribute('src');
