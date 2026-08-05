@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOCARA — Sound Engraving & Scanner</title>
+    <title>VOCARA — Sound Engraving &amp; Scanner</title>
     <meta name="description" content="Engrave your voice and precious audio into visual sound wave motifs for tattoos and prints. Scan and listen back anytime via web or mobile app.">
     <link rel="stylesheet" href="css/style.css">
     <link rel="manifest" href="manifest.json">
@@ -22,20 +22,19 @@
             </div>
             <div class="header-badges">
                 <span class="badge">PRO VERSION</span>
-                <span class="badge" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3); color:#6ee7b7;">CLOUD DB READY</span>
+                <span class="badge" style="background:rgba(255, 107, 0, 0.15); border-color:var(--border-highlight); color:var(--primary);">CLOUD DB READY</span>
             </div>
         </header>
 
         <!-- Navigation Tabs -->
         <nav class="tab-nav">
             <button class="tab-btn active" data-tab="engrave">
-                <span>① Record &amp; Engrave</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                <span>Record &amp; Engrave</span>
             </button>
             <button class="tab-btn" data-tab="scan">
-                <span>② Scan &amp; Play</span>
-            </button>
-            <button class="tab-btn" data-tab="mobile">
-                <span>③ Mobile Apps</span>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Scan &amp; Play</span>
             </button>
         </nav>
 
@@ -43,7 +42,8 @@
         <section class="panel active" id="panel-engrave">
             <div class="card">
                 <div class="card-title">
-                    <span>🎙️ Record Voice / Audio</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                    <span>Record Voice / Audio</span>
                 </div>
                 <div class="card-subtitle">
                     Record up to 20 seconds of audio. A laugh, a voice message, or a special song — crisp audio generates readable tattoo motifs.
@@ -60,9 +60,10 @@
                 </div>
 
                 <!-- Pre-save Listen Audio Player -->
-                <div id="preSavePlayerContainer" style="display:none; margin-top:20px; padding:16px; background:rgba(15,23,42,0.8); border:1px solid var(--border-highlight); border-radius:var(--radius-md);">
-                    <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
-                        <span>▶ PREVIEW RECORDED AUDIO BEFORE ENGRAVING</span>
+                <div id="preSavePlayerContainer" style="display:none; margin-top:20px; padding:16px; background:rgba(18,18,24,0.9); border:1px solid var(--border-highlight); border-radius:var(--radius-md);">
+                    <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b00"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <span>PREVIEW RECORDED AUDIO BEFORE ENGRAVING</span>
                     </div>
                     <audio id="preSaveAudio" controls style="width:100%; outline:none; border-radius:8px;"></audio>
                 </div>
@@ -75,16 +76,17 @@
                 <!-- Save / Export Controls -->
                 <div class="form-row" id="saveRow" style="display:none;">
                     <input type="text" id="labelInput" class="input-field" placeholder="Memory Title (e.g. Emma's Laugh)" maxlength="60">
-                    <button class="btn btn-primary" id="saveBtn">🔥 Engrave Sound</button>
-                    <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--accent); color:var(--accent);">📥 Download Tattoo Stencil (PNG)</button>
-                    <button class="btn btn-secondary" id="discardBtn">🔄 Reset</button>
+                    <button class="btn btn-primary" id="saveBtn">Engrave Sound</button>
+                    <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--border-highlight); color:var(--primary);">Download Tattoo Stencil (PNG)</button>
+                    <button class="btn btn-secondary" id="discardBtn">Reset</button>
                 </div>
             </div>
 
             <!-- Saved Engravings Gallery -->
             <div class="card">
                 <div class="card-title">
-                    <span>🖼️ Engraved Sound Gallery</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5"/><line x1="6" y1="12" x2="6" y2="12.01"/><line x1="10" y1="8" x2="10" y2="16"/><line x1="14" y1="5" x2="14" y2="19"/><line x1="18" y1="10" x2="18" y2="14"/></svg>
+                    <span>Engraved Sound Gallery</span>
                 </div>
                 <div class="card-subtitle">
                     All stored sound motifs in database. Click play to listen or download for tattoos &amp; physical prints.
@@ -99,15 +101,22 @@
         <section class="panel" id="panel-scan">
             <div class="card">
                 <div class="card-title">
-                    <span>📷 Scan Motif / Tattoo</span>
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                    <span>Scan Motif / Tattoo</span>
                 </div>
                 <div class="card-subtitle">
                     Point your device camera at the printed sound motif or upload a clear photo to read and play back the original audio instantly.
                 </div>
 
                 <div class="scan-toggle">
-                    <button class="btn btn-secondary active" id="srcCamBtn" data-src="camera">📹 Live Camera</button>
-                    <button class="btn btn-secondary" id="srcFileBtn" data-src="upload">🖼️ Upload Photo</button>
+                    <button class="btn btn-secondary active" id="srcCamBtn" data-src="camera">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                        <span>Live Camera</span>
+                    </button>
+                    <button class="btn btn-secondary" id="srcFileBtn" data-src="upload">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>Upload Photo</span>
+                    </button>
                 </div>
 
                 <!-- Live Camera Feed -->
@@ -119,11 +128,11 @@
                         </div>
                     </div>
                     <div class="form-row" style="margin-top:16px;">
-                        <button class="btn btn-primary" id="startCamBtn">▶ Start Live Camera</button>
-                        <button class="btn btn-secondary" id="stopCamBtn" style="display:none;">⏹ Stop Camera</button>
+                        <button class="btn btn-primary" id="startCamBtn">Start Live Camera</button>
+                        <button class="btn btn-secondary" id="stopCamBtn" style="display:none;">Stop Camera</button>
                     </div>
-                    <div id="autoScanBadge" style="display:none; text-align:center; margin-top:12px; font-size:13px; font-weight:700; color:#10b981; align-items:center; justify-content:center; gap:8px;">
-                        <span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981; animation:pulse 1.2s infinite;"></span>
+                    <div id="autoScanBadge" style="display:none; text-align:center; margin-top:12px; font-size:13px; font-weight:700; color:#ff6b00; align-items:center; justify-content:center; gap:8px;">
+                        <span style="display:inline-block; width:10px; height:10px; background:#ff6b00; border-radius:50%; box-shadow:0 0 10px #ff6b00; animation:pulse 1.2s infinite;"></span>
                         <span>AUTO SCANNING LIVE — ALIGN TATTOO IN TARGET AREA</span>
                     </div>
                 </div>
@@ -132,14 +141,16 @@
                 <div id="uploadSection" style="display:none;">
                     <label class="upload-area" id="uploadArea">
                         <div id="uploadInner">
-                            <div style="font-size:32px; margin-bottom:8px;">📁</div>
+                            <div style="margin-bottom:8px; display:flex; justify-content:center;">
+                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                            </div>
                             <div style="font-size:15px; font-weight:600;">Tap to choose photo of sound motif</div>
                             <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Supports PNG, JPG, WEBP</div>
                         </div>
                         <input type="file" accept="image/*" id="fileInput" style="display:none;">
                     </label>
                     <div class="form-row">
-                        <button class="btn btn-primary" id="scanUploadBtn" disabled>🔍 Scan Uploaded Photo</button>
+                        <button class="btn btn-primary" id="scanUploadBtn" disabled>Scan Uploaded Photo</button>
                     </div>
                 </div>
 
@@ -153,43 +164,42 @@
             </div>
         </section>
 
-        <!-- ===================== PANEL 3: MOBILE APPS ===================== -->
-        <section class="panel" id="panel-mobile">
-            <div class="card">
-                <div class="card-title">
-                    <span>📱 Native Mobile Applications</span>
-                </div>
-                <div class="card-subtitle">
-                    Vocara is built with Capacitor for native iOS and Android experience. Download the app directly or install as PWA.
+        <!-- ===================== PERMANENT MAIN PAGE MOBILE APPS BANNER ===================== -->
+        <div class="card" style="margin-top:28px;">
+            <div class="card-title" style="justify-content:center;">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                <span>Get Vocara Mobile App</span>
+            </div>
+            <div class="card-subtitle" style="text-align:center;">
+                Scan sound tattoos on the go and access offline sound memories. Available on Android and iOS.
+            </div>
+
+            <div class="app-download-grid">
+                <!-- Android Card -->
+                <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
+                    <div style="font-size:18px; font-weight:700; margin-bottom:4px;">Android Application</div>
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                        Native APK with live camera tattoo scanning.
+                    </div>
+                    <a href="/downloads/vocara-android.apk" id="downloadApkBtn" style="display:inline-block; transition:transform 0.2s ease;">
+                        <img src="assets/google-play-badge.svg" alt="Get it on Google Play" style="height:54px; width:auto;">
+                    </a>
+                    <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Direct APK Download (v1.0.0)</div>
                 </div>
 
-                <div class="app-download-grid">
-                    <!-- Android Card -->
-                    <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
-                        <div style="font-size:20px; font-weight:700; margin-bottom:4px;">Android Application</div>
-                        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-                            Native APK with live camera tattoo scanning and offline database.
-                        </div>
-                        <a href="/downloads/vocara-android.apk" id="downloadApkBtn" style="display:inline-block; transition:transform 0.2s ease;">
-                            <img src="assets/google-play-badge.svg" alt="Get it on Google Play" style="height:54px; width:auto;">
-                        </a>
-                        <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Direct APK Download (v1.0.0)</div>
+                <!-- iOS Card -->
+                <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
+                    <div style="font-size:18px; font-weight:700; margin-bottom:4px;">iOS Application</div>
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                        Install on iPhone via Safari PWA or Xcode project.
                     </div>
-
-                    <!-- iOS Card -->
-                    <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
-                        <div style="font-size:20px; font-weight:700; margin-bottom:4px;">iOS Application</div>
-                        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
-                            Install on iPhone via Safari PWA or Xcode Capacitor project.
-                        </div>
-                        <a href="javascript:void(0)" onclick="alert('📱 Safari PWA Install on iPhone:\n\n1. Open https://vocara.cloud in Safari\n2. Tap the Share icon (square with arrow)\n3. Tap &quot;Add to Home Screen&quot;\n\nVocara will install on your iPhone home screen like a native app!')" style="display:inline-block; transition:transform 0.2s ease;">
-                            <img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height:54px; width:auto;">
-                        </a>
-                        <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Safari PWA &amp; Xcode Native Ready</div>
-                    </div>
+                    <a href="javascript:void(0)" onclick="alert('📱 Safari PWA Install on iPhone:\n\n1. Open https://vocara.cloud in Safari\n2. Tap the Share icon (square with arrow)\n3. Tap &quot;Add to Home Screen&quot;\n\nVocara will install on your iPhone home screen like a native app!')" style="display:inline-block; transition:transform 0.2s ease;">
+                        <img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height:54px; width:auto;">
+                    </a>
+                    <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Safari PWA &amp; Xcode Native Ready</div>
                 </div>
             </div>
-        </section>
+        </div>
 
     </div>
 
