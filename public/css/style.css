@@ -767,11 +767,24 @@ body {
         padding: 16px 12px 60px;
     }
 
+    .header-badges {
+        display: none !important;
+    }
+
     .hero-grid {
-        grid-template-columns: 1fr;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .hero-media-card {
+        order: 1;
+        width: 100%;
+        margin-bottom: 12px;
     }
 
     .hero-content {
+        order: 2;
         text-align: center;
         display: flex;
         flex-direction: column;
@@ -809,14 +822,11 @@ body {
         align-items: center;
         text-align: center;
         gap: 14px;
+        padding-bottom: 12px;
+        margin-bottom: 16px;
     }
 
     .brand-container {
-        justify-content: center;
-        width: 100%;
-    }
-
-    .header-badges {
         justify-content: center;
         width: 100%;
     }
