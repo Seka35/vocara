@@ -57,12 +57,6 @@
     const recStatus = document.getElementById('recStatus');
     const waveShell = document.getElementById('waveShell');
     const waveCanvas = document.getElementById('waveCanvas');
-    // --- Recording Handler ---
-    const recBtn = document.getElementById('recBtn');
-    const timerDisplay = document.getElementById('timerDisplay');
-    const recStatus = document.getElementById('recStatus');
-    const waveShell = document.getElementById('waveShell');
-    const waveCanvas = document.getElementById('waveCanvas');
     const saveRow = document.getElementById('saveRow');
     const labelInput = document.getElementById('labelInput');
     const preSaveAudio = document.getElementById('preSaveAudio');
