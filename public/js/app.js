@@ -46,7 +46,9 @@
             if (targetPanel) targetPanel.classList.add('active');
 
             if (tabName !== 'scan') {
-                Scanner.stopCamera();
+                stopAutoScanner();
+            } else {
+                startLiveCameraScanner();
             }
         });
     });
@@ -416,21 +418,6 @@
     let cooldownTimer = null;
     let resultSeekController = null;
 
-    srcCamBtn.addEventListener('click', () => {
-        srcCamBtn.classList.add('active');
-        srcFileBtn.classList.remove('active');
-        camSection.style.display = 'block';
-        uploadSection.style.display = 'none';
-    });
-
-    srcFileBtn.addEventListener('click', () => {
-        srcFileBtn.classList.add('active');
-        srcCamBtn.classList.remove('active');
-        camSection.style.display = 'none';
-        uploadSection.style.display = 'block';
-        stopAutoScanner();
-    });
-
     function stopAutoScanner() {
         if (autoScanInterval) {
             clearInterval(autoScanInterval);
@@ -442,62 +429,49 @@
         if (camVideo) {
             camVideo.srcObject = null;
         }
-        startCamBtn.style.display = 'inline-flex';
-        stopCamBtn.style.display = 'none';
+        if (stopCamBtn) stopCamBtn.style.display = 'none';
         if (autoScanBadge) autoScanBadge.style.display = 'none';
     }
 
-    // --- Direct Sound Code Lookup Handler (100% Reliable Backup) ---
-    const manualSoundCodeInput = document.getElementById('manualSoundCodeInput');
-    const manualSoundCodeBtn = document.getElementById('manualSoundCodeBtn');
+    async function startLiveCameraScanner() {
+        if (!camVideo) return;
+        const ok = await Scanner.startCamera(camVideo);
+        if (ok) {
+            if (stopCamBtn) stopCamBtn.style.display = 'inline-flex';
+            if (autoScanBadge) autoScanBadge.style.display = 'flex';
 
-    async function triggerManualCodeLookup() {
-        if (!manualSoundCodeInput) return;
-        const code = manualSoundCodeInput.value.trim().toUpperCase();
-        if (!code) {
-            toast('Please enter a valid Sound Code.');
-            manualSoundCodeInput.focus();
-            return;
+            pendingCandidateCode = null;
+            pendingMatchCount = 0;
+
+            if (autoScanInterval) clearInterval(autoScanInterval);
+            autoScanInterval = setInterval(async () => {
+                if (isScanningFrame || !camVideo.videoWidth) return;
+                isScanningFrame = true;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = camVideo.videoWidth;
+                canvas.height = camVideo.videoHeight;
+                canvas.getContext('2d').drawImage(camVideo, 0, 0);
+
+                try {
+                    const scanRes = await Scanner.analyzeCanvas(canvas);
+                    if (scanRes.success && scanRes.sound) {
+                        const candidate = scanRes.sound.sound_code;
+                        if (lastMatchedCode !== candidate) {
+                            lastMatchedCode = candidate;
+                            handleMatchedSound(scanRes.sound, scanRes.confidence);
+
+                            if (cooldownTimer) clearTimeout(cooldownTimer);
+                            cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Auto scan error:', e);
+                } finally {
+                    isScanningFrame = false;
+                }
+            }, 400);
         }
-
-        manualSoundCodeBtn.disabled = true;
-        manualSoundCodeBtn.textContent = 'Searching...';
-
-        try {
-            const res = await fetch('/api/scan', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ soundCode: code })
-            });
-
-            const data = await res.json();
-            if (data.success && data.sound) {
-                handleMatchedSound(data.sound, 1.0);
-                toast(`Sound Code "${code}" matched! Playing memory...`);
-            } else {
-                resultBox.classList.remove('show', 'match', 'no-match');
-                void resultBox.offsetWidth;
-                resultBox.classList.add('show', 'no-match');
-                document.getElementById('resultHeader').textContent = 'NO MATCH FOUND';
-                document.getElementById('resultTitle').textContent = 'Invalid Sound Code';
-                document.getElementById('resultMeta').textContent = `No sound memory found matching "${code}". Please verify code.`;
-                toast(`No sound found for code "${code}"`, 4000);
-            }
-        } catch (e) {
-            toast('Error connecting to database.');
-        } finally {
-            manualSoundCodeBtn.disabled = false;
-            manualSoundCodeBtn.textContent = 'Play Sound';
-        }
-    }
-
-    if (manualSoundCodeBtn) {
-        manualSoundCodeBtn.addEventListener('click', triggerManualCodeLookup);
-    }
-    if (manualSoundCodeInput) {
-        manualSoundCodeInput.addEventListener('keydown', (e) => {
-            if (e.key === 'Enter') triggerManualCodeLookup();
-        });
     }
 
     function triggerRecognitionAnimation() {
@@ -566,55 +540,12 @@
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
-    startCamBtn.addEventListener('click', async () => {
-        const ok = await Scanner.startCamera(camVideo);
-        if (ok) {
-            startCamBtn.style.display = 'none';
-            stopCamBtn.style.display = 'inline-flex';
-            if (autoScanBadge) autoScanBadge.style.display = 'flex';
-            toast('Live camera active — align tattoo motif in target frame...');
-
-            pendingCandidateCode = null;
-            pendingMatchCount = 0;
-
-            // Start continuous QR-style auto scanning loop (every 600ms)
-            if (autoScanInterval) clearInterval(autoScanInterval);
-            autoScanInterval = setInterval(async () => {
-                if (isScanningFrame || !camVideo.videoWidth) return;
-                isScanningFrame = true;
-
-                const canvas = document.createElement('canvas');
-                canvas.width = camVideo.videoWidth;
-                canvas.height = camVideo.videoHeight;
-                canvas.getContext('2d').drawImage(camVideo, 0, 0);
-
-                try {
-                    const scanRes = await Scanner.analyzeCanvas(canvas);
-                    if (scanRes.success && scanRes.sound) {
-                        const candidate = scanRes.sound.sound_code;
-                        if (lastMatchedCode !== candidate) {
-                            lastMatchedCode = candidate;
-                            handleMatchedSound(scanRes.sound, scanRes.confidence);
-
-                            if (cooldownTimer) clearTimeout(cooldownTimer);
-                            cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
-                        }
-                    }
-                } catch (e) {
-                    console.error('Auto scan error:', e);
-                } finally {
-                    isScanningFrame = false;
-                }
-            }, 400);
-        } else {
-            toast('Could not access camera. Please allow permission or upload a photo.');
-        }
-    });
-
-    stopCamBtn.addEventListener('click', () => {
-        stopAutoScanner();
-        toast('Camera stopped.');
-    });
+    if (stopCamBtn) {
+        stopCamBtn.addEventListener('click', () => {
+            stopAutoScanner();
+            toast('Camera stopped.');
+        });
+    }
 
     // File Upload Scanner Handler
     const triggerPhotoUploadBtn = document.getElementById('triggerPhotoUploadBtn');
