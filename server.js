@@ -8,11 +8,11 @@ const db = require('./db');
 const app = express();
 const PORT = process.env.PORT || 4892;
 
-// Ensure uploads directory exists
+// Ensure uploads and public audio directories exist
 const uploadsDir = path.join(__dirname, 'uploads', 'audio');
-if (!fs.existsSync(uploadsDir)) {
-    fs.mkdirSync(uploadsDir, { recursive: true });
-}
+const publicAudioDir = path.join(__dirname, 'public', 'audio');
+if (!fs.existsSync(uploadsDir)) fs.mkdirSync(uploadsDir, { recursive: true });
+if (!fs.existsSync(publicAudioDir)) fs.mkdirSync(publicAudioDir, { recursive: true });
 
 // Multer storage for audio uploads
 const storage = multer.diskStorage({
@@ -42,9 +42,56 @@ app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
-// Serve static frontend files and uploads
+// Stream Route with HTTP Range (206 Partial Content) support for iOS/Safari & Nginx compatibility
+app.get('/audio/:filename', (req, res) => {
+    const filename = path.basename(req.params.filename);
+    let filePath = path.join(uploadsDir, filename);
+
+    if (!fs.existsSync(filePath)) {
+        filePath = path.join(publicAudioDir, filename);
+    }
+
+    if (!fs.existsSync(filePath)) {
+        return res.status(404).send('Audio file not found on server');
+    }
+
+    const stat = fs.statSync(filePath);
+    const fileSize = stat.size;
+    const range = req.headers.range;
+
+    let mimeType = 'audio/webm';
+    if (filename.endsWith('.mp3')) mimeType = 'audio/mpeg';
+    else if (filename.endsWith('.m4a') || filename.endsWith('.mp4')) mimeType = 'audio/mp4';
+    else if (filename.endsWith('.wav')) mimeType = 'audio/wav';
+
+    if (range) {
+        const parts = range.replace(/bytes=/, "").split("-");
+        const start = parseInt(parts[0], 10);
+        const end = parts[1] ? parseInt(parts[1], 10) : fileSize - 1;
+        const chunksize = (end - start) + 1;
+        const file = fs.createReadStream(filePath, { start, end });
+        const head = {
+            'Content-Range': `bytes ${start}-${end}/${fileSize}`,
+            'Accept-Ranges': 'bytes',
+            'Content-Length': chunksize,
+            'Content-Type': mimeType,
+        };
+        res.writeHead(206, head);
+        file.pipe(res);
+    } else {
+        const head = {
+            'Content-Length': fileSize,
+            'Content-Type': mimeType,
+            'Accept-Ranges': 'bytes'
+        };
+        res.writeHead(200, head);
+        fs.createReadStream(filePath).pipe(res);
+    }
+});
+
+// Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
-app.use('/audio', express.static(uploadsDir));
+app.use('/uploads/audio', express.static(uploadsDir));
 
 // Direct route for Android APK download
 app.get('/downloads/vocara-android.apk', (req, res) => {
@@ -102,6 +149,7 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
         if (req.file) {
             filename = req.file.filename;
             mimeType = req.file.mimetype;
+            try { fs.copyFileSync(req.file.path, path.join(publicAudioDir, filename)); } catch (e) {}
         } else if (req.body.audioBase64) {
             // Handle base64 fallback from mobile / web recorder
             const base64Data = req.body.audioBase64.replace(/^data:audio\/\w+;base64,/, '');
@@ -110,6 +158,7 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
             filename = `sound-${Date.now()}-${Math.round(Math.random() * 1E6)}${ext}`;
             const filePath = path.join(uploadsDir, filename);
             fs.writeFileSync(filePath, Buffer.from(base64Data, 'base64'));
+            try { fs.copyFileSync(filePath, path.join(publicAudioDir, filename)); } catch (e) {}
         } else {
             return res.status(400).json({ success: false, error: 'No audio data provided' });
         }
