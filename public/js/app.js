@@ -59,6 +59,8 @@
     const waveCanvas = document.getElementById('waveCanvas');
     const saveRow = document.getElementById('saveRow');
     const labelInput = document.getElementById('labelInput');
+    const preSavePlayerContainer = document.getElementById('preSavePlayerContainer');
+    const preSaveAudio = document.getElementById('preSaveAudio');
 
     let isRecording = false;
 
@@ -74,14 +76,19 @@
             currentRecordingData = data;
             currentSoundCode = generateCode();
 
-            // Render visual motif on canvas
+            // Setup Pre-save Audio Player for user preview
+            const audioUrl = URL.createObjectURL(data.blob);
+            preSaveAudio.src = audioUrl;
+            preSavePlayerContainer.style.display = 'block';
+
+            // Render visual motif on canvas for UI preview
             Visualizer.drawWaveform(waveCanvas, data.fingerprint, currentSoundCode);
             waveShell.style.display = 'block';
             saveRow.style.display = 'flex';
             labelInput.value = '';
             labelInput.focus();
 
-            recStatus.textContent = 'Recording ready to engrave!';
+            recStatus.textContent = 'Recording ready! Listen to preview or engrave below.';
         },
         onError: (err) => {
             isRecording = false;
@@ -100,6 +107,7 @@
                 recStatus.textContent = 'Recording... Speak or play sound';
                 waveShell.style.display = 'none';
                 saveRow.style.display = 'none';
+                preSavePlayerContainer.style.display = 'none';
             }
         } else {
             Recorder.stop();
@@ -110,20 +118,27 @@
     document.getElementById('discardBtn').addEventListener('click', () => {
         waveShell.style.display = 'none';
         saveRow.style.display = 'none';
+        preSavePlayerContainer.style.display = 'none';
+        preSaveAudio.removeAttribute('src');
         currentRecordingData = null;
         currentSoundCode = null;
         recStatus.textContent = 'Tap microphone to start recording';
         timerDisplay.textContent = '00:00';
     });
 
-    // Download Motif Image
+    // Download Tattoo Stencil Image (PURE BLACK WAVEFORM, TRANSPARENT BACKGROUND, NO TEXT)
     document.getElementById('downloadMotifBtn').addEventListener('click', () => {
-        if (!waveCanvas) return;
+        if (!currentRecordingData) return;
+        const tempCanvas = document.createElement('canvas');
+        tempCanvas.width = 1200;
+        tempCanvas.height = 350;
+        Visualizer.drawWaveform(tempCanvas, currentRecordingData.fingerprint, null, { exportMode: true });
+
         const link = document.createElement('a');
-        link.download = `vocara-motif-${currentSoundCode || 'sound'}.png`;
-        link.href = waveCanvas.toDataURL('image/png');
+        link.download = `vocara-tattoo-stencil-${currentSoundCode || 'motif'}.png`;
+        link.href = tempCanvas.toDataURL('image/png');
         link.click();
-        toast('Motif image downloaded successfully!');
+        toast('Tattoo stencil downloaded! Pure black, transparent background, no text.');
     });
 
     // Save Sound to Database
@@ -171,6 +186,8 @@
                     toast(`" ${label} " engraved into database!`);
                     waveShell.style.display = 'none';
                     saveRow.style.display = 'none';
+                    preSavePlayerContainer.style.display = 'none';
+                    preSaveAudio.removeAttribute('src');
                     currentRecordingData = null;
                     currentSoundCode = null;
                     recStatus.textContent = 'Tap microphone to start recording';
@@ -238,12 +255,18 @@
                     audio.play().catch(() => toast('Playback error'));
                 });
 
-                // Download Motif Image
+                // Download Tattoo Stencil Image (Transparent PNG, Pure Black Waveform, No Text)
                 actions.querySelector('.dl-btn').addEventListener('click', () => {
+                    const tempCanvas = document.createElement('canvas');
+                    tempCanvas.width = 1200;
+                    tempCanvas.height = 350;
+                    Visualizer.drawWaveform(tempCanvas, sound.fingerprint, null, { exportMode: true });
+
                     const link = document.createElement('a');
-                    link.download = `vocara-${sound.sound_code}.png`;
-                    link.href = canvas.toDataURL('image/png');
+                    link.download = `vocara-tattoo-stencil-${sound.sound_code}.png`;
+                    link.href = tempCanvas.toDataURL('image/png');
                     link.click();
+                    toast('Tattoo stencil downloaded! Pure black, transparent background, no text.');
                 });
 
                 // Delete Sound

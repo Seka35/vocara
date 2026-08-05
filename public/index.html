@@ -7,6 +7,7 @@
     <title>VOCARA — Sound Engraving & Scanner</title>
     <meta name="description" content="Engrave your voice and precious audio into visual sound wave motifs for tattoos and prints. Scan and listen back anytime via web or mobile app.">
     <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 </head>
@@ -58,6 +59,14 @@
                     <div class="rec-status-text" id="recStatus">Tap microphone to start recording</div>
                 </div>
 
+                <!-- Pre-save Listen Audio Player -->
+                <div id="preSavePlayerContainer" style="display:none; margin-top:20px; padding:16px; background:rgba(15,23,42,0.8); border:1px solid var(--border-highlight); border-radius:var(--radius-md);">
+                    <div style="font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px; display:flex; align-items:center; gap:6px;">
+                        <span>▶ PREVIEW RECORDED AUDIO BEFORE ENGRAVING</span>
+                    </div>
+                    <audio id="preSaveAudio" controls style="width:100%; outline:none; border-radius:8px;"></audio>
+                </div>
+
                 <!-- Waveform Canvas Output -->
                 <div class="waveform-shell" id="waveShell" style="display:none;">
                     <canvas class="waveform-canvas" id="waveCanvas" width="900" height="260"></canvas>
@@ -67,7 +76,7 @@
                 <div class="form-row" id="saveRow" style="display:none;">
                     <input type="text" id="labelInput" class="input-field" placeholder="Memory Title (e.g. Emma's Laugh)" maxlength="60">
                     <button class="btn btn-primary" id="saveBtn">🔥 Engrave Sound</button>
-                    <button class="btn btn-secondary" id="downloadMotifBtn">📥 Download Motif Image</button>
+                    <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--accent); color:var(--accent);">📥 Download Tattoo Stencil (PNG)</button>
                     <button class="btn btn-secondary" id="discardBtn">🔄 Reset</button>
                 </div>
             </div>

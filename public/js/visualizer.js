@@ -12,21 +12,26 @@ const Visualizer = (function () {
 
         ctx.clearRect(0, 0, W, H);
 
-        // 1. Dark Futuristic Background
-        const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-        bgGrad.addColorStop(0, opts.bg1 || '#0b0f19');
-        bgGrad.addColorStop(1, opts.bg2 || '#111827');
-        ctx.fillStyle = bgGrad;
-        ctx.fillRect(0, 0, W, H);
+        const isExport = opts.exportMode === true || opts.transparent === true;
 
-        // Subtle grid pattern
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
-        ctx.lineWidth = 1;
-        for (let x = 0; x < W; x += 30) {
-            ctx.beginPath();
-            ctx.moveTo(x, 0); ctx.lineTo(x, H);
-            ctx.stroke();
+        if (!isExport) {
+            // 1. Dark Futuristic Background for preview UI
+            const bgGrad = ctx.createLinearGradient(0, 0, W, H);
+            bgGrad.addColorStop(0, opts.bg1 || '#0b0f19');
+            bgGrad.addColorStop(1, opts.bg2 || '#111827');
+            ctx.fillStyle = bgGrad;
+            ctx.fillRect(0, 0, W, H);
+
+            // Subtle grid pattern
+            ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x < W; x += 30) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0); ctx.lineTo(x, H);
+                ctx.stroke();
+            }
         }
+        // If export mode, keep background transparent (no fillRect)
 
         const midY = H / 2;
         const n = fingerprint ? fingerprint.length : 64;
@@ -38,21 +43,26 @@ const Visualizer = (function () {
         const maxH = H * 0.68;
 
         // 2. Baseline
-        ctx.strokeStyle = 'rgba(99, 102, 241, 0.3)';
+        ctx.strokeStyle = isExport ? '#000000' : 'rgba(99, 102, 241, 0.3)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(padX * 0.5, midY);
         ctx.lineTo(W - padX * 0.5, midY);
         ctx.stroke();
 
-        // 3. Render Waveform Bars with Gradient Glow
-        const barGrad = ctx.createLinearGradient(0, midY - maxH / 2, 0, midY + maxH / 2);
-        barGrad.addColorStop(0, opts.color1 || '#6366f1');
-        barGrad.addColorStop(0.5, opts.color2 || '#8b5cf6');
-        barGrad.addColorStop(1, opts.color3 || '#10b981');
+        // 3. Render Waveform Bars
+        if (isExport) {
+            ctx.fillStyle = '#000000';
+            ctx.strokeStyle = '#000000';
+        } else {
+            const barGrad = ctx.createLinearGradient(0, midY - maxH / 2, 0, midY + maxH / 2);
+            barGrad.addColorStop(0, opts.color1 || '#6366f1');
+            barGrad.addColorStop(0.5, opts.color2 || '#8b5cf6');
+            barGrad.addColorStop(1, opts.color3 || '#10b981');
+            ctx.fillStyle = barGrad;
+            ctx.strokeStyle = barGrad;
+        }
 
-        ctx.fillStyle = barGrad;
-        ctx.strokeStyle = barGrad;
         ctx.lineCap = 'round';
 
         for (let i = 0; i < n; i++) {
@@ -67,8 +77,8 @@ const Visualizer = (function () {
             ctx.stroke();
         }
 
-        // 4. Embedded Visual Sound Code Marker (Guarantees 100% Reliable Scan Match)
-        if (soundCode) {
+        // 4. Embedded Visual Sound Code Marker (ONLY drawn on web display cards, NOT on transparent export images)
+        if (soundCode && !isExport) {
             ctx.fillStyle = '#ffffff';
             ctx.font = 'bold 14px "JetBrains Mono", monospace';
             ctx.textAlign = 'right';
