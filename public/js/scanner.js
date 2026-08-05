@@ -147,14 +147,26 @@ const Scanner = (function () {
             smoothedHeights[x] = (prev + curr * 2 + next) / 4;
         }
 
-        // 5. Bin Reduction (64 Bins)
+        // 4.1 Bounding Box Trimming (Trim empty left/right margins for scale-invariant matching)
+        let minX = 0;
+        while (minX < w && smoothedHeights[minX] <= 3) { minX++; }
+
+        let maxX = w - 1;
+        while (maxX > minX && smoothedHeights[maxX] <= 3) { maxX--; }
+
+        const trimmedWidth = maxX - minX + 1;
+        if (trimmedWidth < w * 0.15) {
+            return null;
+        }
+
+        // 5. Bin Reduction (64 Bins across active trimmed waveform area)
         const bins = new Array(N_BINS).fill(0);
-        const blockSize = w / N_BINS;
+        const blockSize = trimmedWidth / N_BINS;
         for (let b = 0; b < N_BINS; b++) {
-            const start = Math.floor(b * blockSize);
-            const end = Math.max(start + 1, Math.floor((b + 1) * blockSize));
+            const start = Math.floor(minX + b * blockSize);
+            const end = Math.max(start + 1, Math.floor(minX + (b + 1) * blockSize));
             let sum = 0, count = 0;
-            for (let x = start; x < end && x < w; x++) {
+            for (let x = start; x < end && x <= maxX; x++) {
                 sum += smoothedHeights[x];
                 count++;
             }

@@ -255,7 +255,7 @@ app.post('/api/scan', async (req, res) => {
                 const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
 
                 for (const candidateFp of fpCandidates) {
-                    for (let shift = -8; shift <= 8; shift++) {
+                    for (let shift = -12; shift <= 12; shift++) {
                         let subA = [];
                         let subB = [];
                         for (let i = 0; i < fingerprint.length; i++) {
@@ -265,7 +265,7 @@ app.post('/api/scan', async (req, res) => {
                                 subB.push(candidateFp[j]);
                             }
                         }
-                        if (subA.length >= fingerprint.length * 0.70) {
+                        if (subA.length >= fingerprint.length * 0.65) {
                             const score = pearsonCorrelation(subA, subB);
                             if (score > bestScore) {
                                 bestScore = score;
@@ -276,8 +276,8 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Requires correlation score >= 0.65 for reliable matching
-            if (bestMatch && bestScore >= 0.65) {
+            // Requires correlation score >= 0.58 for reliable matching
+            if (bestMatch && bestScore >= 0.58) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',

@@ -524,11 +524,35 @@
         }
     }
 
+    function playSuccessChime() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const now = ctx.currentTime;
+
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.type = 'sine';
+            
+            // Dual-tone success chime: C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz)
+            osc.frequency.setValueAtTime(523.25, now);
+            osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.08);
+            osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.16);
+
+            gain.gain.setValueAtTime(0.35, now);
+            gain.gain.exponentialRampToValueAtTime(0.001, now + 0.5);
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start(now);
+            osc.stop(now + 0.5);
+        } catch (e) {}
+    }
+
     function triggerRecognitionAnimation() {
-        // Holographic flash on camera target frame
+        // Holographic green success flash on camera target frame
         if (camTargetBox) {
-            camTargetBox.classList.add('locked-on');
-            setTimeout(() => camTargetBox.classList.remove('locked-on'), 1500);
+            camTargetBox.classList.add('success');
+            setTimeout(() => camTargetBox.classList.remove('success'), 6000);
         }
 
         // Animate result card reveal
@@ -538,7 +562,17 @@
     }
 
     function handleMatchedSound(sound, confidence) {
+        // Play success chime sound immediately
+        playSuccessChime();
+
         triggerRecognitionAnimation();
+
+        // Update auto scan status badge to Emerald Green success
+        const autoBadge = document.getElementById('autoScanBadge');
+        if (autoBadge) {
+            autoBadge.style.color = '#10b981';
+            autoBadge.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981;"></span><span>✓ MATCH CONFIRMED — PLAYING SOUND MEMORY</span>`;
+        }
 
         document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND MEMORY RETRIEVED';
         document.getElementById('resultTitle').textContent = sound.label;

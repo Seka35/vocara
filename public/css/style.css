@@ -475,6 +475,7 @@ body {
     border-radius: var(--radius-sm);
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
     position: relative;
+    transition: all 0.3s ease;
 }
 
 .cam-target-box::after {
@@ -488,6 +489,28 @@ body {
     font-weight: 700;
     color: var(--accent);
     letter-spacing: 1px;
+}
+
+.cam-target-box.success {
+    border: 3px solid #10b981 !important;
+    box-shadow: 0 0 35px rgba(16, 185, 129, 0.75), inset 0 0 25px rgba(16, 185, 129, 0.25), 0 0 0 9999px rgba(0, 0, 0, 0.5) !important;
+    background: rgba(16, 185, 129, 0.15) !important;
+}
+
+.cam-target-box.success::after {
+    content: "MATCH CONFIRMED — TARGET LOCKED ✓" !important;
+    color: #10b981 !important;
+    font-weight: 900 !important;
+    letter-spacing: 1.5px !important;
+}
+
+.cam-target-box.success .laser-line {
+    background: #10b981 !important;
+    box-shadow: 0 0 15px #10b981 !important;
+}
+
+.cam-target-box.success .hud-corner {
+    border-color: #10b981 !important;
 }
 
 .upload-area {
