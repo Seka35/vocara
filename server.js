@@ -37,6 +37,39 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
+const crypto = require('crypto');
+const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+
+// Cryptographically sign user account token (HMAC-SHA256)
+function generateSecureAccountToken(userId) {
+    const payload = JSON.stringify({ userId, iat: Date.now() });
+    const base64Payload = Buffer.from(payload).toString('base64url');
+    const signature = crypto.createHmac('sha256', JWT_SECRET).update(base64Payload).digest('base64url');
+    return `${base64Payload}.${signature}`;
+}
+
+// Cryptographically verify user account token
+function verifySecureAccountToken(token) {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+    
+    const [base64Payload, signature] = parts;
+    const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(base64Payload).digest('base64url');
+    
+    // Constant-time timing-safe buffer comparison to prevent timing attacks
+    if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
+        return null; // Signature invalid or tampered!
+    }
+    
+    try {
+        const payload = JSON.parse(Buffer.from(base64Payload, 'base64url').toString('utf8'));
+        return payload.userId;
+    } catch (e) {
+        return null;
+    }
+}
+
 // Middleware
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
@@ -125,6 +158,22 @@ app.get('/api/sounds/:id', async (req, res) => {
             return res.status(404).json({ success: false, error: 'Sound not found' });
         }
         res.json({ success: true, sound });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Self-service Sound Code lookup by email or phone
+app.post('/api/sounds/lookup', async (req, res) => {
+    try {
+        const { query } = req.body;
+        if (!query || query.length < 3) {
+            return res.status(400).json({ success: false, error: 'Query too short' });
+        }
+        
+        // Search sounds matching contact query
+        const sounds = await db.searchSoundsByContact ? await db.searchSoundsByContact(query) : [];
+        res.json({ success: true, sounds });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }

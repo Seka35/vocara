@@ -9,3 +9,7 @@ vocara.sqlite
 android/
 .DS_Store
 *.log
+venv/
+cpu_env/
+test_real_photos/
+
