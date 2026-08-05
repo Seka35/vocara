@@ -36,6 +36,17 @@ app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/audio', express.static(uploadsDir));
 
+// Direct route for Android APK download
+app.get('/downloads/vocara-android.apk', (req, res) => {
+    const apkPath = path.join(__dirname, 'public', 'downloads', 'vocara-android.apk');
+    if (fs.existsSync(apkPath)) {
+        res.setHeader('Content-Type', 'application/vnd.android.package-archive');
+        res.setHeader('Content-Disposition', 'attachment; filename="vocara-android.apk"');
+        return res.sendFile(apkPath);
+    }
+    res.status(404).send('APK file not found on server');
+});
+
 // --- REST API Endpoints ---
 
 // Get all recorded sounds

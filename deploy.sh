@@ -63,13 +63,6 @@ server {
 
     client_max_body_size 50M;
 
-    # Proper MIME type for Android APK downloads
-    location ~* \.apk$ {
-        root ${APP_DIR}/public;
-        add_header Content-Type application/vnd.android.package-archive;
-        add_header Content-Disposition "attachment; filename=vocara-android.apk";
-    }
-
     location / {
         proxy_pass http://127.0.0.1:${PORT};
         proxy_http_version 1.1;
