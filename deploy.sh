@@ -120,11 +120,11 @@ systemctl restart "${SERVICE_NAME}"
 # 6. Obtain SSL Certificate via Certbot
 echo -e "${CYAN}[5/6] Obtaining SSL Certificate via Certbot for ${DOMAIN}...${NC}"
 
-if certbot --nginx -d "${DOMAIN}" --non-interactive --agree-tos --email "${ADMIN_EMAIL}" --redirect; then
-    echo -e "${GREEN}✅ SSL Certificate successfully installed!${NC}"
+if certbot --nginx -d "${DOMAIN}" -d "www.${DOMAIN}" --non-interactive --agree-tos --email "${ADMIN_EMAIL}" --redirect; then
+    echo -e "${GREEN}✅ SSL Certificate successfully installed for ${DOMAIN} & www.${DOMAIN}!${NC}"
 else
-    echo -e "${RED}⚠️ Certbot automatic SSL setup encountered an issue. Ensure your domain ${DOMAIN} points to this VPS IP in DNS.${NC}"
-    echo -e "You can retry SSL manually anytime with: sudo certbot --nginx -d ${DOMAIN}"
+    echo -e "${RED}⚠️ Certbot automatic SSL setup encountered an issue. Ensure your DNS A records for ${DOMAIN} and www.${DOMAIN} point to this VPS IP address.${NC}"
+    echo -e "You can retry SSL manually anytime with: sudo certbot --nginx -d ${DOMAIN} -d www.${DOMAIN}"
 fi
 
 # Final Check
