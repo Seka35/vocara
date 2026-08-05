@@ -479,10 +479,18 @@
                 // Process MindAR 2D frame
                 Scanner.processMindFrame(camVideo);
 
+                // Calculate ROI (Target Box centered cropping for maximum scanner precision)
+                const vw = camVideo.videoWidth;
+                const vh = camVideo.videoHeight;
+                const sx = Math.floor(vw * 0.12);
+                const sy = Math.floor(vh * 0.25);
+                const sw = Math.floor(vw * 0.76);
+                const sh = Math.floor(vh * 0.50);
+
                 const canvas = document.createElement('canvas');
-                canvas.width = camVideo.videoWidth;
-                canvas.height = camVideo.videoHeight;
-                canvas.getContext('2d').drawImage(camVideo, 0, 0);
+                canvas.width = sw;
+                canvas.height = sh;
+                canvas.getContext('2d').drawImage(camVideo, sx, sy, sw, sh, 0, 0, sw, sh);
 
                 try {
                     const scanRes = await Scanner.analyzeCanvas(canvas);

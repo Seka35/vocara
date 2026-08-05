@@ -86,8 +86,8 @@ const Scanner = (function () {
         const bgMean = bgCount > 0 ? bgSum / bgCount : 255;
         const contrast = bgMean - inkMean;
 
-        // Contrast check (contrast >= 20 for real printed/screen sound motifs)
-        if (contrast < 20 || inkCount < (w * h * 0.01) || inkCount > (w * h * 0.85)) {
+        // Contrast check (contrast >= 12 for real printed/screen sound motifs)
+        if (contrast < 12 || inkCount < (w * h * 0.005) || inkCount > (w * h * 0.90)) {
             return null;
         }
 
@@ -133,8 +133,8 @@ const Scanner = (function () {
         }
 
         const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
-        // Require symmetry (>= 0.42) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
-        if (avgSymmetry < 0.42) {
+        // Require symmetry (>= 0.30) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
+        if (avgSymmetry < 0.30) {
             return null;
         }
 
