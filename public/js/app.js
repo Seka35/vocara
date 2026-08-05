@@ -488,6 +488,17 @@
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
                         const candidate = scanRes.sound.sound_code;
+
+                        // Tier-2 MindAR Precision Target Lock for 360° pose verification
+                        Scanner.lockCandidateMindAR(scanRes.sound, camVideo, (matched, conf) => {
+                            if (lastMatchedCode !== matched.sound_code) {
+                                lastMatchedCode = matched.sound_code;
+                                handleMatchedSound(matched, conf || 0.98);
+                                if (cooldownTimer) clearTimeout(cooldownTimer);
+                                cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
+                            }
+                        });
+
                         if (lastMatchedCode !== candidate) {
                             lastMatchedCode = candidate;
                             handleMatchedSound(scanRes.sound, scanRes.confidence);

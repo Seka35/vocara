@@ -266,6 +266,39 @@ const Scanner = (function () {
         }
     }
 
+    let activeCandidateCode = null;
+
+    async function lockCandidateMindAR(candidateSound, videoElement, onMatchCallback) {
+        if (!window.MINDAR || !window.MINDAR.IMAGE || !candidateSound) return false;
+        if (activeCandidateCode === candidateSound.sound_code) return true;
+
+        try {
+            activeCandidateCode = candidateSound.sound_code;
+            const buffer = await compileMindTargets([candidateSound]);
+            if (!buffer) return false;
+
+            const controller = new window.MINDAR.IMAGE.Controller({
+                inputWidth: videoElement.videoWidth || 640,
+                inputHeight: videoElement.videoHeight || 480,
+                maxTrack: 1,
+                onUpdate: (data) => {
+                    if (data.type === 'updateMatrix') {
+                        if (onMatchCallback) {
+                            onMatchCallback(candidateSound, 0.98);
+                        }
+                    }
+                }
+            });
+
+            await controller.addImageTargets(buffer);
+            mindController = controller;
+            return true;
+        } catch (e) {
+            console.warn('[MindAR Tier-2 Lock] Error:', e);
+            return false;
+        }
+    }
+
     async function analyzeCanvas(canvas, soundCodeText) {
         const fingerprint = imageToProfile(canvas);
 
@@ -292,7 +325,8 @@ const Scanner = (function () {
         analyzeCanvas,
         imageToProfile,
         startMindTracking,
-        processMindFrame
+        processMindFrame,
+        lockCandidateMindAR
     };
 })();
 
