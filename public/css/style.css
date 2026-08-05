@@ -819,3 +819,120 @@ body {
         height: 40%;
     }
 }
+
+/* ===================== NEW MODERN SCANNER HUD & WAVEFORM PLAYER FX ===================== */
+
+/* Laser Scanline Sweep Animation */
+.cam-target-box {
+    overflow: hidden;
+    position: relative;
+    border: 2px dashed rgba(255, 107, 0, 0.7);
+    box-shadow: 0 0 20px rgba(255, 107, 0, 0.2), inset 0 0 15px rgba(255, 107, 0, 0.15);
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.cam-target-box.locked-on {
+    border: 2px solid #10b981 !important;
+    box-shadow: 0 0 30px #10b981, inset 0 0 25px rgba(16, 185, 129, 0.4) !important;
+    animation: lockFlash 0.4s ease 2 alternate;
+}
+
+@keyframes lockFlash {
+    0% { background: rgba(16, 185, 129, 0.3); }
+    100% { background: transparent; }
+}
+
+.laser-line {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, transparent, #ff6b00, #ffffff, #ff6b00, transparent);
+    box-shadow: 0 0 12px #ff6b00, 0 0 20px #ff8c00;
+    animation: scanLaserSweep 2.2s infinite ease-in-out;
+}
+
+@keyframes scanLaserSweep {
+    0% { top: 2%; opacity: 0.2; }
+    50% { top: 94%; opacity: 1; }
+    100% { top: 2%; opacity: 0.2; }
+}
+
+/* Target Corner Brackets */
+.hud-corner {
+    position: absolute;
+    width: 14px;
+    height: 14px;
+    border-color: #ff6b00;
+    border-style: solid;
+    pointer-events: none;
+}
+
+.hud-corner.top-left { top: -2px; left: -2px; border-width: 3px 0 0 3px; }
+.hud-corner.top-right { top: -2px; right: -2px; border-width: 3px 3px 0 0; }
+.hud-corner.bottom-left { bottom: -2px; left: -2px; border-width: 0 0 3px 3px; }
+.hud-corner.bottom-right { bottom: -2px; right: -2px; border-width: 0 3px 3px 0; }
+
+/* Lock-on Badge */
+.match-lock-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    font-weight: 800;
+    color: #10b981;
+    background: rgba(16, 185, 129, 0.15);
+    border: 1px solid rgba(16, 185, 129, 0.4);
+    padding: 3px 8px;
+    border-radius: var(--radius-full);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+/* Hologram Result Reveal Animation */
+.result-box.hologram-reveal {
+    animation: hologramPop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes hologramPop {
+    0% { opacity: 0; transform: scale(0.92) translateY(16px); filter: brightness(2); }
+    50% { filter: brightness(1.4); }
+    100% { opacity: 1; transform: scale(1) translateY(0); filter: brightness(1); }
+}
+
+/* Pulse Dot */
+.pulse-dot {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: #ff6b00;
+    border-radius: 50%;
+    box-shadow: 0 0 10px #ff6b00;
+    animation: dotPulse 1.2s infinite ease-in-out;
+}
+
+@keyframes dotPulse {
+    0% { transform: scale(0.9); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.5; box-shadow: 0 0 16px #ff6b00; }
+    100% { transform: scale(0.9); opacity: 1; }
+}
+
+/* Gallery Playing State */
+.gallery-card.playing {
+    border-color: var(--border-highlight) !important;
+    box-shadow: 0 8px 30px rgba(255, 107, 0, 0.25) !important;
+    background: rgba(25, 20, 16, 0.8) !important;
+}
+
+.gallery-card.playing .g-title {
+    color: var(--primary);
+}
+
+/* Waveform Canvas Hover & Polish */
+.waveform-canvas {
+    transition: box-shadow 0.2s ease;
+}
+
+.waveform-canvas:hover {
+    box-shadow: 0 0 15px rgba(255, 107, 0, 0.25);
+}
+

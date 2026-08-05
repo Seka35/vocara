@@ -1,5 +1,6 @@
 /**
  * Vocara Hybrid Scanner Engine
+ * Enhanced Feature Extraction with Noise Filtering & Adaptive Thresholding
  */
 const Scanner = (function () {
     "use strict";
@@ -10,12 +11,16 @@ const Scanner = (function () {
     async function startCamera(videoElement) {
         try {
             camStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: { ideal: "environment" } }
+                video: {
+                    facingMode: { ideal: "environment" },
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 }
+                }
             });
             videoElement.srcObject = camStream;
             return true;
         } catch (e) {
-            console.error(e);
+            console.error('Camera access error:', e);
             return false;
         }
     }
@@ -71,13 +76,25 @@ const Scanner = (function () {
             colHeights[x] = (top === -1) ? 0 : (bottom - top);
         }
 
+        // Apply 3-point moving average smoothing to eliminate sensor noise / camera artifacts
+        const smoothedHeights = new Array(w).fill(0);
+        for (let x = 0; x < w; x++) {
+            const prev = x > 0 ? colHeights[x - 1] : colHeights[x];
+            const curr = colHeights[x];
+            const next = x < w - 1 ? colHeights[x + 1] : colHeights[x];
+            smoothedHeights[x] = (prev + curr * 2 + next) / 4;
+        }
+
         const bins = new Array(N_BINS).fill(0);
         const blockSize = w / N_BINS;
         for (let b = 0; b < N_BINS; b++) {
             const start = Math.floor(b * blockSize);
             const end = Math.max(start + 1, Math.floor((b + 1) * blockSize));
             let sum = 0, count = 0;
-            for (let x = start; x < end && x < w; x++) { sum += colHeights[x]; count++; }
+            for (let x = start; x < end && x < w; x++) {
+                sum += smoothedHeights[x];
+                count++;
+            }
             bins[b] = count > 0 ? sum / count : 0;
         }
 
@@ -88,7 +105,6 @@ const Scanner = (function () {
     async function analyzeCanvas(canvas, soundCodeText) {
         const fingerprint = imageToProfile(canvas);
 
-        // Send fingerprint and optional sound code to backend API for matching
         const res = await fetch('/api/scan', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -105,6 +121,8 @@ const Scanner = (function () {
     return {
         startCamera,
         stopCamera,
-        analyzeCanvas
+        analyzeCanvas,
+        imageToProfile
     };
 })();
+

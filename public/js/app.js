@@ -57,12 +57,59 @@
     const recStatus = document.getElementById('recStatus');
     const waveShell = document.getElementById('waveShell');
     const waveCanvas = document.getElementById('waveCanvas');
+    // --- Recording Handler ---
+    const recBtn = document.getElementById('recBtn');
+    const timerDisplay = document.getElementById('timerDisplay');
+    const recStatus = document.getElementById('recStatus');
+    const waveShell = document.getElementById('waveShell');
+    const waveCanvas = document.getElementById('waveCanvas');
     const saveRow = document.getElementById('saveRow');
     const labelInput = document.getElementById('labelInput');
-    const preSavePlayerContainer = document.getElementById('preSavePlayerContainer');
     const preSaveAudio = document.getElementById('preSaveAudio');
+    const preSavePlayBtn = document.getElementById('preSavePlayBtn');
+    const preSaveTimeDisplay = document.getElementById('preSaveTimeDisplay');
 
     let isRecording = false;
+    let preSaveSeekController = null;
+
+    function setupPreSavePlayer(data, soundCode) {
+        const audioUrl = URL.createObjectURL(data.blob);
+        preSaveAudio.src = audioUrl;
+
+        // Attach interactive waveform seek handler
+        preSaveSeekController = Visualizer.attachSeekHandler(
+            waveCanvas,
+            preSaveAudio,
+            data.fingerprint,
+            soundCode
+        );
+
+        // Play/Pause button toggle
+        if (preSavePlayBtn) {
+            preSavePlayBtn.onclick = () => {
+                if (preSaveAudio.paused) {
+                    preSaveAudio.play().catch(() => toast('Playback error'));
+                } else {
+                    preSaveAudio.pause();
+                }
+            };
+        }
+
+        // Time updates
+        preSaveAudio.ontimeupdate = () => {
+            const cur = formatTime((preSaveAudio.currentTime || 0) * 1000);
+            const dur = formatTime((preSaveAudio.duration || 0) * 1000);
+            if (preSaveTimeDisplay) preSaveTimeDisplay.textContent = `${cur} / ${dur}`;
+        };
+
+        preSaveAudio.onplay = () => {
+            if (preSavePlayBtn) preSavePlayBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause</span>`;
+        };
+
+        preSaveAudio.onpause = preSaveAudio.onended = () => {
+            if (preSavePlayBtn) preSavePlayBtn.innerHTML = `<svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play Preview</span>`;
+        };
+    }
 
     Recorder.setCallbacks({
         onTimerUpdate: (ms) => {
@@ -76,19 +123,13 @@
             currentRecordingData = data;
             currentSoundCode = generateCode();
 
-            // Setup Pre-save Audio Player for user preview
-            const audioUrl = URL.createObjectURL(data.blob);
-            preSaveAudio.src = audioUrl;
-            preSavePlayerContainer.style.display = 'block';
-
-            // Render visual motif on canvas for UI preview
-            Visualizer.drawWaveform(waveCanvas, data.fingerprint, currentSoundCode);
+            setupPreSavePlayer(data, currentSoundCode);
             waveShell.style.display = 'block';
             saveRow.style.display = 'flex';
             labelInput.value = '';
             labelInput.focus();
 
-            recStatus.textContent = 'Recording ready! Listen to preview or engrave below.';
+            recStatus.textContent = 'Recording ready! Click waveform to seek or play preview.';
         },
         onError: (err) => {
             isRecording = false;
@@ -107,7 +148,6 @@
                 recStatus.textContent = 'Recording... Speak or play sound';
                 waveShell.style.display = 'none';
                 saveRow.style.display = 'none';
-                preSavePlayerContainer.style.display = 'none';
             }
         } else {
             Recorder.stop();
@@ -133,19 +173,13 @@
                 currentRecordingData = data;
                 currentSoundCode = generateCode();
 
-                // Setup Pre-save Audio Player
-                const audioUrl = URL.createObjectURL(data.blob);
-                preSaveAudio.src = audioUrl;
-                preSavePlayerContainer.style.display = 'block';
-
-                // Render visual motif
-                Visualizer.drawWaveform(waveCanvas, data.fingerprint, currentSoundCode);
+                setupPreSavePlayer(data, currentSoundCode);
                 waveShell.style.display = 'block';
                 saveRow.style.display = 'flex';
                 labelInput.value = file.name.replace(/\.[^/.]+$/, "");
                 labelInput.focus();
 
-                recStatus.textContent = 'Uploaded sound ready! Listen to preview or engrave below.';
+                recStatus.textContent = 'Uploaded sound ready! Click waveform curve to seek or play preview.';
                 toast('Audio file loaded successfully!');
             } catch (err) {
                 toast(err.message || 'Error processing audio file.');
@@ -158,7 +192,6 @@
     document.getElementById('discardBtn').addEventListener('click', () => {
         waveShell.style.display = 'none';
         saveRow.style.display = 'none';
-        preSavePlayerContainer.style.display = 'none';
         preSaveAudio.removeAttribute('src');
         currentRecordingData = null;
         currentSoundCode = null;
@@ -200,7 +233,6 @@
         saveBtn.textContent = 'Saving...';
 
         try {
-            // Convert Blob to Base64
             const reader = new FileReader();
             reader.readAsDataURL(currentRecordingData.blob);
             reader.onloadend = async () => {
@@ -226,7 +258,6 @@
                     toast(`" ${label} " engraved into database!`);
                     waveShell.style.display = 'none';
                     saveRow.style.display = 'none';
-                    preSavePlayerContainer.style.display = 'none';
                     preSaveAudio.removeAttribute('src');
                     currentRecordingData = null;
                     currentSoundCode = null;
@@ -264,9 +295,14 @@
 
                 const canvas = document.createElement('canvas');
                 canvas.className = 'g-canvas';
-                canvas.width = 400;
-                canvas.height = 90;
-                Visualizer.drawWaveform(canvas, sound.fingerprint, sound.sound_code);
+                canvas.width = 500;
+                canvas.height = 130;
+                canvas.style.cursor = 'pointer';
+
+                const audio = new Audio('/audio/' + sound.filename);
+
+                // Attach Real-Time Lighted Interactive Seek Waveform to Gallery Card!
+                Visualizer.attachSeekHandler(canvas, audio, sound.fingerprint, sound.sound_code);
 
                 card.appendChild(canvas);
 
@@ -285,7 +321,7 @@
                 actions.className = 'g-actions';
                 actions.innerHTML = `
                     <button class="btn btn-primary play-btn" style="flex:1; padding:8px 12px; font-size:12px; min-height:40px; gap:6px;">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                        <svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                         <span>Play Sound</span>
                     </button>
                     <button class="btn btn-secondary dl-btn" style="padding:8px 12px; font-size:12px; min-height:40px; gap:6px;">
@@ -297,10 +333,30 @@
                     </button>
                 `;
 
-                // Play Audio
-                actions.querySelector('.play-btn').addEventListener('click', () => {
-                    const audio = new Audio('/audio/' + sound.filename);
-                    audio.play().catch(() => toast('Playback error'));
+                const playBtn = actions.querySelector('.play-btn');
+                playBtn.addEventListener('click', () => {
+                    if (audio.paused) {
+                        // Pause any other playing audio in page
+                        document.querySelectorAll('audio').forEach(a => { if (a !== audio) a.pause(); });
+                        audio.play().catch(() => toast('Playback error'));
+                    } else {
+                        audio.pause();
+                    }
+                });
+
+                audio.addEventListener('play', () => {
+                    playBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause</span>`;
+                    card.classList.add('playing');
+                });
+
+                audio.addEventListener('pause', () => {
+                    playBtn.innerHTML = `<svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play Sound</span>`;
+                    card.classList.remove('playing');
+                });
+
+                audio.addEventListener('ended', () => {
+                    playBtn.innerHTML = `<svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play Sound</span>`;
+                    card.classList.remove('playing');
                 });
 
                 // Download Tattoo Stencil Image (Transparent PNG, Pure Black Waveform, No Text)
@@ -339,7 +395,7 @@
         );
     }
 
-    // --- Scanner Logic ---
+    // --- Scanner Logic & Recognition FX ---
     const srcCamBtn = document.getElementById('srcCamBtn');
     const srcFileBtn = document.getElementById('srcFileBtn');
     const camSection = document.getElementById('camSection');
@@ -352,11 +408,17 @@
     const uploadArea = document.getElementById('uploadArea');
     const scanUploadBtn = document.getElementById('scanUploadBtn');
     const resultBox = document.getElementById('resultBox');
+    const resultAudio = document.getElementById('resultAudio');
+    const resultPlayBtn = document.getElementById('resultPlayBtn');
+    const resultTimeDisplay = document.getElementById('resultTimeDisplay');
+    const resultWaveCanvas = document.getElementById('resultWaveCanvas');
+    const camTargetBox = document.getElementById('camTargetBox');
 
     let autoScanInterval = null;
     let isScanningFrame = false;
     let lastMatchedCode = null;
     let cooldownTimer = null;
+    let resultSeekController = null;
 
     srcCamBtn.addEventListener('click', () => {
         srcCamBtn.classList.add('active');
@@ -384,15 +446,80 @@
         if (autoScanBadge) autoScanBadge.style.display = 'none';
     }
 
+    function triggerRecognitionAnimation() {
+        // Holographic flash on camera target frame
+        if (camTargetBox) {
+            camTargetBox.classList.add('locked-on');
+            setTimeout(() => camTargetBox.classList.remove('locked-on'), 1500);
+        }
+
+        // Animate result card reveal
+        resultBox.classList.remove('show', 'match', 'no-match');
+        void resultBox.offsetWidth; // Force reflow
+        resultBox.classList.add('show', 'match', 'hologram-reveal');
+    }
+
+    function handleMatchedSound(sound, confidence) {
+        triggerRecognitionAnimation();
+
+        document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND MEMORY RETRIEVED';
+        document.getElementById('resultTitle').textContent = sound.label;
+        document.getElementById('resultMeta').textContent = `Match Confidence: ${(confidence * 100).toFixed(0)}% • Sound Code: ${sound.sound_code}`;
+
+        resultAudio.src = '/audio/' + sound.filename;
+
+        // Attach Interactive Lighted Waveform Player to Scanner Result Canvas!
+        if (resultWaveCanvas) {
+            resultSeekController = Visualizer.attachSeekHandler(
+                resultWaveCanvas,
+                resultAudio,
+                sound.fingerprint,
+                sound.sound_code
+            );
+        }
+
+        // Play/Pause button
+        if (resultPlayBtn) {
+            resultPlayBtn.onclick = () => {
+                if (resultAudio.paused) {
+                    resultAudio.play().catch(() => toast('Playback error'));
+                } else {
+                    resultAudio.pause();
+                }
+            };
+        }
+
+        resultAudio.ontimeupdate = () => {
+            const cur = formatTime((resultAudio.currentTime || 0) * 1000);
+            const dur = formatTime((resultAudio.duration || 0) * 1000);
+            if (resultTimeDisplay) resultTimeDisplay.textContent = `${cur} / ${dur}`;
+        };
+
+        resultAudio.onplay = () => {
+            if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause Memory</span>`;
+        };
+
+        resultAudio.onpause = resultAudio.onended = () => {
+            if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play Sound Memory</span>`;
+        };
+
+        // Auto play retrieved sound memory instantly with real-time waveform progress lighting
+        resultAudio.play().catch(() => {});
+        toast(`✨ Motif Recognized: "${sound.label}"! Reliving sound memory...`, 4000);
+
+        // Smooth scroll to result card
+        resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
     startCamBtn.addEventListener('click', async () => {
         const ok = await Scanner.startCamera(camVideo);
         if (ok) {
             startCamBtn.style.display = 'none';
             stopCamBtn.style.display = 'inline-flex';
             if (autoScanBadge) autoScanBadge.style.display = 'flex';
-            toast('Live camera active — auto-scanning target motif...');
+            toast('Live camera active — align tattoo motif in target frame...');
 
-            // Start continuous QR-style auto scanning loop (every 700ms)
+            // Start continuous QR-style auto scanning loop (every 600ms)
             if (autoScanInterval) clearInterval(autoScanInterval);
             autoScanInterval = setInterval(async () => {
                 if (isScanningFrame || !camVideo.videoWidth) return;
@@ -406,20 +533,10 @@
                 try {
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
-                        // Prevent repeated trigger for same code within 6s
                         if (lastMatchedCode !== scanRes.sound.sound_code) {
                             lastMatchedCode = scanRes.sound.sound_code;
 
-                            resultBox.classList.remove('show', 'match', 'no-match');
-                            resultBox.classList.add('show', 'match');
-                            document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND RETRIEVED';
-                            document.getElementById('resultTitle').textContent = scanRes.sound.label;
-                            document.getElementById('resultMeta').textContent = `Match Confidence: ${(scanRes.confidence * 100).toFixed(0)}% • Code: ${scanRes.sound.sound_code}`;
-
-                            const audioEl = document.getElementById('resultAudio');
-                            audioEl.src = '/audio/' + scanRes.sound.filename;
-                            audioEl.play().catch(() => {});
-                            toast(`Match found: "${scanRes.sound.label}"! Playing audio.`);
+                            handleMatchedSound(scanRes.sound, scanRes.confidence);
 
                             if (cooldownTimer) clearTimeout(cooldownTimer);
                             cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 6000);
@@ -430,7 +547,7 @@
                 } finally {
                     isScanningFrame = false;
                 }
-            }, 700);
+            }, 600);
         } else {
             toast('Could not access camera. Please allow permission or upload a photo.');
         }
@@ -452,8 +569,8 @@
         img.onload = () => {
             uploadedImg = img;
             uploadArea.querySelector('#uploadInner').innerHTML = `
-                <img src="${url}" style="max-width:100%; max-height:180px; border-radius:8px;">
-                <div style="font-size:12px; color:var(--text-muted); margin-top:8px;">Tap to change photo</div>
+                <img src="${url}" style="max-width:100%; max-height:220px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
+                <div style="font-size:12px; color:var(--primary); margin-top:10px; font-weight:700;">Tap to change photo</div>
             `;
             scanUploadBtn.disabled = false;
         };
@@ -477,23 +594,14 @@
         try {
             const scanRes = await Scanner.analyzeCanvas(canvas);
 
-            resultBox.classList.add('show');
             if (scanRes.success && scanRes.sound) {
-                resultBox.classList.add('match');
-                document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND RETRIEVED';
-                document.getElementById('resultTitle').textContent = scanRes.sound.label;
-                document.getElementById('resultMeta').textContent = `Match Confidence: ${(scanRes.confidence * 100).toFixed(0)}% • Code: ${scanRes.sound.sound_code}`;
-
-                const audioEl = document.getElementById('resultAudio');
-                audioEl.src = '/audio/' + scanRes.sound.filename;
-                audioEl.play().catch(() => {});
-                toast('Match found! Playing sound memory.');
+                handleMatchedSound(scanRes.sound, scanRes.confidence);
             } else {
-                resultBox.classList.add('no-match');
+                resultBox.classList.add('show', 'no-match');
                 document.getElementById('resultHeader').textContent = 'NO MATCH FOUND';
                 document.getElementById('resultTitle').textContent = 'Motif Unrecognized';
                 document.getElementById('resultMeta').textContent = 'Could not match sound motif in database. Please ensure lighting is bright and tattoo/motif is clearly aligned.';
-                document.getElementById('resultAudio').removeAttribute('src');
+                resultAudio.removeAttribute('src');
                 toast('No matching sound motif found.');
             }
         } catch (e) {
@@ -504,3 +612,4 @@
     // Initialize App
     fetchGallery();
 })();
+

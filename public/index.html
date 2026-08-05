@@ -146,18 +146,24 @@
                     </div>
                 </div>
 
-                <!-- Pre-save Listen Audio Player -->
-                <div id="preSavePlayerContainer" style="display:none; margin-top:20px; padding:16px; background:rgba(18,18,24,0.9); border:1px solid var(--border-highlight); border-radius:var(--radius-md);">
-                    <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:8px; display:flex; align-items:center; gap:8px;">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b00"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        <span>PREVIEW RECORDED AUDIO BEFORE ENGRAVING</span>
+                <!-- Pre-save Listen Audio Player & Waveform Canvas Shell -->
+                <div class="waveform-shell" id="waveShell" style="display:none; margin-top:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <div style="font-size:13px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                            <span class="pulse-dot"></span>
+                            <span>SOUND ENGRAVING PREVIEW — CLICK WAVEFORM TO SEEK</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button class="btn btn-primary" id="preSavePlayBtn" style="padding:6px 14px; min-height:36px; font-size:12px; gap:6px;">
+                                <svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <span>Play Preview</span>
+                            </button>
+                            <span id="preSaveTimeDisplay" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-muted);">00:00 / 00:00</span>
+                        </div>
                     </div>
-                    <audio id="preSaveAudio" controls style="width:100%; outline:none; border-radius:8px;"></audio>
-                </div>
 
-                <!-- Waveform Canvas Output -->
-                <div class="waveform-shell" id="waveShell" style="display:none;">
-                    <canvas class="waveform-canvas" id="waveCanvas" width="900" height="260"></canvas>
+                    <canvas class="waveform-canvas" id="waveCanvas" width="900" height="240" style="cursor:pointer;"></canvas>
+                    <audio id="preSaveAudio" style="display:none;"></audio>
                 </div>
 
                 <!-- Save / Export Controls -->
@@ -275,7 +281,13 @@
                     <div class="cam-wrapper">
                         <video id="camVideo" autoplay playsinline muted></video>
                         <div class="cam-overlay">
-                            <div class="cam-target-box"></div>
+                            <div class="cam-target-box" id="camTargetBox">
+                                <div class="laser-line"></div>
+                                <div class="hud-corner top-left"></div>
+                                <div class="hud-corner top-right"></div>
+                                <div class="hud-corner bottom-left"></div>
+                                <div class="hud-corner bottom-right"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="form-row" style="margin-top:16px;">
@@ -305,12 +317,32 @@
                     </div>
                 </div>
 
-                <!-- Scan Results Card -->
+                <!-- Scan Results Card with Real-time Lighted Waveform Player -->
                 <div class="result-box" id="resultBox">
-                    <div class="result-header" id="resultHeader">MATCH FOUND</div>
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:8px;">
+                        <div class="result-header" id="resultHeader">MATCH FOUND — SOUND RETRIEVED</div>
+                        <span class="match-lock-badge" id="matchLockBadge">TARGET LOCKED</span>
+                    </div>
+                    
                     <div class="result-title" id="resultTitle">—</div>
                     <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="resultMeta">—</div>
-                    <audio id="resultAudio" controls style="width:100%; outline:none; border-radius:8px;"></audio>
+
+                    <!-- Interactive Glowing Waveform Player for Scan Result -->
+                    <div class="result-player-wrap" id="resultPlayerWrap" style="background:rgba(10,15,26,0.95); border:1px solid var(--border-highlight); border-radius:var(--radius-md); padding:16px; margin-top:12px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                            <button class="btn btn-primary" id="resultPlayBtn" style="padding:8px 16px; min-height:40px; font-size:13px; gap:8px;">
+                                <svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <span>Play Sound Memory</span>
+                            </button>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                                <span id="resultTimeDisplay" style="font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; color:var(--primary);">00:00 / 00:00</span>
+                                <span style="font-size:11px; color:var(--text-dim);">Click waveform curve to seek position</span>
+                            </div>
+                        </div>
+
+                        <canvas id="resultWaveCanvas" class="waveform-canvas" width="900" height="220" style="cursor:pointer; border-radius:8px;"></canvas>
+                        <audio id="resultAudio" style="display:none;"></audio>
+                    </div>
                 </div>
             </div>
         </section>

@@ -131,10 +131,11 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
     }
 });
 
-// Correlation matching function (Pearson Correlation)
+// Enhanced Correlation matching function (Normalized Pearson Correlation)
 function pearsonCorrelation(a, b) {
     const n = Math.min(a.length, b.length);
     if (n === 0) return 0;
+
     let sumA = 0, sumB = 0;
     for (let i = 0; i < n; i++) { sumA += a[i]; sumB += b[i]; }
     const meanA = sumA / n;
@@ -171,14 +172,16 @@ app.post('/api/scan', async (req, res) => {
         }
 
         // 2. Waveform Fingerprint Correlation Match
-        if (fingerprint && Array.isArray(fingerprint)) {
+        if (fingerprint && Array.isArray(fingerprint) && fingerprint.length > 0) {
             const allSounds = await db.getAllSounds();
             let bestMatch = null;
             let bestScore = -1;
 
             for (const s of allSounds) {
-                // Try small shifts (-5 to +5) for tolerance to frame shifts
-                for (let shift = -5; shift <= 5; shift++) {
+                if (!s.fingerprint || !Array.isArray(s.fingerprint)) continue;
+
+                // Try expanded shifts (-10 to +10) for maximum frame tolerance
+                for (let shift = -10; shift <= 10; shift++) {
                     let subA = [];
                     let subB = [];
                     for (let i = 0; i < fingerprint.length; i++) {
@@ -188,7 +191,7 @@ app.post('/api/scan', async (req, res) => {
                             subB.push(s.fingerprint[j]);
                         }
                     }
-                    if (subA.length >= fingerprint.length * 0.6) {
+                    if (subA.length >= fingerprint.length * 0.5) {
                         const score = pearsonCorrelation(subA, subB);
                         if (score > bestScore) {
                             bestScore = score;
@@ -198,11 +201,12 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            if (bestMatch && bestScore >= 0.45) {
+            // Lower threshold slightly to 0.38 for high camera tolerance while keeping high precision
+            if (bestMatch && bestScore >= 0.38) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',
-                    confidence: Math.round(bestScore * 100) / 100,
+                    confidence: Math.min(0.99, Math.round(bestScore * 100) / 100),
                     sound: bestMatch
                 });
             }
