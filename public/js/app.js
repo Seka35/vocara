@@ -479,13 +479,18 @@
                 // Process MindAR 2D frame
                 Scanner.processMindFrame(camVideo);
 
-                // Calculate ROI (Target Box centered cropping for maximum scanner precision)
-                const vw = camVideo.videoWidth;
-                const vh = camVideo.videoHeight;
-                const sx = Math.floor(vw * 0.12);
-                const sy = Math.floor(vh * 0.25);
-                const sw = Math.floor(vw * 0.76);
-                const sh = Math.floor(vh * 0.50);
+                // Calculate exact pixel ROI of camTargetBox over video stream
+                const box = camTargetBox || document.getElementById('camTargetBox');
+                const vidRect = camVideo.getBoundingClientRect();
+                const boxRect = box ? box.getBoundingClientRect() : vidRect;
+
+                const scaleX = camVideo.videoWidth / (vidRect.width || 1);
+                const scaleY = camVideo.videoHeight / (vidRect.height || 1);
+
+                const sx = Math.max(0, Math.floor((boxRect.left - vidRect.left) * scaleX));
+                const sy = Math.max(0, Math.floor((boxRect.top - vidRect.top) * scaleY));
+                const sw = Math.min(camVideo.videoWidth - sx, Math.max(50, Math.floor(boxRect.width * scaleX)));
+                const sh = Math.min(camVideo.videoHeight - sy, Math.max(50, Math.floor(boxRect.height * scaleY)));
 
                 const canvas = document.createElement('canvas');
                 canvas.width = sw;
