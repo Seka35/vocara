@@ -683,6 +683,43 @@
         });
     }
 
+    // Manual Sound Code Fallback Lookup Handler
+    const manualCodeBtn = document.getElementById('manualCodeBtn');
+    const manualCodeInput = document.getElementById('manualCodeInput');
+
+    async function handleManualCodeLookup() {
+        if (!manualCodeInput) return;
+        const code = manualCodeInput.value.trim().toUpperCase();
+        if (!code) {
+            toast('Please enter a Sound Code (e.g. VCR-NPH5WK)');
+            return;
+        }
+
+        toast(`Searching database for Sound Code "${code}"...`);
+        try {
+            const res = await fetch(`/api/sounds/${encodeURIComponent(code)}`);
+            const data = await res.json();
+
+            if (data.success && data.sound) {
+                handleMatchedSound(data.sound, 1.0);
+                toast(`Sound Code Validated: "${data.sound.label}"!`);
+            } else {
+                toast(`Sound Code "${code}" not found. Please check spelling.`);
+            }
+        } catch (e) {
+            toast('Lookup failed. Please check network connection.');
+        }
+    }
+
+    if (manualCodeBtn) {
+        manualCodeBtn.addEventListener('click', handleManualCodeLookup);
+    }
+    if (manualCodeInput) {
+        manualCodeInput.addEventListener('keyup', (e) => {
+            if (e.key === 'Enter') handleManualCodeLookup();
+        });
+    }
+
     async function processScan(canvas) {
         resultBox.classList.remove('show', 'match', 'no-match');
         toast('Scanning & analyzing uploaded motif photo...');
