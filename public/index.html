@@ -609,18 +609,7 @@
                     </div>
                 </div>
 
-                <div class="scan-toggle">
-                    <button class="btn btn-secondary active" id="srcCamBtn" data-src="camera">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
-                        <span>Live Camera</span>
-                    </button>
-                    <button class="btn btn-secondary" id="srcFileBtn" data-src="upload">
-                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                        <span>Upload Photo</span>
-                    </button>
-                </div>
-
-                <!-- Live Camera Feed -->
+                <!-- Live Camera Feed & Direct Action Bar -->
                 <div id="camSection">
                     <div class="cam-wrapper">
                         <video id="camVideo" autoplay playsinline muted></video>
@@ -634,30 +623,28 @@
                             </div>
                         </div>
                     </div>
-                    <div class="form-row" style="margin-top:16px;">
-                        <button class="btn btn-primary" id="startCamBtn">Start Live Camera</button>
-                        <button class="btn btn-secondary" id="stopCamBtn" style="display:none;">Stop Camera</button>
+
+                    <!-- Side-by-Side Action Row: Live Camera + Upload Photo -->
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px; margin-top:16px;">
+                        <button class="btn btn-primary" id="startCamBtn" style="justify-content:center; gap:8px; font-weight:700;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="23 7 16 12 23 17 23 7"/><rect x="1" y="5" width="15" height="14" rx="2" ry="2"/></svg>
+                            <span>Live Camera</span>
+                        </button>
+                        <button class="btn btn-secondary" id="stopCamBtn" style="display:none; justify-content:center; gap:8px; font-weight:700;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="6" width="12" height="12"/></svg>
+                            <span>Stop Camera</span>
+                        </button>
+                        <button class="btn btn-secondary" id="triggerPhotoUploadBtn" style="justify-content:center; gap:8px; font-weight:700; border:1px solid rgba(255,107,0,0.35); background:rgba(255,107,0,0.08); color:var(--primary);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                            <span>Upload Photo</span>
+                        </button>
                     </div>
+
+                    <input type="file" accept="image/*" id="fileInput" style="display:none;">
+
                     <div id="autoScanBadge" style="display:none; text-align:center; margin-top:12px; font-size:13px; font-weight:700; color:#ff6b00; align-items:center; justify-content:center; gap:8px;">
                         <span style="display:inline-block; width:10px; height:10px; background:#ff6b00; border-radius:50%; box-shadow:0 0 10px #ff6b00; animation:pulse 1.2s infinite;"></span>
                         <span>AUTO SCANNING LIVE — ALIGN TATTOO IN TARGET AREA</span>
-                    </div>
-                </div>
-
-                <!-- Image File Upload Feed -->
-                <div id="uploadSection" style="display:none;">
-                    <label class="upload-area" id="uploadArea">
-                        <div id="uploadInner">
-                            <div style="margin-bottom:8px; display:flex; justify-content:center;">
-                                <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                            </div>
-                            <div style="font-size:15px; font-weight:600;">Tap to choose photo of sound motif</div>
-                            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Supports PNG, JPG, WEBP</div>
-                        </div>
-                        <input type="file" accept="image/*" id="fileInput" style="display:none;">
-                    </label>
-                    <div class="form-row">
-                        <button class="btn btn-primary" id="scanUploadBtn" disabled>Scan Uploaded Photo</button>
                     </div>
                 </div>
 

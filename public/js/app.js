@@ -616,38 +616,34 @@
         toast('Camera stopped.');
     });
 
-    // File Upload Scanner
-    let uploadedImg = null;
-    uploadArea.addEventListener('click', () => fileInput.click());
-    fileInput.addEventListener('change', () => {
-        const file = fileInput.files[0];
-        if (!file) return;
-        const url = URL.createObjectURL(file);
-        const img = new Image();
-        img.onload = () => {
-            uploadedImg = img;
-            uploadArea.querySelector('#uploadInner').innerHTML = `
-                <img src="${url}" style="max-width:100%; max-height:220px; border-radius:12px; box-shadow:0 8px 24px rgba(0,0,0,0.6);">
-                <div style="font-size:12px; color:var(--primary); margin-top:10px; font-weight:700;">Tap to change photo</div>
-            `;
-            scanUploadBtn.disabled = false;
-        };
-        img.src = url;
-    });
+    // File Upload Scanner Handler
+    const triggerPhotoUploadBtn = document.getElementById('triggerPhotoUploadBtn');
+    if (triggerPhotoUploadBtn && fileInput) {
+        triggerPhotoUploadBtn.addEventListener('click', () => {
+            fileInput.click();
+        });
 
-    scanUploadBtn.addEventListener('click', async () => {
-        if (!uploadedImg) return;
-        const canvas = document.createElement('canvas');
-        canvas.width = uploadedImg.naturalWidth;
-        canvas.height = uploadedImg.naturalHeight;
-        canvas.getContext('2d').drawImage(uploadedImg, 0, 0);
+        fileInput.addEventListener('change', () => {
+            const file = fileInput.files && fileInput.files[0];
+            if (!file) return;
 
-        await processScan(canvas);
-    });
+            const url = URL.createObjectURL(file);
+            const img = new Image();
+            img.onload = async () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.naturalWidth;
+                canvas.height = img.naturalHeight;
+                canvas.getContext('2d').drawImage(img, 0, 0);
+
+                await processScan(canvas);
+            };
+            img.src = url;
+        });
+    }
 
     async function processScan(canvas) {
         resultBox.classList.remove('show', 'match', 'no-match');
-        toast('Scanning & analyzing motif pattern...');
+        toast('Scanning & analyzing uploaded motif photo...');
 
         try {
             const scanRes = await Scanner.analyzeCanvas(canvas);
@@ -658,9 +654,9 @@
                 resultBox.classList.add('show', 'no-match');
                 document.getElementById('resultHeader').textContent = 'NO MATCH FOUND';
                 document.getElementById('resultTitle').textContent = 'Motif Unrecognized';
-                document.getElementById('resultMeta').textContent = 'Could not match sound motif in database. Please ensure lighting is bright and tattoo/motif is clearly aligned.';
+                document.getElementById('resultMeta').textContent = 'Could not match sound motif in database. Check lighting or use Instant Sound Code Lookup.';
                 resultAudio.removeAttribute('src');
-                toast('No matching sound motif found.');
+                toast('No matching sound motif found in photo.');
             }
         } catch (e) {
             toast('Scan processing failed. Please try again.');
