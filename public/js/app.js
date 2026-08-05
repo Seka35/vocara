@@ -500,21 +500,20 @@
                 try {
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
-                        const candidate = scanRes.sound.sound_code;
+                        const candidates = scanRes.candidates || [{ sound: scanRes.sound, score: scanRes.confidence }];
 
-                        // Tier-2 MindAR Precision Target Lock for 360° pose verification
-                        Scanner.lockCandidateMindAR(scanRes.sound, camVideo, (matched, conf) => {
-                            if (lastMatchedCode !== matched.sound_code) {
-                                lastMatchedCode = matched.sound_code;
-                                handleMatchedSound(matched, conf || 0.98);
-                                if (cooldownTimer) clearTimeout(cooldownTimer);
-                                cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
+                        // Evaluate multi-candidates to select the highest confidence verified sound
+                        let bestVerified = null;
+                        for (const candItem of candidates) {
+                            if (candItem.score >= 0.72) {
+                                bestVerified = candItem;
+                                break;
                             }
-                        });
+                        }
 
-                        if (lastMatchedCode !== candidate) {
-                            lastMatchedCode = candidate;
-                            handleMatchedSound(scanRes.sound, scanRes.confidence);
+                        if (bestVerified && lastMatchedCode !== bestVerified.sound.sound_code) {
+                            lastMatchedCode = bestVerified.sound.sound_code;
+                            handleMatchedSound(bestVerified.sound, bestVerified.score);
 
                             if (cooldownTimer) clearTimeout(cooldownTimer);
                             cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);

@@ -245,12 +245,12 @@ app.post('/api/scan', async (req, res) => {
             }
 
             const allSounds = await db.getAllSounds();
-            let bestMatch = null;
-            let bestScore = -1;
+            let candidateMatches = [];
 
             for (const s of allSounds) {
                 if (!s.fingerprint || !Array.isArray(s.fingerprint)) continue;
 
+                let soundBestScore = -1;
                 // Try both normal and inverted fingerprints (light-on-dark vs dark-on-light)
                 const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
 
@@ -267,22 +267,32 @@ app.post('/api/scan', async (req, res) => {
                         }
                         if (subA.length >= fingerprint.length * 0.65) {
                             const score = pearsonCorrelation(subA, subB);
-                            if (score > bestScore) {
-                                bestScore = score;
-                                bestMatch = s;
+                            if (score > soundBestScore) {
+                                soundBestScore = score;
                             }
                         }
                     }
                 }
+
+                if (soundBestScore >= 0.55) {
+                    candidateMatches.push({
+                        sound: s,
+                        score: Math.min(0.99, Math.round(soundBestScore * 100) / 100)
+                    });
+                }
             }
 
-            // Requires correlation score >= 0.74 to prevent false matches against wrong sound motifs
-            if (bestMatch && bestScore >= 0.74) {
+            // Sort candidates descending by correlation score
+            candidateMatches.sort((a, b) => b.score - a.score);
+            const top5 = candidateMatches.slice(0, 5);
+
+            if (top5.length > 0 && top5[0].score >= 0.68) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',
-                    confidence: Math.min(0.99, Math.round(bestScore * 100) / 100),
-                    sound: bestMatch
+                    confidence: top5[0].score,
+                    sound: top5[0].sound,
+                    candidates: top5
                 });
             }
         }
