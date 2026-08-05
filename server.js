@@ -209,8 +209,8 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Requires high confidence score (>= 0.58) for reliable matching
-            if (bestMatch && bestScore >= 0.58) {
+            // Requires high confidence score (>= 0.78) for reliable matching
+            if (bestMatch && bestScore >= 0.78) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',

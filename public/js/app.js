@@ -411,6 +411,8 @@
     let autoScanInterval = null;
     let isScanningFrame = false;
     let lastMatchedCode = null;
+    let pendingCandidateCode = null;
+    let pendingMatchCount = 0;
     let cooldownTimer = null;
     let resultSeekController = null;
 
@@ -434,6 +436,8 @@
             clearInterval(autoScanInterval);
             autoScanInterval = null;
         }
+        pendingCandidateCode = null;
+        pendingMatchCount = 0;
         Scanner.stopCamera();
         startCamBtn.style.display = 'inline-flex';
         stopCamBtn.style.display = 'none';
@@ -485,7 +489,8 @@
 
         resultAudio.ontimeupdate = () => {
             const cur = formatTime((resultAudio.currentTime || 0) * 1000);
-            const dur = formatTime((resultAudio.duration || 0) * 1000);
+            const durValid = isFinite(resultAudio.duration) && !isNaN(resultAudio.duration) && resultAudio.duration > 0;
+            const dur = durValid ? formatTime(resultAudio.duration * 1000) : '--:--';
             if (resultTimeDisplay) resultTimeDisplay.textContent = `${cur} / ${dur}`;
         };
 
@@ -513,6 +518,9 @@
             if (autoScanBadge) autoScanBadge.style.display = 'flex';
             toast('Live camera active — align tattoo motif in target frame...');
 
+            pendingCandidateCode = null;
+            pendingMatchCount = 0;
+
             // Start continuous QR-style auto scanning loop (every 600ms)
             if (autoScanInterval) clearInterval(autoScanInterval);
             autoScanInterval = setInterval(async () => {
@@ -527,14 +535,24 @@
                 try {
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
-                        if (lastMatchedCode !== scanRes.sound.sound_code) {
-                            lastMatchedCode = scanRes.sound.sound_code;
+                        const candidate = scanRes.sound.sound_code;
+                        if (candidate === pendingCandidateCode) {
+                            pendingMatchCount++;
+                        } else {
+                            pendingCandidateCode = candidate;
+                            pendingMatchCount = 1;
+                        }
 
+                        if (pendingMatchCount >= 2 && lastMatchedCode !== candidate) {
+                            lastMatchedCode = candidate;
                             handleMatchedSound(scanRes.sound, scanRes.confidence);
 
                             if (cooldownTimer) clearTimeout(cooldownTimer);
                             cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 6000);
                         }
+                    } else {
+                        pendingCandidateCode = null;
+                        pendingMatchCount = 0;
                     }
                 } catch (e) {
                     console.error('Auto scan error:', e);

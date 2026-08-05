@@ -57,13 +57,44 @@ const Scanner = (function () {
         const imgData = ctx.getImageData(0, 0, w, h).data;
         const gray = new Uint8ClampedArray(w * h);
 
+        let sumGray = 0;
         for (let i = 0; i < w * h; i++) {
             const r = imgData[i * 4], g = imgData[i * 4 + 1], b = imgData[i * 4 + 2];
-            gray[i] = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+            const gVal = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+            gray[i] = gVal;
+            sumGray += gVal;
         }
+
         const threshold = otsuThreshold(gray, w, h);
 
+        // 1. Contrast Check: Measure contrast difference between Ink & Background
+        let inkSum = 0, inkCount = 0, bgSum = 0, bgCount = 0;
+        for (let i = 0; i < w * h; i++) {
+            if (gray[i] < threshold) {
+                inkSum += gray[i];
+                inkCount++;
+            } else {
+                bgSum += gray[i];
+                bgCount++;
+            }
+        }
+
+        const inkMean = inkCount > 0 ? inkSum / inkCount : 0;
+        const bgMean = bgCount > 0 ? bgSum / bgCount : 255;
+        const contrast = bgMean - inkMean;
+
+        // Require sharp contrast (black ink on light skin or paper): contrast >= 45
+        if (contrast < 45 || inkCount < (w * h * 0.02) || inkCount > (w * h * 0.70)) {
+            return null;
+        }
+
+        // 2. Waveform Geometry Extraction
         const colHeights = new Array(w).fill(0);
+        const colTops = new Array(w).fill(-1);
+        const colBots = new Array(w).fill(-1);
+
+        let globalMinTop = h, globalMaxBot = 0;
+
         for (let x = 0; x < w; x++) {
             let top = -1, bottom = -1;
             for (let y = 0; y < h; y++) {
@@ -73,10 +104,38 @@ const Scanner = (function () {
                     bottom = y;
                 }
             }
-            colHeights[x] = (top === -1) ? 0 : (bottom - top);
+            if (top !== -1 && bottom !== -1) {
+                colTops[x] = top;
+                colBots[x] = bottom;
+                colHeights[x] = bottom - top;
+                if (top < globalMinTop) globalMinTop = top;
+                if (bottom > globalMaxBot) globalMaxBot = bottom;
+            }
         }
 
-        // Apply 3-point moving average smoothing to eliminate sensor noise / camera artifacts
+        // 3. Symmetry Check: Audio waveforms are vertically symmetric around their center axis
+        const centerY = (globalMinTop + globalMaxBot) / 2;
+        let symSum = 0, symCount = 0;
+
+        for (let x = 0; x < w; x++) {
+            if (colHeights[x] > 4) {
+                const topDist = Math.abs(centerY - colTops[x]);
+                const botDist = Math.abs(colBots[x] - centerY);
+                const maxD = Math.max(topDist, botDist);
+                const minD = Math.min(topDist, botDist);
+                const symRatio = maxD > 0 ? minD / maxD : 0;
+                symSum += symRatio;
+                symCount++;
+            }
+        }
+
+        const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
+        // Audio waveforms must have high vertical symmetry (>= 0.55). Faces and text have low symmetry.
+        if (avgSymmetry < 0.55) {
+            return null;
+        }
+
+        // 4. Moving Average Smoothing
         const smoothedHeights = new Array(w).fill(0);
         for (let x = 0; x < w; x++) {
             const prev = x > 0 ? colHeights[x - 1] : colHeights[x];
@@ -85,6 +144,7 @@ const Scanner = (function () {
             smoothedHeights[x] = (prev + curr * 2 + next) / 4;
         }
 
+        // 5. Bin Reduction (64 Bins)
         const bins = new Array(N_BINS).fill(0);
         const blockSize = w / N_BINS;
         for (let b = 0; b < N_BINS; b++) {
@@ -99,19 +159,30 @@ const Scanner = (function () {
         }
 
         const max = Math.max(...bins);
-        // Minimum peak height requirement: waveform height must be at least 8% of frame height
-        if (max < h * 0.08) {
+        if (max < h * 0.10) {
             return null;
         }
 
         const normalized = bins.map(v => Math.max(0, Math.min(1, v / max)));
         
-        // Calculate standard deviation to ensure a true waveform structure exists (not flat background noise)
+        // 6. Variance & Peak Count Verification
         const mean = normalized.reduce((a, b) => a + b, 0) / N_BINS;
         const variance = normalized.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / N_BINS;
         const stdDev = Math.sqrt(variance);
 
-        if (stdDev < 0.08) {
+        if (stdDev < 0.10) {
+            return null;
+        }
+
+        // Count local peaks across 64 bins (real audio waveforms have multiple peaks)
+        let peakCount = 0;
+        for (let i = 1; i < N_BINS - 1; i++) {
+            if (normalized[i] > normalized[i - 1] && normalized[i] > normalized[i + 1] && normalized[i] > 0.2) {
+                peakCount++;
+            }
+        }
+
+        if (peakCount < 2) {
             return null;
         }
 
