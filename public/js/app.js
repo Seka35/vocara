@@ -297,12 +297,18 @@
     const camSection = document.getElementById('camSection');
     const uploadSection = document.getElementById('uploadSection');
     const startCamBtn = document.getElementById('startCamBtn');
-    const captureBtn = document.getElementById('captureBtn');
+    const stopCamBtn = document.getElementById('stopCamBtn');
+    const autoScanBadge = document.getElementById('autoScanBadge');
     const camVideo = document.getElementById('camVideo');
     const fileInput = document.getElementById('fileInput');
     const uploadArea = document.getElementById('uploadArea');
     const scanUploadBtn = document.getElementById('scanUploadBtn');
     const resultBox = document.getElementById('resultBox');
+
+    let autoScanInterval = null;
+    let isScanningFrame = false;
+    let lastMatchedCode = null;
+    let cooldownTimer = null;
 
     srcCamBtn.addEventListener('click', () => {
         srcCamBtn.classList.add('active');
@@ -316,31 +322,75 @@
         srcCamBtn.classList.remove('active');
         camSection.style.display = 'none';
         uploadSection.style.display = 'block';
-        Scanner.stopCamera();
+        stopAutoScanner();
     });
+
+    function stopAutoScanner() {
+        if (autoScanInterval) {
+            clearInterval(autoScanInterval);
+            autoScanInterval = null;
+        }
+        Scanner.stopCamera();
+        startCamBtn.style.display = 'inline-flex';
+        stopCamBtn.style.display = 'none';
+        if (autoScanBadge) autoScanBadge.style.display = 'none';
+    }
 
     startCamBtn.addEventListener('click', async () => {
         const ok = await Scanner.startCamera(camVideo);
         if (ok) {
-            captureBtn.disabled = false;
             startCamBtn.style.display = 'none';
-            toast('Camera initialized. Align motif inside green target area.');
+            stopCamBtn.style.display = 'inline-flex';
+            if (autoScanBadge) autoScanBadge.style.display = 'flex';
+            toast('Live camera active — auto-scanning target motif...');
+
+            // Start continuous QR-style auto scanning loop (every 700ms)
+            if (autoScanInterval) clearInterval(autoScanInterval);
+            autoScanInterval = setInterval(async () => {
+                if (isScanningFrame || !camVideo.videoWidth) return;
+                isScanningFrame = true;
+
+                const canvas = document.createElement('canvas');
+                canvas.width = camVideo.videoWidth;
+                canvas.height = camVideo.videoHeight;
+                canvas.getContext('2d').drawImage(camVideo, 0, 0);
+
+                try {
+                    const scanRes = await Scanner.analyzeCanvas(canvas);
+                    if (scanRes.success && scanRes.sound) {
+                        // Prevent repeated trigger for same code within 6s
+                        if (lastMatchedCode !== scanRes.sound.sound_code) {
+                            lastMatchedCode = scanRes.sound.sound_code;
+
+                            resultBox.classList.remove('show', 'match', 'no-match');
+                            resultBox.classList.add('show', 'match');
+                            document.getElementById('resultHeader').textContent = '✨ MATCH FOUND — SOUND RETRIEVED';
+                            document.getElementById('resultTitle').textContent = scanRes.sound.label;
+                            document.getElementById('resultMeta').textContent = `Match Confidence: ${(scanRes.confidence * 100).toFixed(0)}% • Code: ${scanRes.sound.sound_code}`;
+
+                            const audioEl = document.getElementById('resultAudio');
+                            audioEl.src = '/audio/' + scanRes.sound.filename;
+                            audioEl.play().catch(() => {});
+                            toast(`Match found: "${scanRes.sound.label}"! Playing audio.`);
+
+                            if (cooldownTimer) clearTimeout(cooldownTimer);
+                            cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 6000);
+                        }
+                    }
+                } catch (e) {
+                    console.error('Auto scan error:', e);
+                } finally {
+                    isScanningFrame = false;
+                }
+            }, 700);
         } else {
             toast('Could not access camera. Please allow permission or upload a photo.');
         }
     });
 
-    captureBtn.addEventListener('click', async () => {
-        if (!camVideo.videoWidth) {
-            toast('Camera is not ready yet.');
-            return;
-        }
-        const canvas = document.createElement('canvas');
-        canvas.width = camVideo.videoWidth;
-        canvas.height = camVideo.videoHeight;
-        canvas.getContext('2d').drawImage(camVideo, 0, 0);
-
-        await processScan(canvas);
+    stopCamBtn.addEventListener('click', () => {
+        stopAutoScanner();
+        toast('Camera stopped.');
     });
 
     // File Upload Scanner

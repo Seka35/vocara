@@ -119,8 +119,12 @@
                         </div>
                     </div>
                     <div class="form-row" style="margin-top:16px;">
-                        <button class="btn btn-primary" id="startCamBtn">▶ Start Camera</button>
-                        <button class="btn btn-primary" id="captureBtn" disabled>🔍 Scan Target</button>
+                        <button class="btn btn-primary" id="startCamBtn">▶ Start Live Camera</button>
+                        <button class="btn btn-secondary" id="stopCamBtn" style="display:none;">⏹ Stop Camera</button>
+                    </div>
+                    <div id="autoScanBadge" style="display:none; text-align:center; margin-top:12px; font-size:13px; font-weight:700; color:#10b981; align-items:center; justify-content:center; gap:8px;">
+                        <span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981; animation:pulse 1.2s infinite;"></span>
+                        <span>AUTO SCANNING LIVE — ALIGN TATTOO IN TARGET AREA</span>
                     </div>
                 </div>
 
@@ -161,30 +165,27 @@
 
                 <div class="app-download-grid">
                     <!-- Android Card -->
-                    <div class="app-platform-card">
-                        <div class="app-icon-lg">🤖</div>
-                        <div style="font-size:18px; font-weight:700;">Vocara for Android</div>
-                        <div style="font-size:13px; color:var(--text-muted);">
-                            Native APK bundle with camera hardware integration and offline database storage.
+                    <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
+                        <div style="font-size:20px; font-weight:700; margin-bottom:4px;">Android Application</div>
+                        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                            Native APK with live camera tattoo scanning and offline database.
                         </div>
-                        <a href="/downloads/vocara-android.apk" class="btn btn-primary" style="width:100%; text-decoration:none;" id="downloadApkBtn">
-                            📥 Download Android APK
+                        <a href="/downloads/vocara-android.apk" id="downloadApkBtn" style="display:inline-block; transition:transform 0.2s ease;">
+                            <img src="assets/google-play-badge.svg" alt="Get it on Google Play" style="height:54px; width:auto;">
                         </a>
+                        <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Direct APK Download (v1.0.0)</div>
                     </div>
 
                     <!-- iOS Card -->
-                    <div class="app-platform-card">
-                        <div class="app-icon-lg">🍎</div>
-                        <div style="font-size:18px; font-weight:700;">Vocara for iOS</div>
-                        <div style="font-size:13px; color:var(--text-muted);">
-                            Install instantly on iPhone via Safari PWA or build native Xcode project via Capacitor.
+                    <div class="app-platform-card" style="display:flex; flex-direction:column; align-items:center; text-align:center; padding:24px;">
+                        <div style="font-size:20px; font-weight:700; margin-bottom:4px;">iOS Application</div>
+                        <div style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">
+                            Install on iPhone via Safari PWA or Xcode Capacitor project.
                         </div>
-                        <button class="btn btn-secondary" style="width:100%; margin-bottom:8px;" onclick="alert('📱 Safari PWA Install on iPhone:\n\n1. Open https://vocara.cloud in Safari\n2. Tap the Share icon (square with arrow)\n3. Tap &quot;Add to Home Screen&quot;\n\nVocara will install on your iPhone home screen like a native app!')">
-                            📲 Install via Safari PWA
-                        </button>
-                        <button class="btn btn-secondary" style="width:100%; font-size:12px; opacity:0.8;" onclick="alert('🛠️ Xcode Native iOS Build:\n\n1. Run: npm install @capacitor/ios\n2. Run: npx cap add ios\n3. Run: npx cap open ios\n\nBuild and sign in Xcode to deploy to TestFlight or App Store!')">
-                            🛠️ Xcode / Capacitor Build
-                        </button>
+                        <a href="javascript:void(0)" onclick="alert('📱 Safari PWA Install on iPhone:\n\n1. Open https://vocara.cloud in Safari\n2. Tap the Share icon (square with arrow)\n3. Tap &quot;Add to Home Screen&quot;\n\nVocara will install on your iPhone home screen like a native app!')" style="display:inline-block; transition:transform 0.2s ease;">
+                            <img src="assets/app-store-badge.svg" alt="Download on the App Store" style="height:54px; width:auto;">
+                        </a>
+                        <div style="font-size:11px; color:var(--text-dim); margin-top:8px;">Safari PWA &amp; Xcode Native Ready</div>
                     </div>
                 </div>
             </div>

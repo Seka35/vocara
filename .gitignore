@@ -6,5 +6,6 @@ uploads/audio/*
 !uploads/audio/.gitkeep
 vocara.sqlite
 .env
+android/
 .DS_Store
 *.log

@@ -1,17 +1,17 @@
-/* Vocara Dark Mode Design System */
+/* Vocara Dark Mode Design System - Electric Orange & Pitch Black */
 :root {
-    --bg-dark: #090d16;
-    --bg-card: rgba(17, 24, 39, 0.75);
-    --bg-card-hover: rgba(31, 41, 55, 0.85);
-    --border-color: rgba(255, 255, 255, 0.08);
-    --border-highlight: rgba(99, 102, 241, 0.4);
+    --bg-dark: #070709;
+    --bg-card: rgba(18, 18, 24, 0.85);
+    --bg-card-hover: rgba(28, 28, 36, 0.9);
+    --border-color: rgba(255, 255, 255, 0.09);
+    --border-highlight: rgba(255, 107, 0, 0.45);
     
-    --primary: #6366f1;
-    --primary-hover: #4f46e5;
-    --primary-glow: rgba(99, 102, 241, 0.35);
+    --primary: #ff6b00;
+    --primary-hover: #e05e00;
+    --primary-glow: rgba(255, 107, 0, 0.4);
     
-    --accent: #10b981;
-    --accent-glow: rgba(16, 185, 129, 0.25);
+    --accent: #ff8c00;
+    --accent-glow: rgba(255, 140, 0, 0.3);
     
     --danger: #ef4444;
     --danger-glow: rgba(239, 68, 68, 0.3);
@@ -25,7 +25,7 @@
     --radius-lg: 20px;
     --radius-full: 9999px;
     
-    --shadow-subtle: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-subtle: 0 10px 30px -10px rgba(0, 0, 0, 0.8);
     --glass-backdrop: blur(16px);
 }
 
@@ -47,9 +47,9 @@ html, body {
 
 body {
     background-image: 
-        radial-gradient(circle at 15% 15%, rgba(99, 102, 241, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 85% 85%, rgba(16, 185, 129, 0.08) 0%, transparent 40%),
-        radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 60%);
+        radial-gradient(circle at 15% 15%, rgba(255, 107, 0, 0.14) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(255, 140, 0, 0.09) 0%, transparent 40%),
+        radial-gradient(circle at 50% 50%, rgba(255, 85, 0, 0.06) 0%, transparent 60%);
     background-attachment: fixed;
     padding-bottom: 60px;
 }
@@ -91,9 +91,9 @@ body {
 }
 
 .badge {
-    background: rgba(99, 102, 241, 0.15);
+    background: rgba(255, 107, 0, 0.15);
     border: 1px solid var(--border-highlight);
-    color: #a5b4fc;
+    color: #ff9d42;
     font-size: 11px;
     font-weight: 600;
     padding: 4px 10px;
@@ -105,7 +105,7 @@ body {
 /* Navigation Tabs */
 .tab-nav {
     display: flex;
-    background: rgba(15, 23, 42, 0.8);
+    background: rgba(12, 12, 16, 0.9);
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: 6px;

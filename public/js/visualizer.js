@@ -15,10 +15,10 @@ const Visualizer = (function () {
         const isExport = opts.exportMode === true || opts.transparent === true;
 
         if (!isExport) {
-            // 1. Dark Futuristic Background for preview UI
+            // 1. Sleek Pitch Black Background for preview UI
             const bgGrad = ctx.createLinearGradient(0, 0, W, H);
-            bgGrad.addColorStop(0, opts.bg1 || '#0b0f19');
-            bgGrad.addColorStop(1, opts.bg2 || '#111827');
+            bgGrad.addColorStop(0, opts.bg1 || '#08080c');
+            bgGrad.addColorStop(1, opts.bg2 || '#13131a');
             ctx.fillStyle = bgGrad;
             ctx.fillRect(0, 0, W, H);
 
@@ -43,7 +43,7 @@ const Visualizer = (function () {
         const maxH = H * 0.68;
 
         // 2. Baseline
-        ctx.strokeStyle = isExport ? '#000000' : 'rgba(99, 102, 241, 0.3)';
+        ctx.strokeStyle = isExport ? '#000000' : 'rgba(255, 107, 0, 0.35)';
         ctx.lineWidth = 2;
         ctx.beginPath();
         ctx.moveTo(padX * 0.5, midY);
@@ -56,9 +56,9 @@ const Visualizer = (function () {
             ctx.strokeStyle = '#000000';
         } else {
             const barGrad = ctx.createLinearGradient(0, midY - maxH / 2, 0, midY + maxH / 2);
-            barGrad.addColorStop(0, opts.color1 || '#6366f1');
-            barGrad.addColorStop(0.5, opts.color2 || '#8b5cf6');
-            barGrad.addColorStop(1, opts.color3 || '#10b981');
+            barGrad.addColorStop(0, opts.color1 || '#ff6b00');
+            barGrad.addColorStop(0.5, opts.color2 || '#ff8c00');
+            barGrad.addColorStop(1, opts.color3 || '#ff4500');
             ctx.fillStyle = barGrad;
             ctx.strokeStyle = barGrad;
         }

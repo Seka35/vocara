@@ -1,9 +1,9 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
   <defs>
     <linearGradient id="vocaraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#6366f1"/>
-      <stop offset="50%" stop-color="#8b5cf6"/>
-      <stop offset="100%" stop-color="#ec4899"/>
+      <stop offset="0%" stop-color="#ff6b00"/>
+      <stop offset="50%" stop-color="#ff8c00"/>
+      <stop offset="100%" stop-color="#ff4500"/>
     </linearGradient>
     <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
       <feGaussianBlur stdDeviation="3" result="blur" />
@@ -21,5 +21,5 @@
   </g>
   <!-- Brand Text -->
   <text x="100" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="44" font-weight="900" letter-spacing="4" fill="#ffffff">VOCARA</text>
-  <text x="102" y="78" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="500" letter-spacing="3" fill="#94a3b8">SOUND ENGRAVING &amp; SCANNER</text>
+  <text x="102" y="78" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="600" letter-spacing="3" fill="#ff9d42">SOUND ENGRAVING &amp; SCANNER</text>
 </svg>

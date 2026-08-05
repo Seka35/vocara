@@ -47,9 +47,9 @@ echo -e "${CYAN}[2/6] Installing Node.js project packages...${NC}"
 cd "$APP_DIR"
 npm install --production
 
-# Ensure uploads directory exists
-mkdir -p uploads/audio
-chmod -R 755 uploads
+# Ensure uploads & downloads directories exist with full permissions
+mkdir -p uploads/audio public/downloads
+chmod -R 755 uploads public/downloads
 
 # 4. Create Nginx Configuration
 echo -e "${CYAN}[3/6] Configuring Nginx Reverse Proxy for ${DOMAIN} on port ${PORT}...${NC}"
@@ -62,6 +62,13 @@ server {
     server_name ${DOMAIN} www.${DOMAIN};
 
     client_max_body_size 50M;
+
+    # Proper MIME type for Android APK downloads
+    location ~* \.apk$ {
+        root ${APP_DIR}/public;
+        add_header Content-Type application/vnd.android.package-archive;
+        add_header Content-Disposition "attachment; filename=vocara-android.apk";
+    }
 
     location / {
         proxy_pass http://127.0.0.1:${PORT};
