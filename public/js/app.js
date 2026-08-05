@@ -499,7 +499,7 @@
 
         // Auto play retrieved sound memory instantly with real-time waveform progress lighting
         resultAudio.play().catch(() => {});
-        toast(`✨ Motif Recognized: "${sound.label}"! Reliving sound memory...`, 4000);
+        toast(`Motif Recognized: "${sound.label}"! Reliving sound memory...`, 4000);
 
         // Smooth scroll to result card
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
