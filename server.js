@@ -188,29 +188,33 @@ app.post('/api/scan', async (req, res) => {
             for (const s of allSounds) {
                 if (!s.fingerprint || !Array.isArray(s.fingerprint)) continue;
 
-                // Try expanded shifts (-10 to +10) for maximum frame tolerance
-                for (let shift = -10; shift <= 10; shift++) {
-                    let subA = [];
-                    let subB = [];
-                    for (let i = 0; i < fingerprint.length; i++) {
-                        const j = i + shift;
-                        if (j >= 0 && j < s.fingerprint.length) {
-                            subA.push(fingerprint[i]);
-                            subB.push(s.fingerprint[j]);
+                // Try both normal and inverted fingerprints (light-on-dark vs dark-on-light)
+                const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
+
+                for (const candidateFp of fpCandidates) {
+                    for (let shift = -12; shift <= 12; shift++) {
+                        let subA = [];
+                        let subB = [];
+                        for (let i = 0; i < fingerprint.length; i++) {
+                            const j = i + shift;
+                            if (j >= 0 && j < candidateFp.length) {
+                                subA.push(fingerprint[i]);
+                                subB.push(candidateFp[j]);
+                            }
                         }
-                    }
-                    if (subA.length >= fingerprint.length * 0.5) {
-                        const score = pearsonCorrelation(subA, subB);
-                        if (score > bestScore) {
-                            bestScore = score;
-                            bestMatch = s;
+                        if (subA.length >= fingerprint.length * 0.4) {
+                            const score = pearsonCorrelation(subA, subB);
+                            if (score > bestScore) {
+                                bestScore = score;
+                                bestMatch = s;
+                            }
                         }
                     }
                 }
             }
 
-            // Requires high confidence score (>= 0.78) for reliable matching
-            if (bestMatch && bestScore >= 0.78) {
+            // Requires correlation score >= 0.65 for reliable matching
+            if (bestMatch && bestScore >= 0.65) {
                 return res.json({
                     success: true,
                     matchType: 'fingerprint',

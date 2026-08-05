@@ -25,10 +25,13 @@ const Scanner = (function () {
         }
     }
 
-    function stopCamera() {
+    function stopCamera(videoElement) {
         if (camStream) {
             camStream.getTracks().forEach(t => t.stop());
             camStream = null;
+        }
+        if (videoElement) {
+            videoElement.srcObject = null;
         }
     }
 
@@ -83,8 +86,8 @@ const Scanner = (function () {
         const bgMean = bgCount > 0 ? bgSum / bgCount : 255;
         const contrast = bgMean - inkMean;
 
-        // Require sharp contrast (black ink on light skin or paper): contrast >= 45
-        if (contrast < 45 || inkCount < (w * h * 0.02) || inkCount > (w * h * 0.70)) {
+        // Tolerant contrast check (contrast >= 15 for screen glare / photos)
+        if (contrast < 15 || inkCount < (w * h * 0.01) || inkCount > (w * h * 0.85)) {
             return null;
         }
 
@@ -113,7 +116,7 @@ const Scanner = (function () {
             }
         }
 
-        // 3. Symmetry Check: Audio waveforms are vertically symmetric around their center axis
+        // 3. Symmetry Check: Audio waveforms are vertically symmetric around center axis
         const centerY = (globalMinTop + globalMaxBot) / 2;
         let symSum = 0, symCount = 0;
 
@@ -130,8 +133,8 @@ const Scanner = (function () {
         }
 
         const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
-        // Audio waveforms must have high vertical symmetry (>= 0.55). Faces and text have low symmetry.
-        if (avgSymmetry < 0.55) {
+        // Tolerant symmetry requirement (>= 0.20) for angled shots & skin folds
+        if (avgSymmetry < 0.20) {
             return null;
         }
 
@@ -159,7 +162,7 @@ const Scanner = (function () {
         }
 
         const max = Math.max(...bins);
-        if (max < h * 0.10) {
+        if (max < h * 0.05) {
             return null;
         }
 
@@ -170,19 +173,19 @@ const Scanner = (function () {
         const variance = normalized.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / N_BINS;
         const stdDev = Math.sqrt(variance);
 
-        if (stdDev < 0.10) {
+        if (stdDev < 0.05) {
             return null;
         }
 
         // Count local peaks across 64 bins (real audio waveforms have multiple peaks)
         let peakCount = 0;
         for (let i = 1; i < N_BINS - 1; i++) {
-            if (normalized[i] > normalized[i - 1] && normalized[i] > normalized[i + 1] && normalized[i] > 0.2) {
+            if (normalized[i] > normalized[i - 1] && normalized[i] > normalized[i + 1] && normalized[i] > 0.15) {
                 peakCount++;
             }
         }
 
-        if (peakCount < 2) {
+        if (peakCount < 1) {
             return null;
         }
 

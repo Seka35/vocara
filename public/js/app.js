@@ -438,10 +438,66 @@
         }
         pendingCandidateCode = null;
         pendingMatchCount = 0;
-        Scanner.stopCamera();
+        Scanner.stopCamera(camVideo);
+        if (camVideo) {
+            camVideo.srcObject = null;
+        }
         startCamBtn.style.display = 'inline-flex';
         stopCamBtn.style.display = 'none';
         if (autoScanBadge) autoScanBadge.style.display = 'none';
+    }
+
+    // --- Direct Sound Code Lookup Handler (100% Reliable Backup) ---
+    const manualSoundCodeInput = document.getElementById('manualSoundCodeInput');
+    const manualSoundCodeBtn = document.getElementById('manualSoundCodeBtn');
+
+    async function triggerManualCodeLookup() {
+        if (!manualSoundCodeInput) return;
+        const code = manualSoundCodeInput.value.trim().toUpperCase();
+        if (!code) {
+            toast('Please enter a valid Sound Code.');
+            manualSoundCodeInput.focus();
+            return;
+        }
+
+        manualSoundCodeBtn.disabled = true;
+        manualSoundCodeBtn.textContent = 'Searching...';
+
+        try {
+            const res = await fetch('/api/scan', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ soundCode: code })
+            });
+
+            const data = await res.json();
+            if (data.success && data.sound) {
+                handleMatchedSound(data.sound, 1.0);
+                toast(`Sound Code "${code}" matched! Playing memory...`);
+            } else {
+                resultBox.classList.remove('show', 'match', 'no-match');
+                void resultBox.offsetWidth;
+                resultBox.classList.add('show', 'no-match');
+                document.getElementById('resultHeader').textContent = 'NO MATCH FOUND';
+                document.getElementById('resultTitle').textContent = 'Invalid Sound Code';
+                document.getElementById('resultMeta').textContent = `No sound memory found matching "${code}". Please verify code.`;
+                toast(`No sound found for code "${code}"`, 4000);
+            }
+        } catch (e) {
+            toast('Error connecting to database.');
+        } finally {
+            manualSoundCodeBtn.disabled = false;
+            manualSoundCodeBtn.textContent = 'Play Sound';
+        }
+    }
+
+    if (manualSoundCodeBtn) {
+        manualSoundCodeBtn.addEventListener('click', triggerManualCodeLookup);
+    }
+    if (manualSoundCodeInput) {
+        manualSoundCodeInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') triggerManualCodeLookup();
+        });
     }
 
     function triggerRecognitionAnimation() {
@@ -536,30 +592,20 @@
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
                         const candidate = scanRes.sound.sound_code;
-                        if (candidate === pendingCandidateCode) {
-                            pendingMatchCount++;
-                        } else {
-                            pendingCandidateCode = candidate;
-                            pendingMatchCount = 1;
-                        }
-
-                        if (pendingMatchCount >= 2 && lastMatchedCode !== candidate) {
+                        if (lastMatchedCode !== candidate) {
                             lastMatchedCode = candidate;
                             handleMatchedSound(scanRes.sound, scanRes.confidence);
 
                             if (cooldownTimer) clearTimeout(cooldownTimer);
-                            cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 6000);
+                            cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
                         }
-                    } else {
-                        pendingCandidateCode = null;
-                        pendingMatchCount = 0;
                     }
                 } catch (e) {
                     console.error('Auto scan error:', e);
                 } finally {
                     isScanningFrame = false;
                 }
-            }, 600);
+            }, 400);
         } else {
             toast('Could not access camera. Please allow permission or upload a photo.');
         }
