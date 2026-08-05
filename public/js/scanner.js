@@ -86,8 +86,8 @@ const Scanner = (function () {
         const bgMean = bgCount > 0 ? bgSum / bgCount : 255;
         const contrast = bgMean - inkMean;
 
-        // Tolerant contrast check (contrast >= 15 for screen glare / photos)
-        if (contrast < 15 || inkCount < (w * h * 0.01) || inkCount > (w * h * 0.85)) {
+        // Contrast check (contrast >= 20 for real printed/screen sound motifs)
+        if (contrast < 20 || inkCount < (w * h * 0.01) || inkCount > (w * h * 0.85)) {
             return null;
         }
 
@@ -133,8 +133,8 @@ const Scanner = (function () {
         }
 
         const avgSymmetry = symCount > 0 ? symSum / symCount : 0;
-        // Tolerant symmetry requirement (>= 0.20) for angled shots & skin folds
-        if (avgSymmetry < 0.20) {
+        // Require symmetry (>= 0.42) to distinguish audio stencil bars from arbitrary shapes (faces, clothes, background)
+        if (avgSymmetry < 0.42) {
             return null;
         }
 

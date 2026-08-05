@@ -644,15 +644,14 @@
                     <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="resultMeta">—</div>
 
                     <!-- Interactive Glowing Waveform Player for Scan Result -->
-                    <div class="result-player-wrap" id="resultPlayerWrap" style="background:rgba(10,15,26,0.95); border:1px solid var(--border-highlight); border-radius:var(--radius-md); padding:16px; margin-top:12px;">
-                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
-                            <button class="btn btn-primary" id="resultPlayBtn" style="padding:8px 16px; min-height:40px; font-size:13px; gap:8px;">
-                                <svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                <span>Play Sound Memory</span>
+                    <div class="result-player-wrap" id="resultPlayerWrap" style="background:rgba(10,15,26,0.95); border:1px solid var(--border-highlight); border-radius:var(--radius-md); padding:14px; margin-top:12px;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; gap:12px;">
+                            <button class="btn btn-primary" id="resultPlayBtn" aria-label="Play or Pause Sound Memory" style="width:44px; height:44px; min-width:44px; padding:0; border-radius:50%; display:flex; align-items:center; justify-content:center; flex-shrink:0; box-shadow:0 4px 16px rgba(255,107,0,0.4);">
+                                <svg class="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
                             </button>
-                            <div style="display:flex; flex-direction:column; align-items:flex-end;">
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; text-align:right;">
                                 <span id="resultTimeDisplay" style="font-family:'JetBrains Mono', monospace; font-size:13px; font-weight:700; color:var(--primary);">00:00 / 00:00</span>
-                                <span style="font-size:11px; color:var(--text-dim);">Click waveform curve to seek position</span>
+                                <span style="font-size:10px; color:var(--text-dim); margin-top:2px;">Tap waveform curve to seek</span>
                             </div>
                         </div>
 
