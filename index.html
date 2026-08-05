@@ -1,0 +1,1333 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GRAVURE — l'empreinte sonore</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Work+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --ink: #17140f;
+            --ink-soft: #2a241c;
+            --skin: #e8d2b8;
+            --skin-deep: #cba173;
+            --paper: #f6efe2;
+            --paper-dim: #efe4d1;
+            --blood: #7c2d2d;
+            --blood-bright: #a13a3a;
+            --muted: #8a7d6c;
+            --line: rgba(23, 20, 15, 0.14);
+            --good: #3d6b4f;
+            --radius: 2px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: 'Work Sans', sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            min-height: 100vh;
+            background-image:
+                radial-gradient(ellipse at top left, rgba(203, 161, 115, 0.18), transparent 55%),
+                radial-gradient(ellipse at bottom right, rgba(124, 45, 45, 0.06), transparent 50%);
+        }
+
+        ::selection {
+            background: var(--skin-deep);
+            color: var(--ink);
+        }
+
+        .wrap {
+            max-width: 920px;
+            margin: 0 auto;
+            padding: 32px 20px 90px;
+        }
+
+        header.top {
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 18px;
+            margin-bottom: 28px;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .brand-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--blood);
+            margin-bottom: 4px;
+        }
+
+        .brand {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 52px;
+            letter-spacing: 0.03em;
+            line-height: 0.9;
+        }
+
+        .tagline {
+            max-width: 300px;
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.5;
+            text-align: right;
+        }
+
+        @media (max-width:640px) {
+            .tagline {
+                text-align: left;
+                max-width: none;
+            }
+        }
+
+        nav.tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 30px;
+            border: 1px solid var(--ink);
+            border-radius: var(--radius);
+            overflow: hidden;
+        }
+
+        nav.tabs button {
+            flex: 1;
+            padding: 14px 10px;
+            background: transparent;
+            border: none;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--ink);
+            cursor: pointer;
+            border-right: 1px solid var(--ink);
+            transition: background .15s ease, color .15s ease;
+        }
+
+        nav.tabs button:last-child {
+            border-right: none;
+        }
+
+        nav.tabs button.active {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        nav.tabs button:not(.active):hover {
+            background: rgba(23, 20, 15, 0.06);
+        }
+
+        section.panel {
+            display: none;
+        }
+
+        section.panel.active {
+            display: block;
+            animation: fadein .25s ease;
+        }
+
+        @keyframes fadein {
+            from {
+                opacity: 0;
+                transform: translateY(4px);
+            }
+
+            to {
+                opacity: 1;
+                transform: none;
+            }
+        }
+
+        .card {
+            background: var(--paper-dim);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 24px;
+            margin-bottom: 22px;
+        }
+
+        .card h2 {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 24px;
+            letter-spacing: 0.02em;
+            margin-bottom: 4px;
+        }
+
+        .card p.hint {
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+
+        /* --- Recording --- */
+        .rec-row {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .rec-btn {
+            width: 74px;
+            height: 74px;
+            border-radius: 50%;
+            background: var(--blood);
+            border: 2px solid var(--ink);
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            transition: transform .1s ease;
+        }
+
+        .rec-btn:active {
+            transform: scale(0.94);
+        }
+
+        .rec-btn .dot {
+            position: absolute;
+            inset: 0;
+            margin: auto;
+            width: 22px;
+            height: 22px;
+            background: var(--paper);
+            border-radius: 4px;
+        }
+
+        .rec-btn.idle .dot {
+            border-radius: 50%;
+            width: 26px;
+            height: 26px;
+        }
+
+        .rec-btn:disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+        }
+
+        .rec-status {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+        }
+
+        .rec-status .timer {
+            font-size: 20px;
+            display: block;
+            margin-top: 2px;
+        }
+
+        .rec-status .label {
+            color: var(--muted);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            font-size: 11px;
+        }
+
+        .rec-status.live .timer {
+            color: var(--blood-bright);
+        }
+
+        canvas.wave {
+            display: block;
+            width: 100%;
+            height: auto;
+            border-radius: var(--radius);
+        }
+
+        .wave-shell {
+            background: linear-gradient(180deg, var(--skin) 0%, var(--skin-deep) 100%);
+            border-radius: var(--radius);
+            padding: 18px;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .wave-shell.show {
+            display: block;
+        }
+
+        .save-row {
+            display: flex;
+            gap: 10px;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+
+        input[type=text] {
+            flex: 1;
+            min-width: 180px;
+            background: var(--paper);
+            border: 1px solid var(--line);
+            padding: 12px 14px;
+            font-family: 'Work Sans', sans-serif;
+            font-size: 14px;
+            color: var(--ink);
+            border-radius: var(--radius);
+        }
+
+        input[type=text]:focus {
+            outline: 2px solid var(--blood);
+            outline-offset: 1px;
+        }
+
+        button.primary {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+            padding: 12px 20px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: var(--radius);
+            cursor: pointer;
+            transition: background .15s ease;
+        }
+
+        button.primary:hover {
+            background: var(--blood);
+        }
+
+        button.primary:disabled {
+            opacity: 0.35;
+            cursor: not-allowed;
+        }
+
+        button.ghost {
+            background: transparent;
+            border: 1px solid var(--ink);
+            color: var(--ink);
+            padding: 11px 18px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            border-radius: var(--radius);
+            cursor: pointer;
+        }
+
+        button.ghost:hover {
+            background: rgba(23, 20, 15, 0.06);
+        }
+
+        /* --- Gallery --- */
+        .gallery {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 14px;
+            margin-top: 6px;
+        }
+
+        .g-item {
+            background: var(--paper);
+            border: 1px solid var(--line);
+            border-radius: var(--radius);
+            padding: 14px;
+        }
+
+        .g-item canvas {
+            width: 100%;
+            height: 60px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .g-item .g-label {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .g-item .g-date {
+            font-size: 11px;
+            color: var(--muted);
+            font-family: 'JetBrains Mono', monospace;
+            margin-bottom: 10px;
+        }
+
+        .g-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .g-actions button {
+            flex: 1;
+            font-size: 11px;
+            padding: 8px;
+            border-radius: var(--radius);
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.04em;
+        }
+
+        .g-actions .play {
+            background: var(--ink);
+            color: var(--paper);
+            border: none;
+        }
+
+        .g-actions .play:hover {
+            background: var(--blood);
+        }
+
+        .g-actions .del {
+            background: transparent;
+            border: 1px solid var(--muted);
+            color: var(--muted);
+        }
+
+        .g-actions .del:hover {
+            border-color: var(--blood);
+            color: var(--blood);
+        }
+
+        .empty {
+            font-size: 13px;
+            color: var(--muted);
+            font-style: italic;
+        }
+
+        /* --- Scan --- */
+        .scan-source-toggle {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .scan-source-toggle button {
+            padding: 9px 16px;
+            font-size: 11px;
+            font-family: 'JetBrains Mono', monospace;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            border-radius: var(--radius);
+            cursor: pointer;
+            border: 1px solid var(--ink);
+            background: transparent;
+            color: var(--ink);
+        }
+
+        .scan-source-toggle button.active {
+            background: var(--ink);
+            color: var(--paper);
+        }
+
+        .cam-box {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            background: var(--ink);
+            border-radius: var(--radius);
+            overflow: hidden;
+            margin-bottom: 16px;
+        }
+
+        .cam-box video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        .cam-guide {
+            position: absolute;
+            left: 15%;
+            top: 37.5%;
+            width: 70%;
+            height: 25%;
+            border: 2px dashed var(--skin);
+            border-radius: 2px;
+            pointer-events: none;
+        }
+
+        .cam-guide::after {
+            content: "Alignez le tatouage ici";
+            position: absolute;
+            bottom: -24px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            color: var(--skin);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+        }
+
+        .cam-placeholder {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-size: 13px;
+            text-align: center;
+            padding: 20px;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .upload-box {
+            border: 1px dashed var(--muted);
+            border-radius: var(--radius);
+            padding: 40px 20px;
+            text-align: center;
+            margin-bottom: 16px;
+            cursor: pointer;
+            transition: border-color .15s;
+        }
+
+        .upload-box:hover {
+            border-color: var(--blood);
+        }
+
+        .upload-box img {
+            max-width: 100%;
+            max-height: 200px;
+            border-radius: var(--radius);
+        }
+
+        .upload-box .u-text {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        .scan-actions {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 6px;
+            flex-wrap: wrap;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 20px;
+            border-radius: var(--radius);
+            display: none;
+        }
+
+        .result.show {
+            display: block;
+            animation: fadein .3s ease;
+        }
+
+        .result.match {
+            background: rgba(61, 107, 79, 0.1);
+            border: 1px solid var(--good);
+        }
+
+        .result.no-match {
+            background: rgba(124, 45, 45, 0.08);
+            border: 1px solid var(--blood);
+        }
+
+        .result .r-eyebrow {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 11px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 8px;
+        }
+
+        .result.match .r-eyebrow {
+            color: var(--good);
+        }
+
+        .result.no-match .r-eyebrow {
+            color: var(--blood);
+        }
+
+        .result .r-title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: 30px;
+            margin-bottom: 4px;
+        }
+
+        .result .r-confidence {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 14px;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .scanning-indicator {
+            display: none;
+            align-items: center;
+            gap: 10px;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            color: var(--muted);
+            margin-top: 10px;
+        }
+
+        .scanning-indicator.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 14px;
+            height: 14px;
+            border: 2px solid var(--line);
+            border-top-color: var(--blood);
+            border-radius: 50%;
+            animation: spin .7s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .howto {
+            margin-top: 30px;
+        }
+
+        .howto summary {
+            cursor: pointer;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 12px;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            color: var(--muted);
+            padding: 6px 0;
+        }
+
+        .howto[open] summary {
+            color: var(--ink);
+        }
+
+        .howto .howto-body {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.7;
+            padding: 10px 0 0 0;
+        }
+
+        .howto .howto-body b {
+            color: var(--ink);
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--ink);
+            color: var(--paper);
+            padding: 12px 20px;
+            border-radius: var(--radius);
+            font-size: 13px;
+            opacity: 0;
+            pointer-events: none;
+            transition: all .25s ease;
+            z-index: 50;
+            max-width: 90vw;
+            text-align: center;
+        }
+
+        .toast.show {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="wrap">
+        <header class="top">
+            <div>
+                <div class="brand-eyebrow">Prototype — MVP fonctionnel</div>
+                <div class="brand">GRAVURE</div>
+            </div>
+            <p class="tagline">Un son devient une forme. Une forme redonne le son. Enregistrez, gravez, scannez.</p>
+        </header>
+
+        <nav class="tabs">
+            <button class="active" data-tab="graver">① Graver un son</button>
+            <button data-tab="scanner">② Scanner un tatouage</button>
+        </nav>
+
+        <!-- ===================== PANEL 1 : GRAVER ===================== -->
+        <section class="panel active" id="panel-graver">
+            <div class="card">
+                <h2>Enregistrer</h2>
+                <p class="hint">20 secondes maximum. Un rire, une phrase, un prénom — plus c'est court et net, plus le
+                    motif sera lisible.</p>
+                <div class="rec-row">
+                    <button class="rec-btn idle" id="recBtn" title="Démarrer l'enregistrement">
+                        <span class="dot"></span>
+                    </button>
+                    <div class="rec-status" id="recStatus">
+                        <span class="label">Prêt</span>
+                        <span class="timer">00:00</span>
+                    </div>
+                </div>
+
+                <div class="wave-shell" id="waveShell">
+                    <canvas class="wave" id="waveCanvas" width="900" height="260"></canvas>
+                </div>
+
+                <div class="save-row" id="saveRow" style="display:none;">
+                    <input type="text" id="labelInput" placeholder="Nom du souvenir (ex : le rire d'Emma)"
+                        maxlength="60">
+                    <button class="primary" id="saveBtn">Graver</button>
+                    <button class="ghost" id="discardBtn">Recommencer</button>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>Vos gravures</h2>
+                <p class="hint">Chaque motif enregistré ici pourra être reconnu dans l'onglet Scanner.</p>
+                <div class="gallery" id="gallery"></div>
+            </div>
+        </section>
+
+        <!-- ===================== PANEL 2 : SCANNER ===================== -->
+        <section class="panel" id="panel-scanner">
+            <div class="card">
+                <h2>Scanner</h2>
+                <p class="hint">Visez le tatouage avec la caméra, ou importez une photo nette prise de face.</p>
+
+                <div class="scan-source-toggle">
+                    <button class="active" data-src="camera">Caméra</button>
+                    <button data-src="upload">Importer une photo</button>
+                </div>
+
+                <div id="srcCamera">
+                    <div class="cam-box">
+                        <video id="camVideo" autoplay playsinline muted></video>
+                        <div class="cam-guide" id="camGuide"></div>
+                        <div class="cam-placeholder" id="camPlaceholder">
+                            <span>Caméra non démarrée</span>
+                            <button class="ghost" id="startCamBtn"
+                                style="color:var(--skin); border-color:var(--skin);">Activer la caméra</button>
+                        </div>
+                    </div>
+                    <div class="scan-actions">
+                        <button class="primary" id="captureBtn" disabled>Scanner</button>
+                    </div>
+                </div>
+
+                <div id="srcUpload" style="display:none;">
+                    <label class="upload-box" id="uploadBox">
+                        <div id="uploadInner">
+                            <div class="u-text">Cliquez pour choisir une photo du tatouage</div>
+                        </div>
+                        <input type="file" accept="image/*" id="fileInput" style="display:none;">
+                    </label>
+                    <div class="scan-actions">
+                        <button class="primary" id="scanUploadBtn" disabled>Scanner</button>
+                    </div>
+                </div>
+
+                <div class="scanning-indicator" id="scanIndicator">
+                    <span class="spinner"></span> Analyse du motif en cours…
+                </div>
+
+                <div class="result" id="scanResult">
+                    <div class="r-eyebrow" id="rEyebrow">Correspondance trouvée</div>
+                    <div class="r-title" id="rTitle">—</div>
+                    <div class="r-confidence" id="rConfidence">—</div>
+                    <audio id="rAudio" controls style="width:100%;"></audio>
+                </div>
+            </div>
+
+            <details class="howto">
+                <summary>Comment ça marche, techniquement</summary>
+                <div class="howto-body">
+                    Ce prototype ne fait pas de la reconnaissance visuelle générique façon deep-learning : il s'appuie
+                    sur le fait
+                    que <b>vous générez vous-même le motif</b>. À l'enregistrement, le son est découpé en 64 tranches et
+                    chaque
+                    tranche donne la hauteur d'une barre — c'est cette empreinte numérique (64 chiffres) qui est
+                    stockée, pas
+                    juste l'image. Au scan, la photo est passée en niveaux de gris, seuillée pour isoler l'encre du
+                    reste, puis
+                    chaque colonne de l'image redonne une hauteur de barre. Le profil obtenu est comparé par corrélation
+                    à toutes
+                    les empreintes enregistrées ; la plus proche gagne, si elle dépasse un seuil de confiance. Ça marche
+                    bien sur
+                    des designs propres et un cadrage net — la vraie reconnaissance d'image robuste (Skin Motion et
+                    équivalents)
+                    utilise en plus du matching de points-clés type ORB/SIFT pour encaisser les angles, la lumière et le
+                    vieillissement de la peau.
+                </div>
+            </details>
+        </section>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        (function () {
+            "use strict";
+
+            const N_BINS = 64;
+            const MAX_RECORD_MS = 20000;
+
+            // ---------- utils ----------
+            function toast(msg, ms = 2600) {
+                const t = document.getElementById('toast');
+                t.textContent = msg;
+                t.classList.add('show');
+                clearTimeout(t._timer);
+                t._timer = setTimeout(() => t.classList.remove('show'), ms);
+            }
+            function uid() { return 'g_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8); }
+            function fmtTime(ms) {
+                const s = Math.floor(ms / 1000);
+                const m = Math.floor(s / 60);
+                const rs = s % 60;
+                return String(m).padStart(2, '0') + ':' + String(rs).padStart(2, '0');
+            }
+            function fmtDate(ts) {
+                const d = new Date(ts);
+                return d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' });
+            }
+            function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
+
+            // ---------- storage helpers ----------
+            async function storageSet(key, valueObj) {
+                return await window.storage.set(key, JSON.stringify(valueObj), false);
+            }
+            async function storageGet(key) {
+                try {
+                    const r = await window.storage.get(key, false);
+                    return r ? JSON.parse(r.value) : null;
+                } catch (e) { return null; }
+            }
+            async function storageDelete(key) {
+                try { await window.storage.delete(key, false); } catch (e) { }
+            }
+            async function getIndex() {
+                const idx = await storageGet('gravures:index');
+                return Array.isArray(idx) ? idx : [];
+            }
+            async function setIndex(arr) {
+                await storageSet('gravures:index', arr);
+            }
+
+            // ---------- tabs ----------
+            document.querySelectorAll('nav.tabs button').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    document.querySelectorAll('section.panel').forEach(p => p.classList.remove('active'));
+                    document.getElementById('panel-' + btn.dataset.tab).classList.add('active');
+                });
+            });
+
+            // ================= RECORDING =================
+            let mediaRecorder = null;
+            let recordedChunks = [];
+            let recordStream = null;
+            let recordStartTs = 0;
+            let recordTimerInterval = null;
+            let currentFingerprint = null;
+            let currentAudioDataUrl = null;
+            let currentAudioMime = null;
+
+            const recBtn = document.getElementById('recBtn');
+            const recStatus = document.getElementById('recStatus');
+            const waveShell = document.getElementById('waveShell');
+            const waveCanvas = document.getElementById('waveCanvas');
+            const saveRow = document.getElementById('saveRow');
+            const labelInput = document.getElementById('labelInput');
+
+            recBtn.addEventListener('click', async () => {
+                if (recBtn.classList.contains('idle')) {
+                    await startRecording();
+                } else {
+                    stopRecording();
+                }
+            });
+
+            async function startRecording() {
+                try {
+                    recordStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                } catch (e) {
+                    toast("Impossible d'accéder au micro. Autorisez l'accès dans les paramètres du navigateur.");
+                    return;
+                }
+                recordedChunks = [];
+                let mimeType = 'audio/webm';
+                if (!MediaRecorder.isTypeSupported(mimeType)) {
+                    mimeType = '';
+                }
+                mediaRecorder = mimeType ? new MediaRecorder(recordStream, { mimeType }) : new MediaRecorder(recordStream);
+                mediaRecorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+                mediaRecorder.onstop = onRecordingStop;
+                mediaRecorder.start();
+
+                recordStartTs = Date.now();
+                recBtn.classList.remove('idle');
+                recStatus.classList.add('live');
+                recStatus.querySelector('.label').textContent = 'Enregistrement…';
+                waveShell.classList.remove('show');
+                saveRow.style.display = 'none';
+
+                recordTimerInterval = setInterval(() => {
+                    const elapsed = Date.now() - recordStartTs;
+                    recStatus.querySelector('.timer').textContent = fmtTime(elapsed);
+                    if (elapsed >= MAX_RECORD_MS) { stopRecording(); }
+                }, 200);
+            }
+
+            function stopRecording() {
+                if (mediaRecorder && mediaRecorder.state !== 'inactive') {
+                    mediaRecorder.stop();
+                }
+                if (recordStream) {
+                    recordStream.getTracks().forEach(t => t.stop());
+                }
+                clearInterval(recordTimerInterval);
+                recBtn.classList.add('idle');
+                recStatus.classList.remove('live');
+                recStatus.querySelector('.label').textContent = 'Traitement…';
+            }
+
+            async function onRecordingStop() {
+                const mime = (mediaRecorder && mediaRecorder.mimeType) || 'audio/webm';
+                const blob = new Blob(recordedChunks, { type: mime });
+                if (blob.size === 0) {
+                    toast("Aucun son détecté. Réessayez en parlant plus près du micro.");
+                    recStatus.querySelector('.label').textContent = 'Prêt';
+                    recStatus.querySelector('.timer').textContent = '00:00';
+                    return;
+                }
+                try {
+                    const arrayBuffer = await blob.arrayBuffer();
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const audioBuffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0));
+                    const fingerprint = computeFingerprint(audioBuffer, N_BINS);
+                    currentFingerprint = fingerprint;
+
+                    const dataUrl = await blobToDataUrl(blob);
+                    currentAudioDataUrl = dataUrl;
+                    currentAudioMime = mime;
+
+                    drawWaveform(waveCanvas, fingerprint);
+                    waveShell.classList.add('show');
+                    saveRow.style.display = 'flex';
+                    labelInput.value = '';
+                    labelInput.focus();
+
+                    recStatus.querySelector('.label').textContent = 'Prêt';
+                    recStatus.querySelector('.timer').textContent = '00:00';
+                } catch (e) {
+                    console.error(e);
+                    toast("Le son n'a pas pu être analysé. Réessayez.");
+                    recStatus.querySelector('.label').textContent = 'Prêt';
+                }
+            }
+
+            function blobToDataUrl(blob) {
+                return new Promise((resolve, reject) => {
+                    const r = new FileReader();
+                    r.onload = () => resolve(r.result);
+                    r.onerror = reject;
+                    r.readAsDataURL(blob);
+                });
+            }
+
+            function computeFingerprint(audioBuffer, nBins) {
+                const ch0 = audioBuffer.getChannelData(0);
+                let data = ch0;
+                if (audioBuffer.numberOfChannels > 1) {
+                    const ch1 = audioBuffer.getChannelData(1);
+                    const mixed = new Float32Array(ch0.length);
+                    for (let i = 0; i < ch0.length; i++) mixed[i] = (ch0[i] + ch1[i]) / 2;
+                    data = mixed;
+                }
+                const total = data.length;
+                const binSize = Math.max(1, Math.floor(total / nBins));
+                const bins = new Array(nBins).fill(0);
+                for (let b = 0; b < nBins; b++) {
+                    const start = b * binSize;
+                    const end = (b === nBins - 1) ? total : Math.min(total, start + binSize);
+                    let sumSq = 0, count = 0;
+                    for (let i = start; i < end; i++) { sumSq += data[i] * data[i]; count++; }
+                    bins[b] = count > 0 ? Math.sqrt(sumSq / count) : 0; // RMS
+                }
+                const max = Math.max(...bins, 1e-6);
+                return bins.map(v => clamp(v / max, 0, 1));
+            }
+
+            function drawWaveform(canvas, fingerprint, opts) {
+                opts = opts || {};
+                const ctx = canvas.getContext('2d');
+                const W = canvas.width, H = canvas.height;
+                ctx.clearRect(0, 0, W, H);
+
+                // background
+                const grad = ctx.createLinearGradient(0, 0, 0, H);
+                grad.addColorStop(0, opts.bg1 || '#e8d2b8');
+                grad.addColorStop(1, opts.bg2 || '#cba173');
+                ctx.fillStyle = grad;
+                ctx.fillRect(0, 0, W, H);
+
+                const midY = H / 2;
+                const n = fingerprint.length;
+                const padX = W * 0.04;
+                const usableW = W - padX * 2;
+                const slot = usableW / n;
+                const barW = Math.max(2, slot * 0.42);
+                const minH = H * 0.025;
+                const maxH = H * 0.72;
+
+                ctx.strokeStyle = opts.ink || '#17140f';
+                ctx.lineWidth = Math.max(1.5, W * 0.0016);
+                // baseline
+                ctx.beginPath();
+                ctx.moveTo(padX * 0.4, midY);
+                ctx.lineTo(W - padX * 0.4, midY);
+                ctx.stroke();
+
+                ctx.fillStyle = opts.ink || '#17140f';
+                ctx.lineCap = 'round';
+                for (let i = 0; i < n; i++) {
+                    const v = fingerprint[i];
+                    const h = minH + v * (maxH - minH);
+                    const x = padX + i * slot + slot / 2;
+                    ctx.beginPath();
+                    ctx.lineWidth = barW;
+                    ctx.moveTo(x, midY - h / 2);
+                    ctx.lineTo(x, midY + h / 2);
+                    ctx.stroke();
+                }
+            }
+
+            // ---------- save / discard ----------
+            document.getElementById('discardBtn').addEventListener('click', () => {
+                waveShell.classList.remove('show');
+                saveRow.style.display = 'none';
+                currentFingerprint = null; currentAudioDataUrl = null;
+            });
+
+            document.getElementById('saveBtn').addEventListener('click', async () => {
+                const label = labelInput.value.trim();
+                if (!label) { toast("Donnez un nom à ce souvenir avant de le graver."); labelInput.focus(); return; }
+                if (!currentFingerprint || !currentAudioDataUrl) { toast("Aucun enregistrement à graver."); return; }
+                const saveBtn = document.getElementById('saveBtn');
+                saveBtn.disabled = true; saveBtn.textContent = 'Gravure…';
+                try {
+                    const id = uid();
+                    const entry = {
+                        id, label, createdAt: Date.now(),
+                        fingerprint: currentFingerprint,
+                        audioData: currentAudioDataUrl,
+                        mime: currentAudioMime
+                    };
+                    const r = await storageSet('gravures:' + id, entry);
+                    if (!r) { throw new Error('storage set failed'); }
+                    const idx = await getIndex();
+                    idx.unshift(id);
+                    await setIndex(idx);
+
+                    toast('« ' + label + ' » a été gravé.');
+                    waveShell.classList.remove('show');
+                    saveRow.style.display = 'none';
+                    currentFingerprint = null; currentAudioDataUrl = null;
+                    await renderGallery();
+                } catch (e) {
+                    console.error(e);
+                    toast("La gravure a échoué. Réessayez.");
+                } finally {
+                    saveBtn.disabled = false; saveBtn.textContent = 'Graver';
+                }
+            });
+
+            // ---------- gallery ----------
+            async function renderGallery() {
+                const gallery = document.getElementById('gallery');
+                const idx = await getIndex();
+                if (idx.length === 0) {
+                    gallery.innerHTML = '<p class="empty">Aucune gravure pour l\'instant — enregistrez un son ci-dessus.</p>';
+                    return;
+                }
+                gallery.innerHTML = '';
+                for (const id of idx) {
+                    const entry = await storageGet('gravures:' + id);
+                    if (!entry) continue;
+                    const item = document.createElement('div');
+                    item.className = 'g-item';
+                    item.innerHTML = `
+        <canvas width="400" height="90"></canvas>
+        <div class="g-label"></div>
+        <div class="g-date"></div>
+        <div class="g-actions">
+          <button class="play">▶ Écouter</button>
+          <button class="del">Supprimer</button>
+        </div>
+      `;
+                    item.querySelector('.g-label').textContent = entry.label;
+                    item.querySelector('.g-date').textContent = fmtDate(entry.createdAt);
+                    drawWaveform(item.querySelector('canvas'), entry.fingerprint);
+                    item.querySelector('.play').addEventListener('click', () => {
+                        const audio = new Audio(entry.audioData);
+                        audio.play().catch(() => toast("Lecture impossible."));
+                    });
+                    item.querySelector('.del').addEventListener('click', async () => {
+                        if (!confirm('Supprimer « ' + entry.label + ' » ?')) return;
+                        await storageDelete('gravures:' + id);
+                        const newIdx = (await getIndex()).filter(x => x !== id);
+                        await setIndex(newIdx);
+                        renderGallery();
+                    });
+                    gallery.appendChild(item);
+                }
+            }
+
+            // ================= SCANNING =================
+            const srcButtons = document.querySelectorAll('.scan-source-toggle button');
+            const srcCamera = document.getElementById('srcCamera');
+            const srcUpload = document.getElementById('srcUpload');
+            srcButtons.forEach(b => {
+                b.addEventListener('click', () => {
+                    srcButtons.forEach(x => x.classList.remove('active'));
+                    b.classList.add('active');
+                    if (b.dataset.src === 'camera') {
+                        srcCamera.style.display = ''; srcUpload.style.display = 'none';
+                    } else {
+                        srcCamera.style.display = 'none'; srcUpload.style.display = '';
+                        stopCamera();
+                    }
+                });
+            });
+
+            let camStream = null;
+            const camVideo = document.getElementById('camVideo');
+            const camPlaceholder = document.getElementById('camPlaceholder');
+            const captureBtn = document.getElementById('captureBtn');
+
+            document.getElementById('startCamBtn').addEventListener('click', startCamera);
+
+            async function startCamera() {
+                try {
+                    camStream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
+                    camVideo.srcObject = camStream;
+                    camPlaceholder.style.display = 'none';
+                    captureBtn.disabled = false;
+                } catch (e) {
+                    toast("Impossible d'accéder à la caméra. Autorisez l'accès ou utilisez « Importer une photo ».");
+                }
+            }
+            function stopCamera() {
+                if (camStream) { camStream.getTracks().forEach(t => t.stop()); camStream = null; }
+                captureBtn.disabled = true;
+                camPlaceholder.style.display = '';
+            }
+
+            captureBtn.addEventListener('click', async () => {
+                if (!camVideo.videoWidth) { toast('La caméra n\'est pas encore prête.'); return; }
+                const canvas = document.createElement('canvas');
+                canvas.width = camVideo.videoWidth;
+                canvas.height = camVideo.videoHeight;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(camVideo, 0, 0, canvas.width, canvas.height);
+                // crop to the same relative box as the on-screen guide (70% w x 25% h, centered)
+                const cropX = canvas.width * 0.15;
+                const cropY = canvas.height * 0.375;
+                const cropW = canvas.width * 0.70;
+                const cropH = canvas.height * 0.25;
+                const cropCanvas = document.createElement('canvas');
+                cropCanvas.width = cropW; cropCanvas.height = cropH;
+                cropCanvas.getContext('2d').drawImage(canvas, cropX, cropY, cropW, cropH, 0, 0, cropW, cropH);
+                await runScan(cropCanvas);
+            });
+
+            // upload flow
+            const uploadBox = document.getElementById('uploadBox');
+            const fileInput = document.getElementById('fileInput');
+            const uploadInner = document.getElementById('uploadInner');
+            const scanUploadBtn = document.getElementById('scanUploadBtn');
+            let uploadedImage = null;
+
+            fileInput.addEventListener('change', () => {
+                const file = fileInput.files[0];
+                if (!file) return;
+                const url = URL.createObjectURL(file);
+                const img = new Image();
+                img.onload = () => {
+                    uploadedImage = img;
+                    uploadInner.innerHTML = '';
+                    const preview = document.createElement('img');
+                    preview.src = url;
+                    uploadInner.appendChild(preview);
+                    scanUploadBtn.disabled = false;
+                };
+                img.src = url;
+            });
+
+            scanUploadBtn.addEventListener('click', async () => {
+                if (!uploadedImage) return;
+                const canvas = document.createElement('canvas');
+                canvas.width = uploadedImage.naturalWidth;
+                canvas.height = uploadedImage.naturalHeight;
+                canvas.getContext('2d').drawImage(uploadedImage, 0, 0);
+                await runScan(canvas);
+            });
+
+            // ---------- image -> profile ----------
+            function otsuThreshold(gray, w, h) {
+                const hist = new Array(256).fill(0);
+                for (let i = 0; i < gray.length; i++) hist[gray[i]]++;
+                const total = gray.length;
+                let sum = 0;
+                for (let t = 0; t < 256; t++) sum += t * hist[t];
+                let sumB = 0, wB = 0, wF = 0, varMax = 0, threshold = 127;
+                for (let t = 0; t < 256; t++) {
+                    wB += hist[t]; if (wB === 0) continue;
+                    wF = total - wB; if (wF === 0) break;
+                    sumB += t * hist[t];
+                    const mB = sumB / wB;
+                    const mF = (sum - sumB) / wF;
+                    const varBetween = wB * wF * (mB - mF) * (mB - mF);
+                    if (varBetween > varMax) { varMax = varBetween; threshold = t; }
+                }
+                return threshold;
+            }
+
+            function imageToProfile(canvas, nBins) {
+                const w = canvas.width, h = canvas.height;
+                const ctx = canvas.getContext('2d');
+                const imgData = ctx.getImageData(0, 0, w, h).data;
+                const gray = new Uint8ClampedArray(w * h);
+                for (let i = 0; i < w * h; i++) {
+                    const r = imgData[i * 4], g = imgData[i * 4 + 1], b = imgData[i * 4 + 2];
+                    gray[i] = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
+                }
+                const threshold = otsuThreshold(gray, w, h);
+
+                const colHeights = new Array(w).fill(0);
+                for (let x = 0; x < w; x++) {
+                    let top = -1, bottom = -1;
+                    for (let y = 0; y < h; y++) {
+                        const isInk = gray[y * w + x] < threshold;
+                        if (isInk) {
+                            if (top === -1) top = y;
+                            bottom = y;
+                        }
+                    }
+                    colHeights[x] = (top === -1) ? 0 : (bottom - top);
+                }
+
+                // resample colHeights (length w) into nBins by block-averaging
+                const bins = new Array(nBins).fill(0);
+                const blockSize = w / nBins;
+                for (let b = 0; b < nBins; b++) {
+                    const start = Math.floor(b * blockSize);
+                    const end = Math.max(start + 1, Math.floor((b + 1) * blockSize));
+                    let sum = 0, count = 0;
+                    for (let x = start; x < end && x < w; x++) { sum += colHeights[x]; count++; }
+                    bins[b] = count > 0 ? sum / count : 0;
+                }
+                const max = Math.max(...bins, 1e-6);
+                return bins.map(v => clamp(v / max, 0, 1));
+            }
+
+            function pearson(a, b) {
+                const n = a.length;
+                if (n === 0) return -1;
+                const meanA = a.reduce((s, v) => s + v, 0) / n;
+                const meanB = b.reduce((s, v) => s + v, 0) / n;
+                let num = 0, denA = 0, denB = 0;
+                for (let i = 0; i < n; i++) {
+                    const da = a[i] - meanA, db = b[i] - meanB;
+                    num += da * db; denA += da * da; denB += db * db;
+                }
+                const den = Math.sqrt(denA * denB);
+                return den === 0 ? 0 : num / den;
+            }
+
+            function bestCorrelation(captured, stored) {
+                // try small shifts to tolerate imperfect framing
+                let best = -Infinity;
+                const maxShift = 6;
+                for (let shift = -maxShift; shift <= maxShift; shift++) {
+                    let a = [], b = [];
+                    for (let i = 0; i < captured.length; i++) {
+                        const j = i + shift;
+                        if (j >= 0 && j < stored.length) { a.push(captured[i]); b.push(stored[j]); }
+                    }
+                    if (a.length < captured.length * 0.6) continue;
+                    const c = pearson(a, b);
+                    if (c > best) best = c;
+                }
+                return best === -Infinity ? -1 : best;
+            }
+
+            async function runScan(sourceCanvas) {
+                const indicator = document.getElementById('scanIndicator');
+                const resultBox = document.getElementById('scanResult');
+                resultBox.classList.remove('show', 'match', 'no-match');
+                indicator.classList.add('show');
+
+                await new Promise(r => setTimeout(r, 250)); // let the UI paint the spinner
+
+                try {
+                    const profile = imageToProfile(sourceCanvas, N_BINS);
+                    const idx = await getIndex();
+                    let best = null, bestScore = -Infinity;
+                    for (const id of idx) {
+                        const entry = await storageGet('gravures:' + id);
+                        if (!entry) continue;
+                        const score = bestCorrelation(profile, entry.fingerprint);
+                        if (score > bestScore) { bestScore = score; best = entry; }
+                    }
+
+                    indicator.classList.remove('show');
+                    resultBox.classList.add('show');
+
+                    const THRESHOLD = 0.5;
+                    if (best && bestScore >= THRESHOLD) {
+                        resultBox.classList.add('match');
+                        document.getElementById('rEyebrow').textContent = 'Correspondance trouvée';
+                        document.getElementById('rTitle').textContent = best.label;
+                        document.getElementById('rConfidence').textContent = 'Confiance : ' + Math.round(bestScore * 100) + '%';
+                        const audioEl = document.getElementById('rAudio');
+                        audioEl.src = best.audioData;
+                        audioEl.play().catch(() => { });
+                    } else {
+                        resultBox.classList.add('no-match');
+                        document.getElementById('rEyebrow').textContent = 'Aucune correspondance';
+                        document.getElementById('rTitle').textContent = 'Motif non reconnu';
+                        document.getElementById('rConfidence').textContent = best
+                            ? ('Meilleure correspondance à ' + Math.round(bestScore * 100) + '% — trop faible. Rapprochez-vous et recadrez.')
+                            : 'Aucune gravure enregistrée pour comparaison.';
+                        document.getElementById('rAudio').removeAttribute('src');
+                    }
+                } catch (e) {
+                    console.error(e);
+                    indicator.classList.remove('show');
+                    toast("L'analyse a échoué. Réessayez avec une photo plus nette.");
+                }
+            }
+
+            // ---------- init ----------
+            renderGallery();
+        })();
+    </script>
+</body>
+
+</html>

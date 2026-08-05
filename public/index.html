@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>VOCARA — Sound Engraving & Scanner</title>
+    <meta name="description" content="Engrave your voice and precious audio into visual sound wave motifs for tattoos and prints. Scan and listen back anytime via web or mobile app.">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+
+    <div class="app-wrap">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="brand-container">
+                <img src="assets/logo.svg" alt="VOCARA Logo" class="brand-logo">
+            </div>
+            <div class="header-badges">
+                <span class="badge">PRO VERSION</span>
+                <span class="badge" style="background:rgba(16,185,129,0.15); border-color:rgba(16,185,129,0.3); color:#6ee7b7;">CLOUD DB READY</span>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="tab-nav">
+            <button class="tab-btn active" data-tab="engrave">
+                <span>① Record &amp; Engrave</span>
+            </button>
+            <button class="tab-btn" data-tab="scan">
+                <span>② Scan &amp; Play</span>
+            </button>
+            <button class="tab-btn" data-tab="mobile">
+                <span>③ Mobile Apps</span>
+            </button>
+        </nav>
+
+        <!-- ===================== PANEL 1: ENGRAVE ===================== -->
+        <section class="panel active" id="panel-engrave">
+            <div class="card">
+                <div class="card-title">
+                    <span>🎙️ Record Voice / Audio</span>
+                </div>
+                <div class="card-subtitle">
+                    Record up to 20 seconds of audio. A laugh, a voice message, or a special song — crisp audio generates readable tattoo motifs.
+                </div>
+
+                <div class="recorder-box">
+                    <div class="rec-btn-container">
+                        <button class="rec-btn" id="recBtn" title="Start Recording">
+                            <span class="rec-icon" id="recIcon"></span>
+                        </button>
+                    </div>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                    <div class="rec-status-text" id="recStatus">Tap microphone to start recording</div>
+                </div>
+
+                <!-- Waveform Canvas Output -->
+                <div class="waveform-shell" id="waveShell" style="display:none;">
+                    <canvas class="waveform-canvas" id="waveCanvas" width="900" height="260"></canvas>
+                </div>
+
+                <!-- Save / Export Controls -->
+                <div class="form-row" id="saveRow" style="display:none;">
+                    <input type="text" id="labelInput" class="input-field" placeholder="Memory Title (e.g. Emma's Laugh)" maxlength="60">
+                    <button class="btn btn-primary" id="saveBtn">🔥 Engrave Sound</button>
+                    <button class="btn btn-secondary" id="downloadMotifBtn">📥 Download Motif Image</button>
+                    <button class="btn btn-secondary" id="discardBtn">🔄 Reset</button>
+                </div>
+            </div>
+
+            <!-- Saved Engravings Gallery -->
+            <div class="card">
+                <div class="card-title">
+                    <span>🖼️ Engraved Sound Gallery</span>
+                </div>
+                <div class="card-subtitle">
+                    All stored sound motifs in database. Click play to listen or download for tattoos &amp; physical prints.
+                </div>
+                <div class="gallery-grid" id="galleryGrid">
+                    <!-- Dynamic Gallery Cards populated by app.js -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== PANEL 2: SCANNER ===================== -->
+        <section class="panel" id="panel-scan">
+            <div class="card">
+                <div class="card-title">
+                    <span>📷 Scan Motif / Tattoo</span>
+                </div>
+                <div class="card-subtitle">
+                    Point your device camera at the printed sound motif or upload a clear photo to read and play back the original audio instantly.
+                </div>
+
+                <div class="scan-toggle">
+                    <button class="btn btn-secondary active" id="srcCamBtn" data-src="camera">📹 Live Camera</button>
+                    <button class="btn btn-secondary" id="srcFileBtn" data-src="upload">🖼️ Upload Photo</button>
+                </div>
+
+                <!-- Live Camera Feed -->
+                <div id="camSection">
+                    <div class="cam-wrapper">
+                        <video id="camVideo" autoplay playsinline muted></video>
+                        <div class="cam-overlay">
+                            <div class="cam-target-box"></div>
+                        </div>
+                    </div>
+                    <div class="form-row" style="margin-top:16px;">
+                        <button class="btn btn-primary" id="startCamBtn">▶ Start Camera</button>
+                        <button class="btn btn-primary" id="captureBtn" disabled>🔍 Scan Target</button>
+                    </div>
+                </div>
+
+                <!-- Image File Upload Feed -->
+                <div id="uploadSection" style="display:none;">
+                    <label class="upload-area" id="uploadArea">
+                        <div id="uploadInner">
+                            <div style="font-size:32px; margin-bottom:8px;">📁</div>
+                            <div style="font-size:15px; font-weight:600;">Tap to choose photo of sound motif</div>
+                            <div style="font-size:12px; color:var(--text-muted); margin-top:4px;">Supports PNG, JPG, WEBP</div>
+                        </div>
+                        <input type="file" accept="image/*" id="fileInput" style="display:none;">
+                    </label>
+                    <div class="form-row">
+                        <button class="btn btn-primary" id="scanUploadBtn" disabled>🔍 Scan Uploaded Photo</button>
+                    </div>
+                </div>
+
+                <!-- Scan Results Card -->
+                <div class="result-box" id="resultBox">
+                    <div class="result-header" id="resultHeader">MATCH FOUND</div>
+                    <div class="result-title" id="resultTitle">—</div>
+                    <div style="font-size:13px; color:var(--text-muted); margin-bottom:14px;" id="resultMeta">—</div>
+                    <audio id="resultAudio" controls style="width:100%; outline:none; border-radius:8px;"></audio>
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== PANEL 3: MOBILE APPS ===================== -->
+        <section class="panel" id="panel-mobile">
+            <div class="card">
+                <div class="card-title">
+                    <span>📱 Native Mobile Applications</span>
+                </div>
+                <div class="card-subtitle">
+                    Vocara is built with Capacitor for native iOS and Android experience. Download the app directly or install as PWA.
+                </div>
+
+                <div class="app-download-grid">
+                    <!-- Android Card -->
+                    <div class="app-platform-card">
+                        <div class="app-icon-lg">🤖</div>
+                        <div style="font-size:18px; font-weight:700;">Vocara for Android</div>
+                        <div style="font-size:13px; color:var(--text-muted);">
+                            Native APK bundle with camera hardware integration and offline database storage.
+                        </div>
+                        <a href="/downloads/vocara-android.apk" class="btn btn-primary" style="width:100%; text-decoration:none;" id="downloadApkBtn">
+                            📥 Download Android APK
+                        </a>
+                    </div>
+
+                    <!-- iOS Card -->
+                    <div class="app-platform-card">
+                        <div class="app-icon-lg">🍎</div>
+                        <div style="font-size:18px; font-weight:700;">Vocara for iOS</div>
+                        <div style="font-size:13px; color:var(--text-muted);">
+                            Xcode project ready to deploy to your iPhone or TestFlight via Capacitor CLI.
+                        </div>
+                        <button class="btn btn-secondary" style="width:100%;" onclick="alert('iOS deployment instructions: Run npm run cap:open:ios on your Mac with Xcode installed.')">
+                            📖 iOS Install Instructions
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Global Toast Notification -->
+    <div class="toast-msg" id="toastMsg">Notification message</div>
+
+    <!-- JS Modules -->
+    <script src="js/visualizer.js"></script>
+    <script src="js/recorder.js"></script>
+    <script src="js/scanner.js"></script>
+    <script src="js/app.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,23 @@
+{
+  "appId": "cloud.vocara.app",
+  "appName": "Vocara",
+  "webDir": "public",
+  "bundledWebRuntime": false,
+  "server": {
+    "url": "https://vocara.cloud",
+    "cleartext": true
+  },
+  "android": {
+    "allowMixedContent": true,
+    "captureInput": true,
+    "webContentsDebuggingEnabled": true
+  },
+  "ios": {
+    "allowsInlineMediaPlayback": true
+  },
+  "plugins": {
+    "CapacitorCookies": {
+      "enabled": true
+    }
+  }
+}

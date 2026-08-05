@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 100" width="100%" height="100%">
+  <defs>
+    <linearGradient id="vocaraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6366f1"/>
+      <stop offset="50%" stop-color="#8b5cf6"/>
+      <stop offset="100%" stop-color="#ec4899"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3" result="blur" />
+      <feComposite in="SourceGraphic" in2="blur" operator="over" />
+    </filter>
+  </defs>
+  <!-- Soundwave Icon -->
+  <g transform="translate(10, 10)">
+    <rect x="10" y="30" width="6" height="20" rx="3" fill="url(#vocaraGrad)" opacity="0.6"/>
+    <rect x="22" y="20" width="6" height="40" rx="3" fill="url(#vocaraGrad)" opacity="0.8"/>
+    <rect x="34" y="10" width="6" height="60" rx="3" fill="url(#vocaraGrad)" filter="url(#glow)"/>
+    <rect x="46" y="25" width="6" height="30" rx="3" fill="url(#vocaraGrad)"/>
+    <rect x="58" y="15" width="6" height="50" rx="3" fill="url(#vocaraGrad)" opacity="0.9"/>
+    <rect x="70" y="32" width="6" height="16" rx="3" fill="url(#vocaraGrad)" opacity="0.5"/>
+  </g>
+  <!-- Brand Text -->
+  <text x="100" y="58" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="44" font-weight="900" letter-spacing="4" fill="#ffffff">VOCARA</text>
+  <text x="102" y="78" font-family="'JetBrains Mono', monospace" font-size="11" font-weight="500" letter-spacing="3" fill="#94a3b8">SOUND ENGRAVING &amp; SCANNER</text>
+</svg>

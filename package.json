@@ -1,0 +1,35 @@
+{
+  "name": "vocara",
+  "version": "1.0.0",
+  "description": "Vocara - Sound Engraving & Scanning Web and Mobile Application",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js",
+    "cap:sync": "cap sync",
+    "cap:add:android": "cap add android",
+    "cap:add:ios": "cap add ios",
+    "cap:open:android": "cap open android",
+    "cap:open:ios": "cap open ios"
+  },
+  "keywords": [
+    "vocara",
+    "sound-tattoo",
+    "waveform",
+    "audio-engraving",
+    "audio-scanner",
+    "capacitor"
+  ],
+  "author": "Seka35",
+  "license": "MIT",
+  "dependencies": {
+    "@capacitor/android": "^6.0.0",
+    "@capacitor/cli": "^6.0.0",
+    "@capacitor/core": "^6.0.0",
+    "@capacitor/ios": "^6.0.0",
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
+    "sqlite3": "^5.1.7"
+  }
+}
