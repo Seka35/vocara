@@ -177,10 +177,13 @@
                         <div class="app-icon-lg">🍎</div>
                         <div style="font-size:18px; font-weight:700;">Vocara for iOS</div>
                         <div style="font-size:13px; color:var(--text-muted);">
-                            Xcode project ready to deploy to your iPhone or TestFlight via Capacitor CLI.
+                            Install instantly on iPhone via Safari PWA or build native Xcode project via Capacitor.
                         </div>
-                        <button class="btn btn-secondary" style="width:100%;" onclick="alert('iOS deployment instructions: Run npm run cap:open:ios on your Mac with Xcode installed.')">
-                            📖 iOS Install Instructions
+                        <button class="btn btn-secondary" style="width:100%; margin-bottom:8px;" onclick="alert('📱 Safari PWA Install on iPhone:\n\n1. Open https://vocara.cloud in Safari\n2. Tap the Share icon (square with arrow)\n3. Tap &quot;Add to Home Screen&quot;\n\nVocara will install on your iPhone home screen like a native app!')">
+                            📲 Install via Safari PWA
+                        </button>
+                        <button class="btn btn-secondary" style="width:100%; font-size:12px; opacity:0.8;" onclick="alert('🛠️ Xcode Native iOS Build:\n\n1. Run: npm install @capacitor/ios\n2. Run: npx cap add ios\n3. Run: npx cap open ios\n\nBuild and sign in Xcode to deploy to TestFlight or App Store!')">
+                            🛠️ Xcode / Capacitor Build
                         </button>
                     </div>
                 </div>
