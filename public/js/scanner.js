@@ -192,6 +192,80 @@ const Scanner = (function () {
         return normalized;
     }
 
+    // --- MindAR 2D Image Tracking Engine ---
+    let mindController = null;
+
+    async function compileMindTargets(sounds) {
+        if (!window.MINDAR || !window.MINDAR.IMAGE || !window.MINDAR.IMAGE.Compiler || typeof Visualizer === 'undefined') {
+            return null;
+        }
+        if (!sounds || sounds.length === 0) return null;
+
+        try {
+            const compiler = new window.MINDAR.IMAGE.Compiler();
+            const imageElements = [];
+
+            for (const s of sounds) {
+                const cvs = document.createElement('canvas');
+                cvs.width = 600;
+                cvs.height = 200;
+                Visualizer.drawWaveform(cvs, s.fingerprint, s.sound_code, { exportMode: true });
+
+                const img = new Image();
+                img.src = cvs.toDataURL('image/png');
+                await new Promise((res) => { img.onload = res; });
+                imageElements.push(img);
+            }
+
+            await compiler.compileImageTargets(imageElements, (progress) => {
+                console.log(`[MindAR 2D Tracking] Compiling stencil targets: ${progress.toFixed(0)}%`);
+            });
+
+            const exportedBuffer = await compiler.exportData();
+            return exportedBuffer;
+        } catch (err) {
+            console.warn('[MindAR 2D Tracking] Target compilation skipped or unsupported:', err);
+            return null;
+        }
+    }
+
+    async function startMindTracking(videoElement, sounds, onMatchCallback) {
+        if (!window.MINDAR || !window.MINDAR.IMAGE) return false;
+        try {
+            const buffer = await compileMindTargets(sounds);
+            if (!buffer) return false;
+
+            const controller = new window.MINDAR.IMAGE.Controller({
+                inputWidth: videoElement.videoWidth || 640,
+                inputHeight: videoElement.videoHeight || 480,
+                maxTrack: 1,
+                onUpdate: (data) => {
+                    if (data.type === 'updateMatrix') {
+                        const matched = sounds[data.targetIndex];
+                        if (matched && onMatchCallback) {
+                            onMatchCallback(matched, 0.98);
+                        }
+                    }
+                }
+            });
+
+            await controller.addImageTargets(buffer);
+            mindController = controller;
+            return true;
+        } catch (e) {
+            console.warn('[MindAR 2D Tracking] Controller init warning:', e);
+            return false;
+        }
+    }
+
+    function processMindFrame(videoElement) {
+        if (mindController && videoElement) {
+            try {
+                mindController.processVideo(videoElement);
+            } catch (e) {}
+        }
+    }
+
     async function analyzeCanvas(canvas, soundCodeText) {
         const fingerprint = imageToProfile(canvas);
 
@@ -216,7 +290,9 @@ const Scanner = (function () {
         startCamera,
         stopCamera,
         analyzeCanvas,
-        imageToProfile
+        imageToProfile,
+        startMindTracking,
+        processMindFrame
     };
 })();
 

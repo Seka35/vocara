@@ -452,10 +452,32 @@
             pendingCandidateCode = null;
             pendingMatchCount = 0;
 
+            // Initialize MindAR 2D Target Tracking in parallel if sounds are available
+            fetch('/api/sounds')
+                .then(r => r.json())
+                .then(data => {
+                    if (data.success && data.sounds && data.sounds.length > 0) {
+                        Scanner.startMindTracking(camVideo, data.sounds, (matchedSound, conf) => {
+                            const candidate = matchedSound.sound_code;
+                            if (lastMatchedCode !== candidate) {
+                                lastMatchedCode = candidate;
+                                handleMatchedSound(matchedSound, conf || 0.98);
+
+                                if (cooldownTimer) clearTimeout(cooldownTimer);
+                                cooldownTimer = setTimeout(() => { lastMatchedCode = null; }, 5000);
+                            }
+                        });
+                    }
+                })
+                .catch(() => {});
+
             if (autoScanInterval) clearInterval(autoScanInterval);
             autoScanInterval = setInterval(async () => {
                 if (isScanningFrame || !camVideo.videoWidth) return;
                 isScanningFrame = true;
+
+                // Process MindAR 2D frame
+                Scanner.processMindFrame(camVideo);
 
                 const canvas = document.createElement('canvas');
                 canvas.width = camVideo.videoWidth;
