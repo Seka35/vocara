@@ -191,14 +191,15 @@ const Visualizer = (function () {
         }
 
         function renderCurrentState() {
-            const duration = audioEl.duration || 1;
-            const currentTime = audioEl.currentTime || 0;
-            const progress = duration > 0 ? (currentTime / duration) : 0;
+            const durValid = audioEl.duration && isFinite(audioEl.duration) && audioEl.duration > 0;
+            const duration = durValid ? audioEl.duration : 1;
+            const currentTime = (audioEl.currentTime && isFinite(audioEl.currentTime)) ? audioEl.currentTime : 0;
+            const progress = durValid ? (currentTime / duration) : 0;
             const isPlaying = !audioEl.paused && !audioEl.ended;
 
             drawWaveform(canvas, fingerprint, soundCode, {
                 ...opts,
-                progress: progress,
+                progress: isFinite(progress) ? progress : 0,
                 isPlaying: isPlaying,
                 hoverProgress: hoverProgress
             });
@@ -210,8 +211,11 @@ const Visualizer = (function () {
 
         function seekToEvent(e) {
             const p = getProgressFromEvent(e);
-            if (audioEl.duration) {
-                audioEl.currentTime = p * audioEl.duration;
+            if (audioEl.duration && isFinite(audioEl.duration) && audioEl.duration > 0) {
+                const targetTime = p * audioEl.duration;
+                if (isFinite(targetTime)) {
+                    audioEl.currentTime = targetTime;
+                }
             }
             renderCurrentState();
         }
