@@ -1,42 +1,30 @@
 <!DOCTYPE html>
-<html lang="en" prefix="og: http://ogp.me/ns#">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>VOCARA — Turn Precious Voices into Eternal Sound Tattoos</title>
-    <meta name="title" content="VOCARA — Turn Precious Voices into Eternal Sound Tattoos">
-    <meta name="description" content="Words fade away, Vocara engraves them for life. Turn a child's laughter, a voice message, or a declaration of love into a living scannable sound tattoo.">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VOCARA — Living Sound Tattoo Technology | Turn Voices into Living Tattoos</title>
     
-    <!-- WhatsApp & Open Graph Link Preview Meta Tags -->
+    <meta name="description" content="Turn your voice into living skin art. Record precious audio memories, generate high-precision tattoo stencils, and scan your sound tattoo anytime with your camera to play back living audio.">
+    <meta name="keywords" content="sound tattoo, audio wave tattoo, living tattoo, voice tattoo stencil, soundwave tattoo player, tattoo audio scanner">
+    <meta name="author" content="VOCARA Cloud">
+    
+    <!-- Open Graph / Social Media Meta -->
+    <meta property="og:title" content="VOCARA — Living Sound Tattoo Technology">
+    <meta property="og:description" content="Turn precious voice memories into eternal sound tattoos. Scan anytime with your smartphone camera to hear living sound.">
+    <meta property="og:image" content="https://vocara.cloud/assets/hero-tattoo.jpg">
+    <meta property="og:url" content="https://vocara.cloud">
     <meta property="og:type" content="website">
-    <meta property="og:url" content="https://vocara.cloud/">
-    <meta property="og:site_name" content="Vocara Sound Tattoos">
-    <meta property="og:title" content="VOCARA — Turn Precious Voices into Eternal Sound Tattoos">
-    <meta property="og:description" content="Give the ultimate eternal gift: a child's first words, a voice message, or a declaration of love engraved forever into a scannable sound wave motif.">
-    <meta property="og:image" content="https://vocara.cloud/assets/og-preview.jpg">
-    <meta property="og:image:secure_url" content="https://vocara.cloud/assets/og-preview.jpg">
-    <meta property="og:image:type" content="image/jpeg">
-    <meta property="og:image:width" content="1200">
-    <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="VOCARA Sound Tattoo Preview">
 
-    <!-- Fallback image link for legacy link scrapers -->
-    <link rel="image_src" href="https://vocara.cloud/assets/og-preview.jpg">
     <link rel="icon" type="image/svg+xml" href="assets/logo.svg">
-    <link rel="apple-touch-icon" href="assets/og-preview.jpg">
-
-    <!-- Twitter Card Meta Tags -->
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://vocara.cloud/">
-    <meta name="twitter:title" content="VOCARA — Turn Precious Voices into Eternal Sound Tattoos">
-    <meta name="twitter:description" content="Give the ultimate eternal gift: a child's first words, a voice message, or a declaration of love engraved forever into a scannable sound wave motif.">
-    <meta name="twitter:image" content="https://vocara.cloud/assets/og-preview.jpg">
-
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="manifest" href="manifest.json">
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/style.css">
+
+    <!-- jsQR Library for High-speed Tattoo QR Code Scanning -->
+    <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
     <!-- Stripe JS SDK -->
     <script src="https://js.stripe.com/v3/"></script>
 </head>
@@ -44,7 +32,6 @@
 <body>
 
     <div class="app-wrap">
-        <!-- Header -->
         <!-- Header -->
         <header class="app-header">
             <div class="brand-container">
@@ -55,104 +42,399 @@
             </div>
         </header>
 
-        <!-- ===================== HERO EMOTIONAL SECTION ===================== -->
-        <section class="hero-section">
-            <div class="hero-grid">
-                <!-- Hero Left Text Content -->
-                <div class="hero-content">
-                    <div class="hero-pill">
-                        <span class="hero-pill-dot"></span>
-                        <span>LIVING SOUND TATTOO TECHNOLOGY</span>
-                    </div>
-                    <h1 class="hero-title">
-                        Turn Precious Voices into <span class="gradient-text">Eternal Sound Tattoos</span>
-                    </h1>
-                    <p class="hero-subtitle">
-                        Hear your child’s first "I love you", cherish the laugh of a departed loved one, or wear your wedding vow forever on your skin. Scan your tattoo anytime to relive the sound memory.
-                    </p>
-                    
-                    <div class="hero-features">
-                        <div class="hero-feat-item">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>High-Precision Tattoo Stencil Download (PNG)</span>
+        <!-- Navigation Tabs Bar -->
+        <nav class="tab-nav" style="margin-top:16px;">
+            <button class="tab-btn active" data-tab="engrave">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                <span>Record &amp; Engrave</span>
+            </button>
+            <button class="tab-btn" data-tab="scan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                <span>Scan &amp; Play</span>
+            </button>
+            <button class="tab-btn" data-tab="member" id="navTabMember">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span id="navTabMemberLabel">Login / Sign In</span>
+            </button>
+            <button class="tab-btn" data-tab="admin" id="navTabAdmin" style="display:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Super Admin</span>
+            </button>
+        </nav>
+
+        <!-- ===================== PANEL 1: RECORD & ENGRAVE ===================== -->
+        <section class="panel active" id="panel-engrave">
+
+            <!-- HERO EMOTIONAL SECTION -->
+            <section class="hero-section" style="margin-top:16px;">
+                <div class="hero-grid">
+                    <!-- Hero Left Text Content -->
+                    <div class="hero-content">
+                        <div class="hero-pill">
+                            <span class="hero-pill-dot"></span>
+                            <span>LIVING SOUND TATTOO TECHNOLOGY</span>
                         </div>
-                        <div class="hero-feat-item">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Instant Camera Scanner &amp; Real-Time Audio Playback</span>
+                        <h1 class="hero-title">
+                            Turn Precious Voices into <span class="gradient-text">Eternal Sound Tattoos</span>
+                        </h1>
+                        <p class="hero-subtitle">
+                            Hear your child’s first "I love you", cherish the laugh of a departed loved one, or wear your wedding vow forever on your skin. Scan your tattoo anytime to relive the sound memory.
+                        </p>
+                        
+                        <div class="hero-features">
+                            <div class="hero-feat-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>High-Precision Tattoo Stencil Download (PNG)</span>
+                            </div>
+                            <div class="hero-feat-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Instant Camera Scanner &amp; Real-Time Audio Playback</span>
+                            </div>
+                            <div class="hero-feat-item">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Secure Cloud Backup &amp; 100% Private Memory Storage</span>
+                            </div>
                         </div>
-                        <div class="hero-feat-item">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Secure Cloud Backup &amp; 100% Private Memory Storage</span>
+
+                        <div class="hero-cta-row">
+                            <button class="btn btn-primary" onclick="document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'})">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                                <span>Engrave Your Voice Now</span>
+                            </button>
                         </div>
                     </div>
 
-                    <div class="hero-cta-row">
-                        <button class="btn btn-primary" onclick="document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'})">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-                            <span>Engrave Your Voice Now</span>
+                    <!-- Hero Right Media Card -->
+                    <div class="hero-media-card">
+                        <picture>
+                            <source srcset="assets/hero-tattoo.webp" type="image/webp">
+                            <img src="assets/hero-tattoo.jpg" alt="Sound Tattoo Visual Motif" class="hero-img" loading="eager" width="1024" height="1024">
+                        </picture>
+                        <div class="hero-img-overlay">
+                            <div class="hero-badge-floating">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b00"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <span>"I Love You Daddy" — Audio Motif</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- HOW IT WORKS (3 STEPS) -->
+            <section class="card" style="margin-top:24px; background:linear-gradient(180deg, rgba(25,20,16,0.8), rgba(12,12,18,0.95)); border:1px solid var(--border-color);">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">SIMPLE 3-STEP PROCESS</div>
+                    <h2 style="font-size:24px; font-weight:800;">How Vocara Works</h2>
+                </div>
+                
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:20px;">
+                    <!-- Step 1 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
+                        <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 01</div>
+                        <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                        </div>
+                        <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Record Your Voice</h3>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Record up to 20 seconds of audio — a child's laugh, a declaration of love, or a voice message.</p>
+                    </div>
+                    <!-- Step 2 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
+                        <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 02</div>
+                        <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        </div>
+                        <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Get Your Stencil</h3>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Download a high-precision, pure black sound wave stencil ready for your tattoo artist.</p>
+                    </div>
+                    <!-- Step 3 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
+                        <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 03</div>
+                        <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
+                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+                        </div>
+                        <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Scan &amp; Relive Anytime</h3>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Point your device camera at your sound tattoo anytime to play back the living audio memory.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- VOICE RECORDING & STENCIL GENERATOR CARD -->
+            <div class="card" id="recorderCard" style="margin-top:24px;">
+                <div class="card-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                    <span>Record Voice / Audio</span>
+                </div>
+                <div class="card-subtitle">
+                    Record up to 20 seconds of audio. A laugh, a voice message, or a special song — crisp audio generates readable tattoo motifs.
+                </div>
+
+                <div class="recorder-box">
+                    <div class="rec-btn-container">
+                        <button class="rec-btn" id="recBtn" title="Start Recording">
+                            <div class="rec-pulse-ring"></div>
+                            <div class="rec-icon-shell" id="recIcon">
+                                <svg class="mic-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
+                            </div>
+                        </button>
+                    </div>
+                    <div class="timer-display" id="timerDisplay">00:00</div>
+                    <div class="rec-status-text" id="recStatus">Tap microphone to start recording</div>
+
+                    <div class="audio-upload-divider" style="margin-top:16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
+                        <span style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">— OR UPLOAD EXISTING AUDIO —</span>
+                    </div>
+
+                    <div style="display:flex; justify-content:center;">
+                        <button class="btn btn-secondary" id="triggerAudioFileBtn" style="border-color:var(--border-highlight); color:var(--primary); gap:8px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            <span>Upload Audio File (MP3, WAV, M4A)</span>
+                        </button>
+                        <input type="file" accept="audio/*" id="audioFileInput" style="display:none;">
+                    </div>
+                </div>
+
+                <!-- Pre-save Listen Audio Player & Waveform Canvas Shell -->
+                <div class="waveform-shell" id="waveShell" style="display:none; margin-top:20px;">
+                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
+                        <div style="font-size:13px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:8px;">
+                            <span class="pulse-dot"></span>
+                            <span>SOUND ENGRAVING PREVIEW — CLICK WAVEFORM TO SEEK</span>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button class="btn btn-primary" id="preSavePlayBtn" style="padding:6px 14px; min-height:36px; font-size:12px; gap:6px;">
+                                <svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                                <span>Play Preview</span>
+                            </button>
+                            <span id="preSaveTimeDisplay" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-muted);">00:00 / 00:00</span>
+                        </div>
+                    </div>
+
+                    <canvas class="waveform-canvas" id="waveCanvas" width="900" height="240" style="cursor:pointer;"></canvas>
+                    <audio id="preSaveAudio" style="display:none;"></audio>
+                </div>
+
+                <!-- Save / Export Controls -->
+                <div class="form-row" id="saveRow" style="display:none;">
+                    <input type="text" id="labelInput" class="input-field" placeholder="Memory Title (e.g. Emma's Laugh)" maxlength="60">
+                    <button class="btn btn-primary" id="saveBtn">Engrave Sound</button>
+                    <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--border-highlight); color:var(--primary);">Download Tattoo Stencil (PNG)</button>
+                    <button class="btn btn-secondary" id="discardBtn">Reset</button>
+                </div>
+            </div>
+
+            <!-- Emotional Story & Memory Showcase Card -->
+            <div class="card" style="margin-top:24px;">
+                <div class="emotional-showcase-grid">
+                    <div class="emotional-img-wrap">
+                        <picture>
+                            <source srcset="assets/sound-moments.webp" type="image/webp">
+                            <img src="assets/sound-moments.jpg" alt="Preserve Voice Memories" class="emotional-img" loading="lazy" width="1024" height="1024">
+                        </picture>
+                    </div>
+                    <div class="emotional-text-wrap">
+                        <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">MEMORIES THAT STAY WITH YOU</div>
+                        <h2 style="font-size:22px; font-weight:800; margin-bottom:10px;">Keep Their Voice Close to Your Heart</h2>
+                        <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
+                            A voice is the most intimate personal memory. Photos freeze a moment, but audio captures soul, emotion, laughter, and affection. Vocara bridges physical skin art and digital sound streaming.
+                        </p>
+                        
+                        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                            <div style="background:rgba(20,20,28,0.8); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:14px;">
+                                <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:4px;">High Precision</div>
+                                <div style="font-size:12px; color:var(--text-muted);">Compatible with standard line-work &amp; fine-needle tattoo artistry.</div>
+                            </div>
+                            <div style="background:rgba(20,20,28,0.8); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:14px;">
+                                <div style="font-size:13px; font-weight:700; color:var(--primary); margin-bottom:4px;">Cloud Encrypted</div>
+                                <div style="font-size:12px; color:var(--text-muted);">Your original audio files are backed up safely and private to you.</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PRICING SELECTION SECTION -->
+            <section class="card" style="margin-top:24px;">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">TRANSPARENT PRICING</div>
+                    <h2 style="font-size:24px; font-weight:800;">Choose Your Sound Engraving Plan</h2>
+                    <p style="font-size:14px; color:var(--text-muted); max-width:540px; margin:8px auto 0;">
+                        Create your sound stencil for free. Choose a plan when you are ready to engrave and permanently host your living sound memory.
+                    </p>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
+                    <!-- Essential Plan -->
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column;">
+                        <div style="font-size:14px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Starter Pass</div>
+                        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$24.99</span>
+                            <span style="font-size:14px; text-decoration:line-through; color:var(--text-dim);">$39.99</span>
+                            <span style="font-size:11px; background:rgba(255,107,0,0.15); color:var(--primary); border:1px solid rgba(255,107,0,0.3); padding:2px 8px; border-radius:12px; font-weight:700;">-38% OFF</span>
+                        </div>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Perfect for trying your first sound tattoo stencil with 10 sound engraving credits included.</p>
+
+                        <ul style="list-style:none; padding:0; margin:0 0 24px 0; font-size:13px; color:var(--text-light); line-height:2.2;">
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>10 High-Precision Tattoo Stencils (PNG)</span>
+                            </li>
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Permanent Cloud Audio Storage</span>
+                            </li>
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Instant Camera Scanner Access</span>
+                            </li>
+                        </ul>
+
+                        <button class="btn btn-secondary" onclick="window.selectPlan('starter')" style="margin-top:auto; width:100%; border-color:var(--border-highlight); color:var(--primary);">
+                            Select Starter Pass ($24.99)
+                        </button>
+                    </div>
+
+                    <!-- Lifetime Memory Plan (FEATURED) -->
+                    <div style="background:linear-gradient(145deg, rgba(255,107,0,0.12), rgba(18,18,24,0.98)); border:2px solid var(--primary); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column; position:relative; box-shadow: 0 10px 30px rgba(255,107,0,0.2);">
+                        <div style="position:absolute; top:-12px; right:20px; background:var(--primary); color:#000; font-size:11px; font-weight:800; padding:4px 12px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px;">
+                            BEST VALUE — ONE-TIME PAYMENT
+                        </div>
+
+                        <div style="font-size:14px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Immortal Pass</div>
+                        <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
+                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$89.00</span>
+                            <span style="font-size:14px; text-decoration:line-through; color:var(--text-dim);">$149.00</span>
+                            <span style="font-size:11px; background:rgba(16,185,129,0.2); color:#10b981; border:1px solid rgba(16,185,129,0.3); padding:2px 8px; border-radius:12px; font-weight:700;">-40% OFF</span>
+                        </div>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Pay once, keep your sound memory forever. Zero annual subscriptions, zero surprises.</p>
+
+                        <ul style="list-style:none; padding:0; margin:0 0 24px 0; font-size:13px; color:#ffffff; line-height:2.2;">
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span><strong>UNLIMITED Sound Engraving Credits</strong></span>
+                            </li>
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Master Vector &amp; High-Res PNG Stencils</span>
+                            </li>
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Zero Recurring Fees Ever</span>
+                            </li>
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span>Priority Encrypted Cloud Storage &amp; Admin Support</span>
+                            </li>
+                        </ul>
+
+                        <button class="btn btn-primary" onclick="window.selectPlan('lifetime')" style="margin-top:auto; width:100%;">
+                            Get Immortal Pass ($89.00)
                         </button>
                     </div>
                 </div>
+            </section>
 
-                <!-- Hero Right Media Card -->
-                <div class="hero-media-card">
-                    <picture>
-                        <source srcset="assets/hero-tattoo.webp" type="image/webp">
-                        <img src="assets/hero-tattoo.jpg" alt="Sound Tattoo Visual Motif" class="hero-img" loading="eager" width="1024" height="1024">
-                    </picture>
-                    <div class="hero-img-overlay">
-                        <div class="hero-badge-floating">
-                            <svg width="16" height="16" viewBox="0 0 24 24" fill="#ff6b00"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                            <span>"I Love You Daddy" — Audio Motif</span>
+            <!-- Customer Reviews Slider -->
+            <section class="card" style="margin-top:24px;">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">LOVED BY TATTOO LOVERS WORLDWIDE</div>
+                    <h2 style="font-size:24px; font-weight:800;">Real Stories from Vocara Users</h2>
+                </div>
+
+                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:20px;">
+                    <!-- Review 1 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px;">
+                        <div style="display:flex; color:#ffb703; margin-bottom:10px; gap:2px;">
+                            ★★★★★
                         </div>
+                        <p style="font-size:13px; color:var(--text-light); line-height:1.6; margin-bottom:14px;">
+                            "I engraved my grandmother's voicemail before she passed away. Whenever I miss her, I scan my wrist tattoo and hear her calling me sweetheart. It brings tears to my eyes every time."
+                        </p>
+                        <div style="font-size:12px; font-weight:700; color:var(--primary);">— Sarah M., New York</div>
+                    </div>
+
+                    <!-- Review 2 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px;">
+                        <div style="display:flex; color:#ffb703; margin-bottom:10px; gap:2px;">
+                            ★★★★★
+                        </div>
+                        <p style="font-size:13px; color:var(--text-light); line-height:1.6; margin-bottom:14px;">
+                            "My wife and I got sound wave tattoos of our wedding vows. The camera scanner picked up the motif instantly on our wedding anniversary. Incredible tech!"
+                        </p>
+                        <div style="font-size:12px; font-weight:700; color:var(--primary);">— Marcus &amp; Elena, London</div>
+                    </div>
+
+                    <!-- Review 3 -->
+                    <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:20px;">
+                        <div style="display:flex; color:#ffb703; margin-bottom:10px; gap:2px;">
+                            ★★★★★
+                        </div>
+                        <p style="font-size:13px; color:var(--text-light); line-height:1.6; margin-bottom:14px;">
+                            "As a tattoo artist, my clients ask for sound tattoos all the time now. The stencil stencil generator produces clean line-art that is extremely easy to follow."
+                        </p>
+                        <div style="font-size:12px; font-weight:700; color:var(--primary);">— Alex R., Ink Studio Miami</div>
                     </div>
                 </div>
-            </div>
+            </section>
+
+            <!-- Frequently Asked Questions (FAQ) Section -->
+            <section class="card" style="margin-top:24px;">
+                <div style="text-align:center; margin-bottom:24px;">
+                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">GOT QUESTIONS?</div>
+                    <h2 style="font-size:24px; font-weight:800;">Frequently Asked Questions</h2>
+                </div>
+
+                <div style="display:flex; flex-direction:column; gap:12px; max-width:800px; margin:0 auto;">
+                    <!-- FAQ Item 1 -->
+                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
+                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
+                            <span>Q: Will my sound tattoo still scan over time?</span>
+                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Vocara's scanner is engineered with relative height-profile matching and correlation algorithms, designed to stay readable across standard camera angles, lighting conditions, and natural skin variations.</p>
+                    </details>
+
+                    <!-- FAQ Item 2 -->
+                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
+                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
+                            <span>Q: What happens if I change my phone or delete the app?</span>
+                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Your sound memory is safely backed up in the cloud associated with your unique Sound Code. Simply scan your tattoo with any device running Vocara to play it instantly.</p>
+                    </details>
+
+                    <!-- FAQ Item 3 -->
+                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
+                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
+                            <span>Q: Who can listen to my sound tattoo?</span>
+                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Anyone who scans your physical tattoo with the Vocara camera scanner can hear your audio memory, making it a truly interactive piece of living art!</p>
+                    </details>
+
+                    <!-- FAQ Item 4 -->
+                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
+                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
+                            <span>Q: How long is my sound memory stored?</span>
+                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
+                        </summary>
+                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">With our Immortal Pass, your voice recording is safely stored for life with zero recurring annual fees. For Starter Pass plans, your original sound file and stencil download remain safely archived so you never lose your voice memory.</p>
+                    </details>
+                </div>
+            </section>
+
+            <!-- Footer -->
+            <footer style="margin-top:32px; padding:24px 0; border-top:1px solid var(--border-color); text-align:center; color:var(--text-muted); font-size:12px;">
+                <div style="margin-bottom:12px; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <img src="assets/logo.svg" alt="VOCARA" style="height:20px; opacity:0.8;">
+                    <span>— Living Sound Tattoo Technology</span>
+                </div>
+                <div>&copy; 2026 VOCARA Cloud. All Rights Reserved. Pure SSL Encrypted Audio Vault.</div>
+            </footer>
         </section>
 
-        <!-- ===================== HOW IT WORKS (3 STEPS) ===================== -->
-        <section class="card" style="margin-top:24px; background:linear-gradient(180deg, rgba(25,20,16,0.8), rgba(12,12,18,0.95)); border:1px solid var(--border-color);">
-            <div style="text-align:center; margin-bottom:24px;">
-                <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">SIMPLE 3-STEP PROCESS</div>
-                <h2 style="font-size:24px; font-weight:800;">How Vocara Works</h2>
-            </div>
-            
-            <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap:20px;">
-                <!-- Step 1 -->
-                <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
-                    <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 01</div>
-                    <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-                    </div>
-                    <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Record Your Voice</h3>
-                    <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Record up to 20 seconds of audio — a child's laugh, a declaration of love, or a voice message.</p>
-                </div>
-                <!-- Step 2 -->
-                <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
-                    <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 02</div>
-                    <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                    </div>
-                    <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Get Your Stencil</h3>
-                    <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Download a high-precision, pure black sound wave stencil ready for your tattoo artist.</p>
-                </div>
-                <!-- Step 3 -->
-                <div style="background:rgba(20,20,28,0.7); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:24px 20px; text-align:center; position:relative;">
-                    <div style="position:absolute; top:-11px; right:16px; background:var(--primary); color:#ffffff; font-size:10px; font-weight:800; padding:2px 10px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px; box-shadow:0 3px 10px rgba(255,107,0,0.4);">STEP 03</div>
-                    <div style="width:52px; height:52px; background:linear-gradient(135deg, rgba(255,107,0,0.22), rgba(255,140,0,0.08)); border:1px solid var(--border-highlight); border-radius:14px; display:flex; align-items:center; justify-content:center; margin:0 auto 16px; box-shadow:0 0 18px rgba(255,107,0,0.25);">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    </div>
-                    <h3 style="font-size:16px; font-weight:700; color:#ffffff; margin-bottom:8px;">Scan &amp; Relive Anytime</h3>
-                    <p style="font-size:13px; color:var(--text-muted); line-height:1.5;">Point your device camera at your sound tattoo anytime to play back the living audio memory.</p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ===================== MAIN ENGRAVING & SCANNING LANDING FLOW ===================== -->
-        <div class="landing-flow">
-
-            <!-- ===================== SCANNER SECTION (TOP PRIORITY) ===================== -->
-            <div class="card" id="scannerCard" style="margin-top:24px;">
+        <!-- ===================== PANEL 2: SCAN & PLAY ===================== -->
+        <section class="panel" id="panel-scan">
+            <div class="card" id="scannerCard" style="margin-top:16px;">
                 <div class="card-title">
                     <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                     <span>Scan Motif / Tattoo</span>
@@ -241,466 +523,49 @@
                     </div>
                 </div>
             </div>
-
-            <!-- ===================== VOICE RECORDING & STENCIL GENERATOR ===================== -->
-            <div class="card" id="recorderCard" style="margin-top:24px;">
-                <div class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-                    <span>Record Voice / Audio</span>
-                </div>
-                <div class="card-subtitle">
-                    Record up to 20 seconds of audio. A laugh, a voice message, or a special song — crisp audio generates readable tattoo motifs.
-                </div>
-
-                <div class="recorder-box">
-                    <div class="rec-btn-container">
-                        <button class="rec-btn" id="recBtn" title="Start Recording">
-                            <div class="rec-pulse-ring"></div>
-                            <div class="rec-icon-shell" id="recIcon">
-                                <svg class="mic-svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="8" y1="22" x2="16" y2="22"/></svg>
-                            </div>
-                        </button>
-                    </div>
-                    <div class="timer-display" id="timerDisplay">00:00</div>
-                    <div class="rec-status-text" id="recStatus">Tap microphone to start recording</div>
-
-                    <div class="audio-upload-divider" style="margin-top:16px; margin-bottom:12px; display:flex; align-items:center; gap:12px; width:100%; justify-content:center;">
-                        <span style="font-size:11px; font-weight:700; color:var(--text-dim); text-transform:uppercase; letter-spacing:1px;">— OR UPLOAD EXISTING AUDIO —</span>
-                    </div>
-
-                    <div style="display:flex; justify-content:center;">
-                        <button class="btn btn-secondary" id="triggerAudioFileBtn" style="border-color:var(--border-highlight); color:var(--primary); gap:8px;">
-                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                            <span>Upload Audio File (MP3, WAV, M4A)</span>
-                        </button>
-                        <input type="file" accept="audio/*" id="audioFileInput" style="display:none;">
-                    </div>
-                </div>
-
-                <!-- Pre-save Listen Audio Player & Waveform Canvas Shell -->
-                <div class="waveform-shell" id="waveShell" style="display:none; margin-top:20px;">
-                    <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; flex-wrap:wrap; gap:8px;">
-                        <div style="font-size:13px; font-weight:700; color:var(--primary); display:flex; align-items:center; gap:8px;">
-                            <span class="pulse-dot"></span>
-                            <span>SOUND ENGRAVING PREVIEW — CLICK WAVEFORM TO SEEK</span>
-                        </div>
-                        <div style="display:flex; align-items:center; gap:10px;">
-                            <button class="btn btn-primary" id="preSavePlayBtn" style="padding:6px 14px; min-height:36px; font-size:12px; gap:6px;">
-                                <svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                                <span>Play Preview</span>
-                            </button>
-                            <span id="preSaveTimeDisplay" style="font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text-muted);">00:00 / 00:00</span>
-                        </div>
-                    </div>
-
-                    <canvas class="waveform-canvas" id="waveCanvas" width="900" height="240" style="cursor:pointer;"></canvas>
-                    <audio id="preSaveAudio" style="display:none;"></audio>
-                </div>
-
-                <!-- Save / Export Controls -->
-                <div class="form-row" id="saveRow" style="display:none;">
-                    <input type="text" id="labelInput" class="input-field" placeholder="Memory Title (e.g. Emma's Laugh)" maxlength="60">
-                    <button class="btn btn-primary" id="saveBtn">Engrave Sound</button>
-                    <button class="btn btn-secondary" id="downloadMotifBtn" style="border-color:var(--border-highlight); color:var(--primary);">Download Tattoo Stencil (PNG)</button>
-                    <button class="btn btn-secondary" id="discardBtn">Reset</button>
-                </div>
-            </div>
-
-            <!-- Emotional Story & Memory Showcase Card -->
-            <div class="card">
-                <div class="emotional-showcase-grid">
-                    <div class="emotional-img-wrap">
-                        <picture>
-                            <source srcset="assets/sound-moments.webp" type="image/webp">
-                            <img src="assets/sound-moments.jpg" alt="Preserve Voice Memories" class="emotional-img" loading="lazy" width="1024" height="1024">
-                        </picture>
-                    </div>
-                    <div class="emotional-text-wrap">
-                        <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1px; text-transform:uppercase; margin-bottom:6px;">MEMORIES THAT STAY WITH YOU</div>
-                        <h2 style="font-size:22px; font-weight:800; margin-bottom:10px;">Keep Their Voice Close to Your Heart</h2>
-                        <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:16px;">
-                            Voice recordings can fade in hard drives, but sound tattoos stay with you. From the innocent laughter of your children growing up to the comforting voice of loved ones, Vocara turns voice into living art you can scan and play anytime.
-                        </p>
-                        <div class="memory-tag-list">
-                            <span class="memory-tag">Child's First Words</span>
-                            <span class="memory-tag">Departed Loved Ones</span>
-                            <span class="memory-tag">Wedding Vows</span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Marketing Angle: The Ultimate Gift -->
-            <div class="card" style="background: linear-gradient(135deg, rgba(255, 107, 0, 0.14), rgba(18, 18, 24, 0.95)); border: 1px solid var(--border-highlight);">
-                <div class="emotional-showcase-grid">
-                    <div class="emotional-img-wrap">
-                        <picture>
-                            <source srcset="assets/gift-eternal.webp" type="image/webp">
-                            <img src="assets/gift-eternal.jpg" alt="The Ultimate Meaningful Gift" class="emotional-img" loading="lazy" width="1024" height="1024">
-                        </picture>
-                    </div>
-                    <div class="emotional-text-wrap">
-                        <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
-                            <span class="badge" style="background:var(--primary); color:#000000; font-weight:800; display:inline-flex; align-items:center; gap:4px;">
-                                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#000000" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
-                                <span>THE ULTIMATE MEANINGFUL GIFT</span>
-                            </span>
-                        </div>
-                        <h3 style="font-size:22px; font-weight:900; color:#ffffff; margin-bottom:8px; line-height:1.3;">
-                            "A Living Sound Memory You Wear on Your Skin."
-                        </h3>
-                        <p style="font-size:14px; color:var(--text-muted); line-height:1.6; margin-bottom:14px;">
-                            Give the most unique and emotional gift in the world: a declaration of love, a child's laughter, or a sacred voice message transformed into a scannable sound wave motif.
-                        </p>
-                        <div class="memory-tag-list">
-                            <span class="memory-tag" style="background:rgba(255,107,0,0.18); border-color:var(--primary); color:#ffffff; display:inline-flex; align-items:center; gap:6px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
-                                <span>Unforgettable Gift</span>
-                            </span>
-                            <span class="memory-tag" style="background:rgba(255,107,0,0.18); border-color:var(--primary); color:#ffffff; display:inline-flex; align-items:center; gap:6px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                                <span>Engraved Love Declaration</span>
-                            </span>
-                            <span class="memory-tag" style="background:rgba(255,107,0,0.18); border-color:var(--primary); color:#ffffff; display:inline-flex; align-items:center; gap:6px;">
-                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a3 3 0 0 0-3 3v7a3 3 0 0 0 6 0V5a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
-                                <span>Living Voice Memory</span>
-                            </span>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ===================== PRICING PLANS SECTION ===================== -->
-            <section class="card" style="margin-top:24px; background:linear-gradient(180deg, rgba(16,16,22,0.95), rgba(24,18,14,0.9)); border:1px solid var(--border-highlight);">
-                <div style="text-align:center; margin-bottom:28px;">
-                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">TRANSPARENT PRICING</div>
-                    <h2 style="font-size:26px; font-weight:800;">Choose Your Sound Engraving Plan</h2>
-                    <p style="font-size:14px; color:var(--text-muted); max-width:600px; margin:8px auto 0;">Start creating your living sound tattoo. No hidden fees, instant stencil download.</p>
-                </div>
-
-                <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
-                    <!-- Essential Plan -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column;">
-                        <div style="font-size:14px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Essential Memory</div>
-                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:16px;">
-                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$24.99</span>
-                            <span style="font-size:14px; color:var(--text-dim);">/ 1st year</span>
-                        </div>
-                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Perfect for trying your first sound tattoo stencil with 1 full year of cloud storage included.</p>
-
-                        <ul style="list-style:none; padding:0; margin:0 0 24px 0; font-size:13px; color:var(--text-light); line-height:2.2;">
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>1 High-Precision Tattoo Stencil (PNG)</span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>1 Year Cloud Audio Storage Included</span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Instant Camera Scanner Access</span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>$9.99/year optional renewal</span>
-                            </li>
-                        </ul>
-
-                        <button class="btn btn-secondary" onclick="document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'})" style="margin-top:auto; width:100%; border-color:var(--border-highlight); color:var(--primary);">
-                            Select Essential Plan
-                        </button>
-                    </div>
-
-                    <!-- Lifetime Memory Plan (FEATURED) -->
-                    <div style="background:linear-gradient(145deg, rgba(255,107,0,0.12), rgba(18,18,24,0.98)); border:2px solid var(--primary); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column; position:relative; box-shadow: 0 10px 30px rgba(255,107,0,0.2);">
-                        <div style="position:absolute; top:-12px; right:20px; background:var(--primary); color:#000; font-size:11px; font-weight:800; padding:4px 12px; border-radius:var(--radius-full); text-transform:uppercase; letter-spacing:1px;">
-                            BEST VALUE — ONE-TIME PAYMENT
-                        </div>
-
-                        <div style="font-size:14px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Lifetime Memory Plan</div>
-                        <div style="display:flex; align-items:baseline; gap:4px; margin-bottom:16px;">
-                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$49.99</span>
-                            <span style="font-size:14px; color:var(--primary); font-weight:700;">one-time</span>
-                        </div>
-                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Pay once, keep your sound memory forever. Zero annual subscriptions, zero surprises.</p>
-
-                        <ul style="list-style:none; padding:0; margin:0 0 24px 0; font-size:13px; color:#ffffff; line-height:2.2;">
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span><strong>Lifetime Unlimited Cloud Storage</strong></span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>1 High-Precision Tattoo Stencil (PNG)</span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Zero Recurring Fees Ever</span>
-                            </li>
-                            <li style="display:flex; align-items:center; gap:8px;">
-                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Priority Encrypted Cloud Backup</span>
-                            </li>
-                        </ul>
-
-                        <button class="btn btn-primary" onclick="document.getElementById('recorderCard').scrollIntoView({behavior:'smooth'})" style="margin-top:auto; width:100%;">
-                            Get Lifetime Memory ($49.99)
-                        </button>
-                    </div>
-                </div>
-            </section>
-
-            <!-- Privacy & Security Guarantee Banner -->
-            <div style="margin-top:20px; background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:var(--radius-md); padding:16px 20px; display:flex; align-items:center; gap:16px;">
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
-                <div style="font-size:13px; color:var(--text-light); line-height:1.5;">
-                    <strong style="color:#10b981;">100% Private &amp; Secure Storage:</strong> Your voice recordings are transmitted over encrypted SSL connections and safely hosted in dedicated private cloud storage. We never share or sell your audio memories.
-                </div>
-            </div>
-
-
-
-            <!-- ===================== CUSTOMER REVIEWS / TESTIMONIALS ===================== -->
-            <section class="card" style="margin-top:24px; background:linear-gradient(180deg, rgba(20,20,28,0.95), rgba(16,14,20,0.9)); border:1px solid var(--border-color);">
-                <div style="text-align:center; margin-bottom:20px;">
-                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">LIVING MEMORIES</div>
-                    <h2 style="font-size:24px; font-weight:800; margin-bottom:12px;">Loved by Sound Memory Holders</h2>
-                    
-                    <!-- Trustpilot Style Header Rating Bar -->
-                    <div style="display:flex; align-items:center; justify-content:center; gap:10px; flex-wrap:wrap; background:rgba(255,255,255,0.03); border:1px solid var(--border-color); border-radius:var(--radius-sm); padding:10px 16px; width:fit-content; margin:0 auto 12px;">
-                        <div style="display:inline-flex; align-items:center; gap:3px;">
-                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                            <div class="tp-box"><svg width="12" height="12" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                        </div>
-                        <span style="font-size:15px; font-weight:800; color:#ffffff;">4.9 / 5</span>
-                        <span style="font-size:13px; color:var(--text-muted);">based on <strong>87,450 reviews</strong></span>
-                    </div>
-
-                    <p style="font-size:12px; color:var(--text-muted); display:flex; align-items:center; justify-content:center; gap:6px;">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
-                        <span>Swipe to explore customer stories</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
-                    </p>
-                </div>
-
-                <!-- Single Line Slidable Horizontal Carousel (Mobile & Desktop) -->
-                <div class="reviews-slider">
-                    <!-- Review 1: Sophie L. -->
-                    <div class="review-card">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                                <img src="assets/profile/femme-27ans.webp" alt="Sophie L." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
-                                <div>
-                                    <div style="font-size:15px; font-weight:700; color:#ffffff;">Sophie L.</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">27 years old • <strong>2 reviews</strong> • Wrist Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Child's First Laugh</div>
-                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
-                                "I engraved my daughter's very first baby laugh when she was 8 months old. Every time I scan my wrist tattoo with the app camera, hearing her giggles instantly brings tears to my eyes."
-                            </p>
-                        </div>
-                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Verified Lifetime Memory</span>
-                        </div>
-                    </div>
-
-                    <!-- Review 2: Marcus D. -->
-                    <div class="review-card">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                                <img src="assets/profile/homme-45ans.webp" alt="Marcus D." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
-                                <div>
-                                    <div style="font-size:15px; font-weight:700; color:#ffffff;">Marcus D.</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">45 years old • <strong>1 review</strong> • Arm Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Wedding Vows</div>
-                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
-                                "My wife and I engraved our 10th anniversary vows into matching tattoos. The stencil generated by Vocara was pixel-perfect for our tattoo artist. Scanning it on our phone brings back all the magic."
-                            </p>
-                        </div>
-                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Verified Lifetime Memory</span>
-                        </div>
-                    </div>
-
-                    <!-- Review 3: Clara M. -->
-                    <div class="review-card">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                                <img src="assets/profile/femme-34ans.webp" alt="Clara M." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
-                                <div>
-                                    <div style="font-size:15px; font-weight:700; color:#ffffff;">Clara M.</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">34 years old • <strong>4 reviews</strong> • Forearm Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Grandmother's Voicemail</div>
-                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
-                                "When my grandmother passed away, I only had a short 12-second voicemail left. Vocara turned her voice into a wave motif. Knowing I can hear her voice anytime gives me immense comfort."
-                            </p>
-                        </div>
-                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Verified Lifetime Memory</span>
-                        </div>
-                    </div>
-
-                    <!-- Review 4: Robert T. -->
-                    <div class="review-card">
-                        <div>
-                            <div style="display:flex; align-items:center; gap:12px; margin-bottom:12px;">
-                                <img src="assets/profile/homme-60ans.webp" alt="Robert T." style="width:48px; height:48px; border-radius:50%; object-fit:cover; border:2px solid var(--primary); box-shadow:0 0 10px rgba(255,107,0,0.3);">
-                                <div>
-                                    <div style="font-size:15px; font-weight:700; color:#ffffff;">Robert T.</div>
-                                    <div style="font-size:11px; color:var(--text-muted);">60 years old • <strong>3 reviews</strong> • Shoulder Tattoo</div>
-                                    <div style="display:flex; align-items:center; gap:2px; margin-top:4px;">
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                        <div class="tp-box" style="width:16px; height:16px;"><svg width="10" height="10" viewBox="0 0 24 24" fill="#ffffff"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div style="font-size:11px; font-weight:700; color:var(--primary); margin-bottom:6px; text-transform:uppercase; letter-spacing:0.5px;">Engraved: Son's Acoustic Song</div>
-                            <p style="font-size:12px; color:var(--text-muted); line-height:1.5; font-style:italic;">
-                                "Got my son's acoustic guitar song engraved on my shoulder as a surprise for his graduation. The camera scanner recognizes it instantly under room light. Simply incredible technology."
-                            </p>
-                        </div>
-                        <div style="margin-top:12px; padding-top:10px; border-top:1px solid rgba(255,255,255,0.05); display:flex; align-items:center; gap:6px; font-size:11px; color:#10b981; font-weight:700;">
-                            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                            <span>Verified Lifetime Memory</span>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ===================== FREQUENTLY ASKED QUESTIONS (FAQ) ===================== -->
-            <section class="card" style="margin-top:24px;">
-                <div style="text-align:center; margin-bottom:24px;">
-                    <div style="font-size:12px; font-weight:700; color:var(--primary); letter-spacing:1.5px; text-transform:uppercase; margin-bottom:6px;">GOT QUESTIONS?</div>
-                    <h2 style="font-size:24px; font-weight:800;">Frequently Asked Questions</h2>
-                </div>
-
-                <div style="display:flex; flex-direction:column; gap:12px;">
-                    <!-- FAQ Item 1 -->
-                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
-                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
-                            <span>Q: Will my sound tattoo still scan over time?</span>
-                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
-                        </summary>
-                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Vocara's scanner is engineered with relative height-profile matching and correlation algorithms, designed to stay readable across standard camera angles, lighting conditions, and natural skin variations.</p>
-                    </details>
-
-                    <!-- FAQ Item 2 -->
-                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
-                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
-                            <span>Q: What happens if I change my phone or delete the app?</span>
-                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
-                        </summary>
-                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Your sound memory is safely backed up in the cloud associated with your unique Sound Code. Simply scan your tattoo with any device running Vocara to play it instantly.</p>
-                    </details>
-
-                    <!-- FAQ Item 3 -->
-                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
-                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
-                            <span>Q: Who can listen to my sound tattoo?</span>
-                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
-                        </summary>
-                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">Anyone who scans your physical tattoo with the Vocara camera scanner can hear your audio memory, making it a truly interactive piece of living art!</p>
-                    </details>
-
-                    <!-- FAQ Item 4 -->
-                    <details class="faq-item" style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-md); padding:16px 18px; cursor:pointer; transition:all 0.2s ease;">
-                        <summary style="font-size:15px; font-weight:700; color:var(--primary); display:flex; justify-content:space-between; align-items:center; list-style:none;">
-                            <span>Q: How long is my sound memory stored?</span>
-                            <svg class="faq-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="transition:transform 0.3s ease; flex-shrink:0;"><polyline points="6 9 12 15 18 9"/></svg>
-                        </summary>
-                        <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin-top:12px; padding-top:12px; border-top:1px solid rgba(255,255,255,0.06);">With our Lifetime Memory Plan, your voice recording is safely stored for life with zero recurring annual fees. For Essential Memory plans, even if you choose not to renew after the first year, your original sound file and stencil download remain safely archived so you never lose your voice memory.</p>
-                    </details>
-                </div>
-            </section>
         </section>
 
-        </div> <!-- End landing-flow -->
+        <!-- ===================== PANEL 3: MEMBER DASHBOARD ===================== -->
+        <section class="panel" id="panel-member">
+            <div style="margin-top:16px;">
+                <!-- Member Header & Plan Overview Banner -->
+                <div class="member-banner" id="memberBanner">
+                    <!-- Populated dynamically by app.js -->
+                </div>
 
-    <!-- ===================== MEMBER AREA MODAL ===================== -->
-    <div class="modal-overlay" id="memberModal">
-        <div class="modal-card" style="max-width:850px; max-height:85vh; overflow-y:auto; position:relative;">
-            <button class="modal-close-btn" id="closeMemberModal">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            
-            <!-- Member Header & Plan Overview Banner -->
-            <div class="member-banner" id="memberBanner">
-                <!-- Populated dynamically by app.js -->
-            </div>
+                <!-- Stored Sound Memories Card -->
+                <div class="card" style="margin-top:16px;">
+                    <div class="card-title">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                        <span>My Sound Memories Vault</span>
+                    </div>
+                    <div class="card-subtitle">
+                        Your personal cloud library of engraved audio memories and tattoo codes.
+                    </div>
+                    <div class="gallery-grid" id="memberSoundsGrid">
+                        <!-- User personal sounds populated dynamically by app.js -->
+                    </div>
+                </div>
 
-            <!-- Stored Sound Memories Card -->
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
-                    <span>My Sound Memories Vault</span>
-                </div>
-                <div class="card-subtitle">
-                    Your personal cloud library of engraved audio memories and tattoo codes.
-                </div>
-                <div class="gallery-grid" id="memberSoundsGrid">
-                    <!-- User personal sounds -->
-                </div>
-            </div>
-
-            <!-- Stored Tattoo Stencils Card -->
-            <div class="card" style="margin-top:16px;">
-                <div class="card-title">
-                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
-                    <span>My Tattoo Stencils &amp; Designs</span>
-                </div>
-                <div class="card-subtitle">
-                    Generated tattoo stencils ready to print or send directly to your tattoo artist.
-                </div>
-                <div class="gallery-grid" id="memberDesignsGrid">
-                    <!-- User tattoo stencil images -->
+                <!-- Stored Tattoo Stencils Card -->
+                <div class="card" style="margin-top:16px;">
+                    <div class="card-title">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                        <span>My Tattoo Stencils &amp; Designs</span>
+                    </div>
+                    <div class="card-subtitle">
+                        Generated tattoo stencils ready to print or send directly to your tattoo artist.
+                    </div>
+                    <div class="gallery-grid" id="memberDesignsGrid">
+                        <!-- User tattoo stencil images -->
+                    </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-    <!-- ===================== SUPER ADMIN MODAL ===================== -->
-    <div class="modal-overlay" id="adminModal">
-        <div class="modal-card" style="max-width:950px; max-height:85vh; overflow-y:auto; position:relative;">
-            <button class="modal-close-btn" id="closeAdminModal">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-            </button>
-            <div class="card" style="border-color:var(--border-highlight); background:none; border:none; padding:0;">
+        <!-- ===================== PANEL 4: SUPER ADMIN ===================== -->
+        <section class="panel" id="panel-admin">
+            <div class="card" style="margin-top:16px; border-color:var(--border-highlight);">
                 <div class="card-title">
                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                     <span>Super Admin Overview &amp; Control Center</span>
@@ -764,10 +629,9 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
+        </section>
 
-        <!-- ===================== PERMANENT MAIN PAGE MOBILE APPS BANNER ===================== -->
+        <!-- ===================== PERMANENT MOBILE APPS BANNER ===================== -->
         <div class="card" style="margin-top:28px;">
             <div class="card-title" style="justify-content:center;">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
@@ -883,7 +747,7 @@
                             <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Permanent Cloud Storage</li>
                         </ul>
                     </div>
-                    <button class="btn btn-secondary" onclick="window.selectPlan('essential')">Select Starter Pass</button>
+                    <button class="btn btn-secondary" onclick="window.selectPlan('starter')">Select Starter Pass</button>
                 </div>
 
                 <!-- Lifetime Plan -->
@@ -925,7 +789,7 @@
 
                     <div style="display:flex; gap:12px; margin-top:16px;">
                         <button type="submit" id="submit-payment-btn" class="btn btn-primary" style="flex:2; justify-content:center;">
-                            <span id="button-text">Pay Now &amp; Activate Plan</span>
+                            <span>Pay Now &amp; Activate Plan</span>
                         </button>
                         <button type="button" id="cancel-payment-btn" class="btn btn-secondary" style="flex:1; justify-content:center;">
                             <span>Cancel</span>
@@ -936,15 +800,36 @@
         </div>
     </div>
 
-    <!-- Global Toast Notification -->
-    <div class="toast-msg" id="toastMsg">Notification message</div>
+    <!-- MEMBER AREA BACKUP MODAL -->
+    <div class="modal-overlay" id="memberModal">
+        <div class="modal-card" style="max-width:850px; max-height:85vh; overflow-y:auto; position:relative;">
+            <button class="modal-close-btn" id="closeMemberModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="member-banner" id="modalMemberBanner"></div>
+            <div class="card" style="margin-top:16px;">
+                <div class="card-title"><span>My Sound Memories Vault</span></div>
+                <div class="gallery-grid" id="modalMemberSoundsGrid"></div>
+            </div>
+        </div>
+    </div>
 
-    <!-- MindAR Image Tracking Engine CDN -->
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image.prod.js"></script>
-    <!-- JS Modules -->
-    <script src="js/visualizer.js"></script>
-    <script src="js/recorder.js"></script>
-    <script src="js/scanner.js"></script>
+    <!-- SUPER ADMIN BACKUP MODAL -->
+    <div class="modal-overlay" id="adminModal">
+        <div class="modal-card" style="max-width:950px; max-height:85vh; overflow-y:auto; position:relative;">
+            <button class="modal-close-btn" id="closeAdminModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div class="card" style="border:none; padding:0;">
+                <div class="card-title"><span>Super Admin Overview &amp; Control Center</span></div>
+                <div class="admin-stats-grid" id="modalAdminStatsGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global Toast Notification Container -->
+    <div id="toastContainer" style="position:fixed; bottom:24px; right:24px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
+
     <script src="js/app.js"></script>
 </body>
 

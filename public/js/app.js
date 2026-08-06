@@ -71,6 +71,11 @@
     function updateUserHeaderUI() {
         const widget = document.getElementById('userHeaderWidget');
         const navAdmin = document.getElementById('navTabAdmin');
+        const navMemberLabel = document.getElementById('navTabMemberLabel');
+
+        if (navMemberLabel) {
+            navMemberLabel.textContent = currentUser ? 'My Account' : 'Login / Sign In';
+        }
 
         if (!widget) return;
 
@@ -103,9 +108,9 @@
                 </button>
             `;
 
-            document.getElementById('hdrMemberBtn').onclick = openMemberModal;
+            document.getElementById('hdrMemberBtn').onclick = () => switchTab('member');
             if (document.getElementById('hdrAdminBtn')) {
-                document.getElementById('hdrAdminBtn').onclick = openAdminModal;
+                document.getElementById('hdrAdminBtn').onclick = () => switchTab('admin');
             }
             document.getElementById('hdrLogoutBtn').onclick = () => {
                 authToken = null;
@@ -115,6 +120,7 @@
                 closeMemberModal();
                 closeAdminModal();
                 updateUserHeaderUI();
+                switchTab('engrave');
             };
         } else {
             if (navAdmin) navAdmin.style.display = 'none';
@@ -317,6 +323,7 @@
         }
 
         activeCheckoutPlan = plan;
+        openPlanModal();
         toast('Initializing secure Stripe payment...');
 
         try {
@@ -454,6 +461,11 @@
     // --- TAB SWITCHING LOGIC ---
 
     function switchTab(tabName) {
+        if (tabName === 'member' && !currentUser) {
+            openAuthModal('register');
+            return;
+        }
+
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
         const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
         if (btn) btn.classList.add('active');
