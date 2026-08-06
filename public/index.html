@@ -48,15 +48,8 @@
             <div class="brand-container">
                 <img src="assets/logo.svg" alt="VOCARA Logo" class="brand-logo">
             </div>
-            <div class="header-badges">
-                <span class="badge" style="background:rgba(16, 185, 129, 0.15); border-color:rgba(16, 185, 129, 0.4); color:#10b981; display:inline-flex; align-items:center; gap:6px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span>SECURE SSL &amp; PRIVATE STORAGE</span>
-                </span>
-                <span class="badge" style="background:rgba(255, 107, 0, 0.15); border-color:var(--border-highlight); color:var(--primary); display:inline-flex; align-items:center; gap:6px;">
-                    <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
-                    <span>INSTANT CAMERA RECOGNITION</span>
-                </span>
+            <div class="user-header-widget" id="userHeaderWidget">
+                <!-- Dynamically rendered by app.js -->
             </div>
         </header>
 
@@ -162,6 +155,14 @@
             <button class="tab-btn" data-tab="scan">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
                 <span>Scan &amp; Play</span>
+            </button>
+            <button class="tab-btn" data-tab="member" id="navTabMember">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                <span>Member Area</span>
+            </button>
+            <button class="tab-btn" data-tab="admin" id="navTabAdmin" style="display:none;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                <span>Super Admin</span>
             </button>
         </nav>
 
@@ -676,6 +677,110 @@
             </div>
         </section>
 
+        <!-- ===================== PANEL 3: MEMBER AREA ===================== -->
+        <section class="panel" id="panel-member">
+            <!-- Member Header & Plan Overview Banner -->
+            <div class="member-banner" id="memberBanner">
+                <!-- Populated dynamically by app.js -->
+            </div>
+
+            <!-- Stored Sound Memories Card -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 11a7 7 0 0 1-7 7m0 0a7 7 0 0 1-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 1 0 0-6 3 3 0 0 0 0 6z"/></svg>
+                    <span>My Sound Memories Vault</span>
+                </div>
+                <div class="card-subtitle">
+                    Your personal cloud library of engraved audio memories and tattoo codes.
+                </div>
+                <div class="gallery-grid" id="memberSoundsGrid">
+                    <!-- User personal sounds -->
+                </div>
+            </div>
+
+            <!-- Stored Tattoo Stencils Card -->
+            <div class="card">
+                <div class="card-title">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+                    <span>My Tattoo Stencils &amp; Designs</span>
+                </div>
+                <div class="card-subtitle">
+                    Generated tattoo stencils ready to print or send directly to your tattoo artist.
+                </div>
+                <div class="gallery-grid" id="memberDesignsGrid">
+                    <!-- User tattoo stencil images -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ===================== PANEL 4: SUPER ADMIN ===================== -->
+        <section class="panel" id="panel-admin">
+            <div class="card" style="border-color:var(--border-highlight);">
+                <div class="card-title">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Super Admin Overview &amp; Control Center</span>
+                </div>
+                <div class="card-subtitle">
+                    Platform metrics, user account management, subscription overrides, and global media storage audit.
+                </div>
+
+                <!-- Admin Metrics Grid -->
+                <div class="admin-stats-grid" id="adminStatsGrid">
+                    <!-- Dynamic metrics -->
+                </div>
+
+                <!-- User Management Table -->
+                <div style="margin-top:24px;">
+                    <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                        <span>Registered Platform Users</span>
+                    </h3>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Email</th>
+                                    <th>Role</th>
+                                    <th>Plan</th>
+                                    <th>Credits</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminUsersTable">
+                                <!-- Users list -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Global Media Audit Table -->
+                <div style="margin-top:32px;">
+                    <h3 style="font-size:16px; font-weight:700; margin-bottom:12px; display:flex; align-items:center; gap:8px;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                        <span>Global Audio Media Storage</span>
+                    </h3>
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Sound ID</th>
+                                    <th>Label</th>
+                                    <th>Code</th>
+                                    <th>User ID</th>
+                                    <th>Created</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody id="adminSoundsTable">
+                                <!-- Sounds audit -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
         <!-- ===================== PERMANENT MAIN PAGE MOBILE APPS BANNER ===================== -->
         <div class="card" style="margin-top:28px;">
             <div class="card-title" style="justify-content:center;">
@@ -713,6 +818,99 @@
             </div>
         </div>
 
+    </div>
+
+    <!-- ===================== AUTH MODAL ===================== -->
+    <div class="modal-overlay" id="authModal">
+        <div class="modal-card">
+            <button class="modal-close-btn" id="closeAuthModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div style="text-align:center; margin-bottom:20px;">
+                <img src="assets/logo.svg" alt="VOCARA" style="height:36px; margin-bottom:8px;">
+                <p style="font-size:13px; color:var(--text-muted);" id="authModalSub">Create a free account to engrave sound memories and generate tattoo stencils.</p>
+            </div>
+
+            <div class="auth-nav-tabs">
+                <button class="auth-nav-btn active" id="authTabRegister">Create Free Account</button>
+                <button class="auth-nav-btn" id="authTabLogin">Sign In</button>
+            </div>
+
+            <div id="authErrorAlert" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#fca5a5; padding:10px 14px; border-radius:var(--radius-sm); font-size:13px; margin-bottom:16px;"></div>
+
+            <form id="registerForm" style="display:flex; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Full Name</label>
+                    <input type="text" id="regName" class="input-field" style="width:100%; margin-top:4px;" placeholder="John Doe" required>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Email Address</label>
+                    <input type="email" id="regEmail" class="input-field" style="width:100%; margin-top:4px;" placeholder="john@example.com" required>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Password</label>
+                    <input type="password" id="regPassword" class="input-field" style="width:100%; margin-top:4px;" placeholder="••••••••" required minlength="6">
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:8px;">Create Free Account</button>
+            </form>
+
+            <form id="loginForm" style="display:none; flex-direction:column; gap:12px;">
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Email Address</label>
+                    <input type="email" id="loginEmail" class="input-field" style="width:100%; margin-top:4px;" placeholder="john@example.com" required>
+                </div>
+                <div>
+                    <label style="font-size:11px; font-weight:700; color:var(--text-muted); text-transform:uppercase;">Password</label>
+                    <input type="password" id="loginPassword" class="input-field" style="width:100%; margin-top:4px;" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn btn-primary" style="margin-top:8px;">Sign In</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- ===================== PLAN SELECTION / CHECKOUT MODAL ===================== -->
+    <div class="modal-overlay" id="planSelectModal">
+        <div class="modal-card" style="max-width:650px;">
+            <button class="modal-close-btn" id="closePlanModal">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+            <div style="text-align:center; margin-bottom:20px;">
+                <div style="font-size:11px; font-weight:800; color:var(--primary); text-transform:uppercase; letter-spacing:1.5px; margin-bottom:4px;">VOCARA PREMIUM SERVICE</div>
+                <h2 style="font-size:24px; font-weight:900;">Activate Your Sound Tattoo Plan</h2>
+                <p style="font-size:13px; color:var(--text-muted);">Unlock sound engraving generations, ultra-high resolution stencil downloads, and lifetime cloud hosting.</p>
+            </div>
+
+            <div class="plans-grid">
+                <!-- Essential Plan -->
+                <div class="plan-card">
+                    <div>
+                        <div class="plan-name">Starter Pass</div>
+                        <div class="plan-price">$14.99</div>
+                        <ul class="plan-feats">
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 10 Sound Engraving Credits</li>
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> High-Res PNG Stencils</li>
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Permanent Cloud Storage</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-secondary" onclick="window.selectPlan('essential')">Select Starter Pass</button>
+                </div>
+
+                <!-- Lifetime Plan -->
+                <div class="plan-card featured">
+                    <span class="plan-card-tag">MOST POPULAR</span>
+                    <div>
+                        <div class="plan-name">Immortal Pass</div>
+                        <div class="plan-price">$49.99</div>
+                        <ul class="plan-feats">
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> UNLIMITED Sound Engravings</li>
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Master Vector &amp; PNG Stencils</li>
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Priority Super Admin Support</li>
+                        </ul>
+                    </div>
+                    <button class="btn btn-primary" onclick="window.selectPlan('lifetime')">Activate Immortal Pass</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Global Toast Notification -->

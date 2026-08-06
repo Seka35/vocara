@@ -1,15 +1,21 @@
 /**
- * Vocara Main App Logic
+ * Vocara Main App Logic — Espace Membre, Freemium/Paid Model & Super Admin Panel
  */
 (function () {
     "use strict";
 
     let currentRecordingData = null;
     let currentSoundCode = null;
+    let pendingRecordingToSave = null;
+
+    // Authentication Session State
+    let currentUser = null;
+    let authToken = localStorage.getItem('vocara_token') || null;
 
     // Toast Notification helper
-    function toast(msg, duration = 3000) {
+    function toast(msg, duration = 3500) {
         const el = document.getElementById('toastMsg');
+        if (!el) return;
         el.textContent = msg;
         el.classList.add('show');
         setTimeout(() => el.classList.remove('show'), duration);
@@ -23,37 +29,308 @@
     }
 
     function formatDate(ts) {
+        if (!ts) return 'N/A';
         const d = new Date(ts);
         return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
     }
 
-    function generateCode() {
-        const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-        let c = 'VCR-';
-        for (let i = 0; i < 6; i++) c += chars.charAt(Math.floor(Math.random() * chars.length));
-        return c;
+    function escapeHtml(str) {
+        if (!str) return '';
+        return String(str).replace(/[&<>'"]/g, 
+            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+        );
     }
 
-    // --- Tab Switching ---
+    // --- AUTHENTICATION & HEADER WIDGET LOGIC ---
+
+    async function checkAuth() {
+        if (!authToken) {
+            currentUser = null;
+            updateUserHeaderUI();
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/auth/me', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            if (data.success && data.user) {
+                currentUser = data.user;
+            } else {
+                currentUser = null;
+                authToken = null;
+                localStorage.removeItem('vocara_token');
+            }
+        } catch (e) {
+            console.error('Auth check error:', e);
+        }
+        updateUserHeaderUI();
+    }
+
+    function updateUserHeaderUI() {
+        const widget = document.getElementById('userHeaderWidget');
+        const navAdmin = document.getElementById('navTabAdmin');
+
+        if (!widget) return;
+
+        if (currentUser) {
+            const planName = (currentUser.plan || 'free').toUpperCase();
+            const isAdmin = currentUser.role === 'admin' || currentUser.role === 'superadmin';
+
+            if (navAdmin) {
+                navAdmin.style.display = isAdmin ? 'inline-flex' : 'none';
+            }
+
+            widget.innerHTML = `
+                <div class="user-badge-group">
+                    <span class="user-name-text">${escapeHtml(currentUser.name)}</span>
+                    <span class="plan-badge-pill">${planName}</span>
+                    <span class="credits-badge-pill">${currentUser.credits} CREDITS</span>
+                </div>
+                <button class="btn btn-secondary" id="hdrMemberBtn" style="padding:6px 12px; font-size:12px; min-height:36px; gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span>Dashboard</span>
+                </button>
+                ${isAdmin ? `
+                <button class="btn btn-secondary" id="hdrAdminBtn" style="padding:6px 12px; font-size:12px; min-height:36px; border-color:var(--border-highlight); color:var(--primary); gap:6px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    <span>Admin</span>
+                </button>
+                ` : ''}
+                <button class="btn btn-danger" id="hdrLogoutBtn" style="padding:6px 10px; font-size:12px; min-height:36px;" title="Sign Out">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                </button>
+            `;
+
+            document.getElementById('hdrMemberBtn').onclick = () => switchTab('member');
+            if (document.getElementById('hdrAdminBtn')) {
+                document.getElementById('hdrAdminBtn').onclick = () => switchTab('admin');
+            }
+            document.getElementById('hdrLogoutBtn').onclick = () => {
+                authToken = null;
+                currentUser = null;
+                localStorage.removeItem('vocara_token');
+                toast('Signed out successfully.');
+                updateUserHeaderUI();
+                switchTab('engrave');
+            };
+        } else {
+            if (navAdmin) navAdmin.style.display = 'none';
+
+            widget.innerHTML = `
+                <button class="btn btn-primary" id="hdrLoginBtn" style="padding:8px 16px; font-size:13px; min-height:40px; gap:8px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+                    <span>Sign In / Free Account</span>
+                </button>
+            `;
+
+            document.getElementById('hdrLoginBtn').onclick = () => openAuthModal('register');
+        }
+    }
+
+    // --- MODALS CONTROL ---
+
+    function openAuthModal(mode = 'register') {
+        const modal = document.getElementById('authModal');
+        const alert = document.getElementById('authErrorAlert');
+        if (alert) alert.style.display = 'none';
+
+        if (mode === 'register') {
+            document.getElementById('authTabRegister').classList.add('active');
+            document.getElementById('authTabLogin').classList.remove('active');
+            document.getElementById('registerForm').style.display = 'flex';
+            document.getElementById('loginForm').style.display = 'none';
+        } else {
+            document.getElementById('authTabLogin').classList.add('active');
+            document.getElementById('authTabRegister').classList.remove('active');
+            document.getElementById('loginForm').style.display = 'flex';
+            document.getElementById('registerForm').style.display = 'none';
+        }
+        if (modal) modal.classList.add('open');
+    }
+
+    function closeAuthModal() {
+        const modal = document.getElementById('authModal');
+        if (modal) modal.classList.remove('open');
+    }
+
+    function openPlanModal() {
+        const modal = document.getElementById('planSelectModal');
+        if (modal) modal.classList.add('open');
+    }
+
+    function closePlanModal() {
+        const modal = document.getElementById('planSelectModal');
+        if (modal) modal.classList.remove('open');
+    }
+
+    // Attach Modal Close Events
+    const closeAuthBtn = document.getElementById('closeAuthModal');
+    if (closeAuthBtn) closeAuthBtn.onclick = closeAuthModal;
+
+    const closePlanBtn = document.getElementById('closePlanModal');
+    if (closePlanBtn) closePlanBtn.onclick = closePlanModal;
+
+    document.getElementById('authTabRegister').onclick = () => {
+        document.getElementById('authTabRegister').classList.add('active');
+        document.getElementById('authTabLogin').classList.remove('active');
+        document.getElementById('registerForm').style.display = 'flex';
+        document.getElementById('loginForm').style.display = 'none';
+    };
+
+    document.getElementById('authTabLogin').onclick = () => {
+        document.getElementById('authTabLogin').classList.add('active');
+        document.getElementById('authTabRegister').classList.remove('active');
+        document.getElementById('loginForm').style.display = 'flex';
+        document.getElementById('registerForm').style.display = 'none';
+    };
+
+    // Form Submissions (Register & Login)
+    document.getElementById('registerForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const alert = document.getElementById('authErrorAlert');
+        const name = document.getElementById('regName').value.trim();
+        const email = document.getElementById('regEmail').value.trim();
+        const password = document.getElementById('regPassword').value.trim();
+
+        try {
+            const res = await fetch('/api/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                authToken = data.token;
+                currentUser = data.user;
+                localStorage.setItem('vocara_token', authToken);
+                closeAuthModal();
+                updateUserHeaderUI();
+                toast(`Welcome ${name}! Free account created.`);
+                
+                // Resume pending sound save if user was interrupted
+                if (pendingRecordingToSave) {
+                    saveSoundToServer(pendingRecordingToSave);
+                    pendingRecordingToSave = null;
+                }
+            } else {
+                if (alert) {
+                    alert.textContent = data.error || 'Registration failed.';
+                    alert.style.display = 'block';
+                }
+            }
+        } catch (err) {
+            if (alert) {
+                alert.textContent = 'Server connection error.';
+                alert.style.display = 'block';
+            }
+        }
+    };
+
+    document.getElementById('loginForm').onsubmit = async (e) => {
+        e.preventDefault();
+        const alert = document.getElementById('authErrorAlert');
+        const email = document.getElementById('loginEmail').value.trim();
+        const password = document.getElementById('loginPassword').value.trim();
+
+        try {
+            const res = await fetch('/api/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password })
+            });
+            const data = await res.json();
+            if (data.success) {
+                authToken = data.token;
+                currentUser = data.user;
+                localStorage.setItem('vocara_token', authToken);
+                closeAuthModal();
+                updateUserHeaderUI();
+                toast(`Welcome back ${currentUser.name}!`);
+
+                if (pendingRecordingToSave) {
+                    saveSoundToServer(pendingRecordingToSave);
+                    pendingRecordingToSave = null;
+                }
+            } else {
+                if (alert) {
+                    alert.textContent = data.error || 'Invalid credentials.';
+                    alert.style.display = 'block';
+                }
+            }
+        } catch (err) {
+            if (alert) {
+                alert.textContent = 'Server connection error.';
+                alert.style.display = 'block';
+            }
+        }
+    };
+
+    // Global Plan Selection Handler
+    window.selectPlan = async function (plan) {
+        if (!currentUser || !authToken) {
+            openAuthModal('register');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/user/select-plan', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({ plan })
+            });
+            const data = await res.json();
+            if (data.success) {
+                currentUser = data.user;
+                closePlanModal();
+                updateUserHeaderUI();
+                toast(data.message || `Subscribed to ${plan.toUpperCase()} plan!`);
+                if (document.getElementById('panel-member').classList.contains('active')) {
+                    fetchMemberDashboard();
+                }
+            } else {
+                toast(data.error || 'Plan activation failed.');
+            }
+        } catch (e) {
+            toast('Server error during plan selection.');
+        }
+    };
+
+    // --- TAB SWITCHING LOGIC ---
+
+    function switchTab(tabName) {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        const btn = document.querySelector(`.tab-btn[data-tab="${tabName}"]`);
+        if (btn) btn.classList.add('active');
+
+        document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+        const targetPanel = document.getElementById('panel-' + tabName);
+        if (targetPanel) targetPanel.classList.add('active');
+
+        if (tabName !== 'scan') {
+            stopAutoScanner();
+        } else {
+            startLiveCameraScanner();
+        }
+
+        if (tabName === 'member') {
+            fetchMemberDashboard();
+        } else if (tabName === 'admin') {
+            fetchAdminPanel();
+        }
+    }
+
     document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-
-            const tabName = btn.dataset.tab;
-            document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
-            const targetPanel = document.getElementById('panel-' + tabName);
-            if (targetPanel) targetPanel.classList.add('active');
-
-            if (tabName !== 'scan') {
-                stopAutoScanner();
-            } else {
-                startLiveCameraScanner();
-            }
+            switchTab(btn.dataset.tab);
         });
     });
 
-    // --- Recording Handler ---
+    // --- RECORDING & SOUND ENGRAVING HANDLER ---
     const recBtn = document.getElementById('recBtn');
     const timerDisplay = document.getElementById('timerDisplay');
     const recStatus = document.getElementById('recStatus');
@@ -65,14 +342,12 @@
     const preSavePlayBtn = document.getElementById('preSavePlayBtn');
     const preSaveTimeDisplay = document.getElementById('preSaveTimeDisplay');
 
-    let isRecording = false;
     let preSaveSeekController = null;
 
     function setupPreSavePlayer(data, soundCode) {
         const audioUrl = URL.createObjectURL(data.blob);
         preSaveAudio.src = audioUrl;
 
-        // Attach interactive waveform seek handler
         preSaveSeekController = Visualizer.attachSeekHandler(
             waveCanvas,
             preSaveAudio,
@@ -80,7 +355,6 @@
             soundCode
         );
 
-        // Play/Pause button toggle
         if (preSavePlayBtn) {
             preSavePlayBtn.onclick = () => {
                 if (preSaveAudio.paused) {
@@ -91,100 +365,84 @@
             };
         }
 
-        // Time updates
         preSaveAudio.ontimeupdate = () => {
             const cur = formatTime((preSaveAudio.currentTime || 0) * 1000);
             const dur = formatTime((preSaveAudio.duration || 0) * 1000);
             if (preSaveTimeDisplay) preSaveTimeDisplay.textContent = `${cur} / ${dur}`;
         };
-
-        preSaveAudio.onplay = () => {
-            if (preSavePlayBtn) preSavePlayBtn.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause</span>`;
-        };
-
-        preSaveAudio.onpause = preSaveAudio.onended = () => {
-            if (preSavePlayBtn) preSavePlayBtn.innerHTML = `<svg class="play-icon" width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play Preview</span>`;
-        };
     }
 
-    Recorder.setCallbacks({
-        onTimerUpdate: (ms) => {
-            timerDisplay.textContent = formatTime(ms);
+    Recorder.init({
+        onStart: () => {
+            recBtn.classList.add('recording');
+            recStatus.textContent = 'Recording live sound... Tap again to finish';
+            waveShell.style.display = 'none';
+            saveRow.style.display = 'none';
         },
-        onComplete: (data) => {
-            isRecording = false;
+        onStop: (data) => {
             recBtn.classList.remove('recording');
-            recStatus.textContent = 'Processing sound motif...';
-
+            recStatus.textContent = 'Recording complete! Listen & Engrave your sound below.';
             currentRecordingData = data;
             currentSoundCode = generateCode();
 
-            setupPreSavePlayer(data, currentSoundCode);
             waveShell.style.display = 'block';
             saveRow.style.display = 'flex';
-            labelInput.value = '';
-            labelInput.focus();
+            if (labelInput) labelInput.value = '';
 
-            recStatus.textContent = 'Recording ready! Click waveform to seek or play preview.';
+            setupPreSavePlayer(data, currentSoundCode);
+        },
+        onTimer: (ms) => {
+            timerDisplay.textContent = formatTime(ms);
         },
         onError: (err) => {
-            isRecording = false;
             recBtn.classList.remove('recording');
-            recStatus.textContent = 'Tap microphone to start recording';
-            toast(err);
+            recStatus.textContent = 'Recording failed or permission denied.';
+            toast('Microphone error: ' + err);
         }
     });
 
-    recBtn.addEventListener('click', async () => {
-        if (!isRecording) {
-            const started = await Recorder.start();
-            if (started) {
-                isRecording = true;
-                recBtn.classList.add('recording');
-                recStatus.textContent = 'Recording... Speak or play sound';
-                waveShell.style.display = 'none';
-                saveRow.style.display = 'none';
-            }
-        } else {
-            Recorder.stop();
-        }
+    recBtn.addEventListener('click', () => {
+        Recorder.toggleRecording();
     });
 
-    // Custom Audio File Upload handling
     const triggerAudioFileBtn = document.getElementById('triggerAudioFileBtn');
     const audioFileInput = document.getElementById('audioFileInput');
-
     if (triggerAudioFileBtn && audioFileInput) {
-        triggerAudioFileBtn.addEventListener('click', () => {
-            audioFileInput.click();
-        });
-
+        triggerAudioFileBtn.addEventListener('click', () => audioFileInput.click());
         audioFileInput.addEventListener('change', async (e) => {
             const file = e.target.files && e.target.files[0];
             if (!file) return;
 
-            recStatus.textContent = 'Processing uploaded audio file...';
+            toast('Processing audio file & extracting fingerprint...');
             try {
-                const data = await Recorder.processAudioFile(file);
-                currentRecordingData = data;
+                const arrayBuffer = await file.arrayBuffer();
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+                const duration = audioBuffer.duration;
+
+                const rawData = audioBuffer.getChannelData(0);
+                const fingerprint = Visualizer.compute64Fingerprint(rawData);
+
+                currentRecordingData = {
+                    blob: file,
+                    duration,
+                    fingerprint,
+                    mime: file.type || 'audio/webm'
+                };
                 currentSoundCode = generateCode();
 
-                setupPreSavePlayer(data, currentSoundCode);
                 waveShell.style.display = 'block';
                 saveRow.style.display = 'flex';
-                labelInput.value = file.name.replace(/\.[^/.]+$/, "");
-                labelInput.focus();
+                recStatus.textContent = `Audio file "${file.name}" loaded (${duration.toFixed(1)}s)`;
 
-                recStatus.textContent = 'Uploaded sound ready! Click waveform curve to seek or play preview.';
-                toast('Audio file loaded successfully!');
+                setupPreSavePlayer(currentRecordingData, currentSoundCode);
+                toast('Audio file imported successfully!');
             } catch (err) {
-                toast(err.message || 'Error processing audio file.');
-                recStatus.textContent = 'Tap microphone to start recording';
+                toast('Error decoding audio file.');
             }
         });
     }
 
-    // Reset recording
     document.getElementById('discardBtn').addEventListener('click', () => {
         waveShell.style.display = 'none';
         saveRow.style.display = 'none';
@@ -195,7 +453,6 @@
         timerDisplay.textContent = '00:00';
     });
 
-    // Download Tattoo Stencil Image (PURE BLACK WAVEFORM, TRANSPARENT BACKGROUND, NO TEXT)
     document.getElementById('downloadMotifBtn').addEventListener('click', () => {
         if (!currentRecordingData) return;
         const tempCanvas = document.createElement('canvas');
@@ -207,10 +464,25 @@
         link.download = `vocara-tattoo-stencil-${currentSoundCode || 'motif'}.png`;
         link.href = tempCanvas.toDataURL('image/png');
         link.click();
-        toast('Tattoo stencil downloaded! Pure black, transparent background, no text.');
+        toast('Tattoo stencil downloaded! Pure black, transparent background.');
+
+        // Save design stencil entry if user is logged in
+        if (currentUser && authToken) {
+            fetch('/api/user/designs', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify({
+                    title: (labelInput.value || 'Tattoo Stencil') + ' Stencil',
+                    image_url: tempCanvas.toDataURL('image/png')
+                })
+            }).catch(() => {});
+        }
     });
 
-    // Save Sound to Database
+    // Save Sound to Database with Gating Enforcement
     document.getElementById('saveBtn').addEventListener('click', async () => {
         const label = labelInput.value.trim();
         if (!label) {
@@ -224,46 +496,70 @@
             return;
         }
 
+        const reader = new FileReader();
+        reader.readAsDataURL(currentRecordingData.blob);
+        reader.onloadend = async () => {
+            const base64Audio = reader.result;
+
+            const payload = {
+                label,
+                duration: currentRecordingData.duration,
+                fingerprint: currentRecordingData.fingerprint,
+                sound_code: currentSoundCode,
+                mimeType: currentRecordingData.mime,
+                audioBase64: base64Audio
+            };
+
+            // Enforce account creation before sound engraving!
+            if (!currentUser || !authToken) {
+                pendingRecordingToSave = payload;
+                openAuthModal('register');
+                toast('Please create a free account to engrave sound memories.');
+                return;
+            }
+
+            await saveSoundToServer(payload);
+        };
+    });
+
+    async function saveSoundToServer(payload) {
         const saveBtn = document.getElementById('saveBtn');
         saveBtn.disabled = true;
         saveBtn.textContent = 'Saving...';
 
         try {
-            const reader = new FileReader();
-            reader.readAsDataURL(currentRecordingData.blob);
-            reader.onloadend = async () => {
-                const base64Audio = reader.result;
+            const res = await fetch('/api/sounds', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`
+                },
+                body: JSON.stringify(payload)
+            });
 
-                const payload = {
-                    label,
-                    duration: currentRecordingData.duration,
-                    fingerprint: currentRecordingData.fingerprint,
-                    sound_code: currentSoundCode,
-                    mimeType: currentRecordingData.mime,
-                    audioBase64: base64Audio
-                };
-
-                const res = await fetch('/api/sounds', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                const data = await res.json();
-                if (data.success) {
-                    toast(`" ${label} " engraved into database!`);
-                    waveShell.style.display = 'none';
-                    saveRow.style.display = 'none';
-                    preSaveAudio.removeAttribute('src');
-                    currentRecordingData = null;
-                    currentSoundCode = null;
-                    recStatus.textContent = 'Tap microphone to start recording';
-                    timerDisplay.textContent = '00:00';
-                    fetchGallery();
-                } else {
-                    toast('Failed to save sound: ' + data.error);
-                }
-            };
+            const data = await res.json();
+            if (data.success) {
+                toast(`" ${payload.label} " engraved into database!`);
+                waveShell.style.display = 'none';
+                saveRow.style.display = 'none';
+                preSaveAudio.removeAttribute('src');
+                currentRecordingData = null;
+                currentSoundCode = null;
+                recStatus.textContent = 'Tap microphone to start recording';
+                timerDisplay.textContent = '00:00';
+                
+                await checkAuth(); // Refresh user credit count
+                fetchGallery();
+                switchTab('member');
+            } else if (data.requireAuth) {
+                pendingRecordingToSave = payload;
+                openAuthModal('register');
+            } else if (data.requirePlan) {
+                openPlanModal();
+                toast('Please select a plan in your Dashboard to engrave more sounds.');
+            } else {
+                toast('Failed to save sound: ' + data.error);
+            }
         } catch (e) {
             console.error(e);
             toast('Server error during saving.');
@@ -271,11 +567,13 @@
             saveBtn.disabled = false;
             saveBtn.textContent = 'Engrave Sound';
         }
-    });
+    }
 
-    // --- Gallery Fetch & Render ---
+    // --- PUBLIC GALLERY FETCH & RENDER ---
+
     async function fetchGallery() {
         const grid = document.getElementById('galleryGrid');
+        if (!grid) return;
         try {
             const res = await fetch('/api/sounds');
             const data = await res.json();
@@ -286,107 +584,7 @@
 
             grid.innerHTML = '';
             data.sounds.forEach(sound => {
-                const card = document.createElement('div');
-                card.className = 'gallery-card';
-
-                const canvas = document.createElement('canvas');
-                canvas.className = 'g-canvas';
-                canvas.width = 500;
-                canvas.height = 130;
-                canvas.style.cursor = 'pointer';
-
-                const audio = new Audio('/audio/' + sound.filename);
-
-                // Attach Real-Time Lighted Interactive Seek Waveform to Gallery Card!
-                Visualizer.attachSeekHandler(canvas, audio, sound.fingerprint, sound.sound_code);
-
-                card.appendChild(canvas);
-
-                const info = document.createElement('div');
-                info.className = 'g-info';
-                info.innerHTML = `
-                    <div>
-                        <div class="g-title">${escapeHtml(sound.label)}</div>
-                        <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${formatDate(sound.created_at)} • ${(sound.duration || 0).toFixed(1)}s</div>
-                    </div>
-                    <span class="g-code">${sound.sound_code}</span>
-                `;
-                card.appendChild(info);
-
-                const actions = document.createElement('div');
-                actions.className = 'g-actions';
-                actions.innerHTML = `
-                    <button class="btn btn-primary play-btn" style="flex:1; padding:8px 10px; font-size:12px; font-weight:700; white-space:nowrap; min-height:38px; gap:6px; justify-content:center;">
-                        <svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-                        <span>Play</span>
-                    </button>
-                    <button class="btn btn-secondary dl-btn" style="padding:8px 12px; font-size:12px; font-weight:600; white-space:nowrap; min-height:38px; gap:6px; justify-content:center;" title="Download Tattoo Stencil">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                        <span>Stencil</span>
-                    </button>
-                    <button class="btn btn-danger del-btn" style="width:38px; min-width:38px; padding:0; height:38px; display:flex; align-items:center; justify-content:center;" title="Delete Sound">
-                        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                    </button>
-                `;
-
-                const playBtn = actions.querySelector('.play-btn');
-                playBtn.addEventListener('click', () => {
-                    if (audio.paused) {
-                        // Pause any other playing audio in page
-                        document.querySelectorAll('audio').forEach(a => { if (a !== audio) a.pause(); });
-                        audio.play().catch(err => {
-                            console.error('Gallery audio playback error:', err, audio.error);
-                            if (audio.error && audio.error.code === 4) {
-                                toast('Audio file missing on server.');
-                            } else if (err.name === 'NotSupportedError') {
-                                toast('Audio format (.webm) not supported on iOS Safari.');
-                            } else {
-                                toast('Playback error. Tap play again.');
-                            }
-                        });
-                    } else {
-                        audio.pause();
-                    }
-                });
-
-                audio.addEventListener('play', () => {
-                    playBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause</span>`;
-                    card.classList.add('playing');
-                });
-
-                audio.addEventListener('pause', () => {
-                    playBtn.innerHTML = `<svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play</span>`;
-                    card.classList.remove('playing');
-                });
-
-                audio.addEventListener('ended', () => {
-                    playBtn.innerHTML = `<svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play</span>`;
-                    card.classList.remove('playing');
-                });
-
-                // Download Tattoo Stencil Image (Transparent PNG, Pure Black Waveform, No Text)
-                actions.querySelector('.dl-btn').addEventListener('click', () => {
-                    const tempCanvas = document.createElement('canvas');
-                    tempCanvas.width = 1200;
-                    tempCanvas.height = 350;
-                    Visualizer.drawWaveform(tempCanvas, sound.fingerprint, null, { exportMode: true });
-
-                    const link = document.createElement('a');
-                    link.download = `vocara-tattoo-stencil-${sound.sound_code}.png`;
-                    link.href = tempCanvas.toDataURL('image/png');
-                    link.click();
-                    toast('Tattoo stencil downloaded! Pure black, transparent background, no text.');
-                });
-
-                // Delete Sound
-                actions.querySelector('.del-btn').addEventListener('click', async () => {
-                    if (!confirm(`Delete "${sound.label}" from database?`)) return;
-                    await fetch('/api/sounds/' + sound.id, { method: 'DELETE' });
-                    toast('Sound deleted.');
-                    fetchGallery();
-                });
-
-                card.appendChild(actions);
+                const card = createSoundCardElement(sound, false);
                 grid.appendChild(card);
             });
         } catch (e) {
@@ -394,24 +592,361 @@
         }
     }
 
-    function escapeHtml(str) {
-        return str.replace(/[&<>'"]/g, 
-            tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-        );
+    function createSoundCardElement(sound, isOwner = false) {
+        const card = document.createElement('div');
+        card.className = 'gallery-card';
+
+        const canvas = document.createElement('canvas');
+        canvas.className = 'g-canvas';
+        canvas.width = 500;
+        canvas.height = 130;
+        canvas.style.cursor = 'pointer';
+
+        const audio = new Audio('/audio/' + sound.filename);
+        Visualizer.attachSeekHandler(canvas, audio, sound.fingerprint, sound.sound_code);
+
+        card.appendChild(canvas);
+
+        const info = document.createElement('div');
+        info.className = 'g-info';
+        info.innerHTML = `
+            <div>
+                <div class="g-title">${escapeHtml(sound.label)}</div>
+                <div style="font-size:11px; color:var(--text-dim); margin-top:2px;">${formatDate(sound.created_at)} • ${(sound.duration || 0).toFixed(1)}s</div>
+            </div>
+            <span class="g-code">${sound.sound_code}</span>
+        `;
+        card.appendChild(info);
+
+        const canDelete = isOwner || (currentUser && (currentUser.role === 'admin' || currentUser.role === 'superadmin'));
+
+        const actions = document.createElement('div');
+        actions.className = 'g-actions';
+        actions.innerHTML = `
+            <button class="btn btn-primary play-btn" style="flex:1; padding:8px 10px; font-size:12px; font-weight:700; white-space:nowrap; min-height:38px; gap:6px; justify-content:center;">
+                <svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                <span>Play</span>
+            </button>
+            <button class="btn btn-secondary dl-btn" style="padding:8px 12px; font-size:12px; font-weight:600; white-space:nowrap; min-height:38px; gap:6px; justify-content:center;" title="Download Tattoo Stencil">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Stencil</span>
+            </button>
+            ${canDelete ? `
+            <button class="btn btn-danger del-btn" style="width:38px; min-width:38px; padding:0; height:38px; display:flex; align-items:center; justify-content:center;" title="Delete Sound">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+            </button>
+            ` : ''}
+        `;
+
+        const playBtn = actions.querySelector('.play-btn');
+        playBtn.addEventListener('click', () => {
+            if (audio.paused) {
+                document.querySelectorAll('audio').forEach(a => { if (a !== audio) a.pause(); });
+                audio.play().catch(err => {
+                    toast('Playback error. Tap play again.');
+                });
+            } else {
+                audio.pause();
+            }
+        });
+
+        audio.addEventListener('play', () => {
+            playBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg><span>Pause</span>`;
+            card.classList.add('playing');
+        });
+
+        audio.addEventListener('pause', () => {
+            playBtn.innerHTML = `<svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play</span>`;
+            card.classList.remove('playing');
+        });
+
+        audio.addEventListener('ended', () => {
+            playBtn.innerHTML = `<svg class="play-icon" width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg><span>Play</span>`;
+            card.classList.remove('playing');
+        });
+
+        actions.querySelector('.dl-btn').addEventListener('click', () => {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1200;
+            tempCanvas.height = 350;
+            Visualizer.drawWaveform(tempCanvas, sound.fingerprint, null, { exportMode: true });
+
+            const link = document.createElement('a');
+            link.download = `vocara-tattoo-stencil-${sound.sound_code}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
+            link.click();
+            toast('Tattoo stencil downloaded! Pure black, transparent background.');
+        });
+
+        if (canDelete) {
+            actions.querySelector('.del-btn').addEventListener('click', async () => {
+                if (!confirm(`Delete "${sound.label}"?`)) return;
+                await fetch('/api/sounds/' + sound.id, {
+                    method: 'DELETE',
+                    headers: authToken ? { 'Authorization': `Bearer ${authToken}` } : {}
+                });
+                toast('Sound deleted.');
+                fetchGallery();
+                if (currentUser) fetchMemberDashboard();
+            });
+        }
+
+        card.appendChild(actions);
+        return card;
     }
 
-    // --- Scanner Logic & Recognition FX ---
-    const srcCamBtn = document.getElementById('srcCamBtn');
-    const srcFileBtn = document.getElementById('srcFileBtn');
-    const camSection = document.getElementById('camSection');
-    const uploadSection = document.getElementById('uploadSection');
-    const startCamBtn = document.getElementById('startCamBtn');
+    // --- MEMBER DASHBOARD LOGIC ---
+
+    async function fetchMemberDashboard() {
+        const banner = document.getElementById('memberBanner');
+        const soundsGrid = document.getElementById('memberSoundsGrid');
+        const designsGrid = document.getElementById('memberDesignsGrid');
+
+        if (!currentUser || !authToken) {
+            if (banner) {
+                banner.innerHTML = `
+                    <div style="text-align:center; width:100%; padding:20px;">
+                        <h2 style="font-size:20px; margin-bottom:8px;">Sign In to Access Your Espace Membre</h2>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:16px;">Store private sound memories, view tattoo stencils, and manage your subscription.</p>
+                        <button class="btn btn-primary" onclick="window.openAuthModal('register')">Create Free Account / Sign In</button>
+                    </div>
+                `;
+            }
+            if (soundsGrid) soundsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">Please sign in to view your saved sounds.</div>';
+            if (designsGrid) designsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">Please sign in to view your tattoo stencils.</div>';
+            return;
+        }
+
+        // Render Banner
+        banner.innerHTML = `
+            <div class="member-info-group">
+                <div class="member-title">Welcome, ${escapeHtml(currentUser.name)}</div>
+                <div class="member-subtitle">${escapeHtml(currentUser.email)} • Account Role: <strong style="color:var(--primary); text-transform:uppercase;">${currentUser.role}</strong></div>
+                <div class="member-stats-row">
+                    <div class="member-stat-box">
+                        <span class="stat-label">Active Plan</span>
+                        <span class="stat-val" style="text-transform:uppercase;">${currentUser.plan || 'free'}</span>
+                    </div>
+                    <div class="member-stat-box">
+                        <span class="stat-label">Remaining Credits</span>
+                        <span class="stat-val">${currentUser.credits}</span>
+                    </div>
+                </div>
+            </div>
+            <button class="btn btn-primary" id="mbrUpgradeBtn" style="gap:8px;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                <span>Upgrade Plan &amp; Add Credits</span>
+            </button>
+        `;
+
+        document.getElementById('mbrUpgradeBtn').onclick = openPlanModal;
+
+        // Fetch User Sounds
+        try {
+            const res = await fetch('/api/user/sounds', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            if (data.success && data.sounds && data.sounds.length > 0) {
+                soundsGrid.innerHTML = '';
+                data.sounds.forEach(sound => {
+                    soundsGrid.appendChild(createSoundCardElement(sound, true));
+                });
+            } else {
+                soundsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">No private sounds saved yet. Record a sound to get started!</div>';
+            }
+        } catch (e) {
+            soundsGrid.innerHTML = '<div style="color:var(--danger);">Error loading your sound vault.</div>';
+        }
+
+        // Fetch User Designs / Stencils
+        try {
+            const res = await fetch('/api/user/designs', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            if (data.success && data.designs && data.designs.length > 0) {
+                designsGrid.innerHTML = '';
+                data.designs.forEach(dsg => {
+                    const card = document.createElement('div');
+                    card.className = 'gallery-card';
+                    card.innerHTML = `
+                        <img src="${dsg.image_url}" alt="Tattoo Stencil" style="width:100%; height:110px; object-fit:contain; background:#000000; border-radius:8px; border:1px solid var(--border-color);">
+                        <div class="g-info" style="margin-top:8px;">
+                            <div>
+                                <div class="g-title">${escapeHtml(dsg.title)}</div>
+                                <div style="font-size:11px; color:var(--text-dim);">${formatDate(dsg.created_at)}</div>
+                            </div>
+                        </div>
+                        <div class="g-actions" style="margin-top:10px;">
+                            <a href="${dsg.image_url}" download="tattoo-stencil-${dsg.id}.png" class="btn btn-secondary" style="flex:1; text-decoration:none; font-size:12px; min-height:36px; padding:6px 12px; gap:6px;">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                                <span>Download PNG</span>
+                            </a>
+                        </div>
+                    `;
+                    designsGrid.appendChild(card);
+                });
+            } else {
+                designsGrid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">No saved tattoo stencils yet.</div>';
+            }
+        } catch (e) {
+            designsGrid.innerHTML = '<div style="color:var(--danger);">Error loading tattoo designs.</div>';
+        }
+    }
+
+    // --- SUPER ADMIN CONTROL PANEL LOGIC ---
+
+    async function fetchAdminPanel() {
+        const statsGrid = document.getElementById('adminStatsGrid');
+        const usersTable = document.getElementById('adminUsersTable');
+        const soundsTable = document.getElementById('adminSoundsTable');
+
+        if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin') || !authToken) {
+            toast('Admin authorization required.');
+            switchTab('engrave');
+            return;
+        }
+
+        try {
+            const res = await fetch('/api/admin/stats', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            if (data.success) {
+                statsGrid.innerHTML = `
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num">${data.stats.usersCount || 0}</span>
+                        <span class="admin-stat-lbl">Total Registered Users</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num">${data.totalSounds || 0}</span>
+                        <span class="admin-stat-lbl">Engraved Sound Memories</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num">${data.totalDesigns || 0}</span>
+                        <span class="admin-stat-lbl">Generated Tattoo Stencils</span>
+                    </div>
+                    <div class="admin-stat-card">
+                        <span class="admin-stat-num" style="color:#10b981;">100% ONLINE</span>
+                        <span class="admin-stat-lbl">Server Status</span>
+                    </div>
+                `;
+
+                // Render Sounds Audit Table
+                soundsTable.innerHTML = '';
+                (data.sounds || []).forEach(snd => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td style="font-family:'JetBrains Mono', monospace; font-size:11px; color:var(--text-dim);">${snd.id}</td>
+                        <td><strong>${escapeHtml(snd.label)}</strong></td>
+                        <td><span class="g-code">${snd.sound_code}</span></td>
+                        <td style="font-size:11px; color:var(--text-muted);">${snd.user_id || 'Public/Guest'}</td>
+                        <td style="font-size:11px;">${formatDate(snd.created_at)}</td>
+                        <td>
+                            <button class="btn btn-danger adm-del-snd" style="padding:4px 10px; font-size:11px; min-height:28px;" data-id="${snd.id}">Delete</button>
+                        </td>
+                    `;
+                    tr.querySelector('.adm-del-snd').onclick = async () => {
+                        if (!confirm(`Delete sound ${snd.label}?`)) return;
+                        await fetch('/api/sounds/' + snd.id, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${authToken}` }
+                        });
+                        toast('Sound deleted by Admin.');
+                        fetchAdminPanel();
+                    };
+                    soundsTable.appendChild(tr);
+                });
+            }
+        } catch (e) {
+            console.error('Admin stats error:', e);
+        }
+
+        // Fetch Admin Users List
+        try {
+            const res = await fetch('/api/admin/users', {
+                headers: { 'Authorization': `Bearer ${authToken}` }
+            });
+            const data = await res.json();
+            if (data.success && data.users) {
+                usersTable.innerHTML = '';
+                data.users.forEach(usr => {
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td><strong>${escapeHtml(usr.name)}</strong></td>
+                        <td>${escapeHtml(usr.email)}</td>
+                        <td>
+                            <select class="admin-select role-sel">
+                                <option value="user" ${usr.role === 'user' ? 'selected' : ''}>user</option>
+                                <option value="pro" ${usr.role === 'pro' ? 'selected' : ''}>pro</option>
+                                <option value="admin" ${usr.role === 'admin' ? 'selected' : ''}>admin</option>
+                                <option value="superadmin" ${usr.role === 'superadmin' ? 'selected' : ''}>superadmin</option>
+                            </select>
+                        </td>
+                        <td>
+                            <select class="admin-select plan-sel">
+                                <option value="free" ${usr.plan === 'free' ? 'selected' : ''}>free</option>
+                                <option value="essential" ${usr.plan === 'essential' ? 'selected' : ''}>starter</option>
+                                <option value="lifetime" ${usr.plan === 'lifetime' ? 'selected' : ''}>immortal</option>
+                            </select>
+                        </td>
+                        <td>
+                            <input type="number" class="input-field cred-inp" value="${usr.credits}" style="width:70px; padding:4px 8px; font-size:12px; min-width:auto;">
+                        </td>
+                        <td style="display:flex; gap:6px;">
+                            <button class="btn btn-primary adm-save-usr" style="padding:4px 10px; font-size:11px; min-height:28px;">Grant / Save</button>
+                            <button class="btn btn-danger adm-del-usr" style="padding:4px 10px; font-size:11px; min-height:28px;">Delete</button>
+                        </td>
+                    `;
+
+                    tr.querySelector('.adm-save-usr').onclick = async () => {
+                        const role = tr.querySelector('.role-sel').value;
+                        const plan = tr.querySelector('.plan-sel').value;
+                        const credits = parseInt(tr.querySelector('.cred-inp').value, 10);
+
+                        const gRes = await fetch(`/api/admin/users/${usr.id}/grant`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'Authorization': `Bearer ${authToken}`
+                            },
+                            body: JSON.stringify({ role, plan, credits })
+                        });
+                        const gData = await gRes.json();
+                        if (gData.success) {
+                            toast(`Updated ${usr.name} successfully!`);
+                            fetchAdminPanel();
+                        }
+                    };
+
+                    tr.querySelector('.adm-del-usr').onclick = async () => {
+                        if (!confirm(`Delete user account for ${usr.name}?`)) return;
+                        const dRes = await fetch(`/api/admin/users/${usr.id}`, {
+                            method: 'DELETE',
+                            headers: { 'Authorization': `Bearer ${authToken}` }
+                        });
+                        const dData = await dRes.json();
+                        if (dData.success) {
+                            toast(`User ${usr.name} deleted.`);
+                            fetchAdminPanel();
+                        } else {
+                            toast(dData.error || 'Failed to delete user.');
+                        }
+                    };
+
+                    usersTable.appendChild(tr);
+                });
+            }
+        } catch (e) {
+            usersTable.innerHTML = '<tr><td colspan="6" style="color:var(--danger);">Failed to load users list.</td></tr>';
+        }
+    }
+
+    // --- SCANNER & RECOGNITION FX ---
+    const camVideo = document.getElementById('camVideo');
     const stopCamBtn = document.getElementById('stopCamBtn');
     const autoScanBadge = document.getElementById('autoScanBadge');
-    const camVideo = document.getElementById('camVideo');
-    const fileInput = document.getElementById('fileInput');
-    const uploadArea = document.getElementById('uploadArea');
-    const scanUploadBtn = document.getElementById('scanUploadBtn');
     const resultBox = document.getElementById('resultBox');
     const resultAudio = document.getElementById('resultAudio');
     const resultPlayBtn = document.getElementById('resultPlayBtn');
@@ -422,8 +957,6 @@
     let autoScanInterval = null;
     let isScanningFrame = false;
     let lastMatchedCode = null;
-    let pendingCandidateCode = null;
-    let pendingMatchCount = 0;
     let cooldownTimer = null;
     let resultSeekController = null;
 
@@ -432,12 +965,8 @@
             clearInterval(autoScanInterval);
             autoScanInterval = null;
         }
-        pendingCandidateCode = null;
-        pendingMatchCount = 0;
         Scanner.stopCamera(camVideo);
-        if (camVideo) {
-            camVideo.srcObject = null;
-        }
+        if (camVideo) camVideo.srcObject = null;
         if (stopCamBtn) stopCamBtn.style.display = 'none';
         if (autoScanBadge) autoScanBadge.style.display = 'none';
     }
@@ -449,10 +978,6 @@
             if (stopCamBtn) stopCamBtn.style.display = 'inline-flex';
             if (autoScanBadge) autoScanBadge.style.display = 'flex';
 
-            pendingCandidateCode = null;
-            pendingMatchCount = 0;
-
-            // Initialize MindAR 2D Target Tracking in parallel if sounds are available
             fetch('/api/sounds')
                 .then(r => r.json())
                 .then(data => {
@@ -476,10 +1001,8 @@
                 if (isScanningFrame || !camVideo.videoWidth) return;
                 isScanningFrame = true;
 
-                // Process MindAR 2D frame
                 Scanner.processMindFrame(camVideo);
 
-                // Calculate exact pixel ROI of camTargetBox over video stream
                 const box = camTargetBox || document.getElementById('camTargetBox');
                 const vidRect = camVideo.getBoundingClientRect();
                 const boxRect = box ? box.getBoundingClientRect() : vidRect;
@@ -501,8 +1024,6 @@
                     const scanRes = await Scanner.analyzeCanvas(canvas);
                     if (scanRes.success && scanRes.sound) {
                         const candidates = scanRes.candidates || [{ sound: scanRes.sound, score: scanRes.confidence }];
-
-                        // Evaluate multi-candidates to select the highest confidence verified sound
                         let bestVerified = null;
                         for (const candItem of candidates) {
                             if (candItem.score >= 0.48) {
@@ -532,12 +1053,9 @@
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
             const now = ctx.currentTime;
-
             const osc = ctx.createOscillator();
             const gain = ctx.createGain();
             osc.type = 'sine';
-            
-            // Dual-tone success chime: C5 (523Hz) -> E5 (659Hz) -> G5 (784Hz)
             osc.frequency.setValueAtTime(523.25, now);
             osc.frequency.exponentialRampToValueAtTime(659.25, now + 0.08);
             osc.frequency.exponentialRampToValueAtTime(783.99, now + 0.16);
@@ -553,31 +1071,25 @@
     }
 
     function triggerRecognitionAnimation() {
-        // Holographic green success flash on camera target frame
         if (camTargetBox) {
             camTargetBox.classList.add('success');
             setTimeout(() => camTargetBox.classList.remove('success'), 6000);
         }
 
-        // Animate result card reveal
         resultBox.classList.remove('show', 'match', 'no-match');
-        void resultBox.offsetWidth; // Force reflow
+        void resultBox.offsetWidth;
         resultBox.classList.add('show', 'match', 'hologram-reveal');
     }
 
     function handleMatchedSound(sound, confidence) {
-        // Stop continuous auto-scanning loop immediately while sound memory is playing!
         if (autoScanInterval) {
             clearInterval(autoScanInterval);
             autoScanInterval = null;
         }
 
-        // Play success chime sound immediately
         playSuccessChime();
-
         triggerRecognitionAnimation();
 
-        // Update auto scan status badge to Emerald Green success
         const autoBadge = document.getElementById('autoScanBadge');
         if (autoBadge) {
             autoBadge.style.color = '#10b981';
@@ -590,7 +1102,6 @@
 
         resultAudio.src = '/audio/' + sound.filename;
 
-        // Attach Interactive Lighted Waveform Player to Scanner Result Canvas!
         if (resultWaveCanvas) {
             resultSeekController = Visualizer.attachSeekHandler(
                 resultWaveCanvas,
@@ -600,7 +1111,6 @@
             );
         }
 
-        // Play/Pause button
         if (resultPlayBtn) {
             resultPlayBtn.onclick = () => {
                 if (resultAudio.paused) {
@@ -629,7 +1139,6 @@
         resultAudio.onended = () => {
             if (resultPlayBtn) resultPlayBtn.innerHTML = `<svg class="play-icon" width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>`;
             
-            // Auto-resume camera scanner 3.5s after audio finishes playing
             setTimeout(() => {
                 if (camStream && !autoScanInterval) {
                     lastMatchedCode = null;
@@ -643,11 +1152,8 @@
             }, 3500);
         };
 
-        // Auto play retrieved sound memory instantly with real-time waveform progress lighting
         resultAudio.play().catch(() => {});
         toast(`Motif Recognized: "${sound.label}"! Reliving sound memory...`, 4000);
-
-        // Smooth scroll to result card
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
     }
 
@@ -658,13 +1164,11 @@
         });
     }
 
-    // File Upload Scanner Handler
+    // Photo Upload Scanner
     const triggerPhotoUploadBtn = document.getElementById('triggerPhotoUploadBtn');
+    const fileInput = document.getElementById('fileInput');
     if (triggerPhotoUploadBtn && fileInput) {
-        triggerPhotoUploadBtn.addEventListener('click', () => {
-            fileInput.click();
-        });
-
+        triggerPhotoUploadBtn.addEventListener('click', () => fileInput.click());
         fileInput.addEventListener('change', () => {
             const file = fileInput.files && fileInput.files[0];
             if (!file) return;
@@ -683,7 +1187,7 @@
         });
     }
 
-    // Manual Sound Code Fallback Lookup Handler
+    // Manual Sound Code Fallback Lookup
     const manualCodeBtn = document.getElementById('manualCodeBtn');
     const manualCodeInput = document.getElementById('manualCodeInput');
 
@@ -699,7 +1203,6 @@
         try {
             const res = await fetch(`/api/sounds/${encodeURIComponent(code)}`);
             const data = await res.json();
-
             if (data.success && data.sound) {
                 handleMatchedSound(data.sound, 1.0);
                 toast(`Sound Code Validated: "${data.sound.label}"!`);
@@ -711,9 +1214,7 @@
         }
     }
 
-    if (manualCodeBtn) {
-        manualCodeBtn.addEventListener('click', handleManualCodeLookup);
-    }
+    if (manualCodeBtn) manualCodeBtn.addEventListener('click', handleManualCodeLookup);
     if (manualCodeInput) {
         manualCodeInput.addEventListener('keyup', (e) => {
             if (e.key === 'Enter') handleManualCodeLookup();
@@ -723,10 +1224,8 @@
     async function processScan(canvas) {
         resultBox.classList.remove('show', 'match', 'no-match');
         toast('Scanning & analyzing uploaded motif photo...');
-
         try {
             const scanRes = await Scanner.analyzeCanvas(canvas);
-
             if (scanRes.success && scanRes.sound) {
                 handleMatchedSound(scanRes.sound, scanRes.confidence);
             } else {
@@ -742,7 +1241,11 @@
         }
     }
 
-    // Initialize App
+    // Export modal trigger helpers for inline onclicks
+    window.openAuthModal = openAuthModal;
+    window.openPlanModal = openPlanModal;
+
+    // Initialize Application
+    checkAuth();
     fetchGallery();
 })();
-

@@ -38,7 +38,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 const crypto = require('crypto');
-const JWT_SECRET = process.env.JWT_SECRET || crypto.randomBytes(32).toString('hex');
+const JWT_SECRET = process.env.JWT_SECRET || 'vocara_super_secret_jwt_key_2026_secure';
 
 // Cryptographically sign user account token (HMAC-SHA256)
 function generateSecureAccountToken(userId) {
@@ -57,7 +57,6 @@ function verifySecureAccountToken(token) {
     const [base64Payload, signature] = parts;
     const expectedSignature = crypto.createHmac('sha256', JWT_SECRET).update(base64Payload).digest('base64url');
     
-    // Constant-time timing-safe buffer comparison to prevent timing attacks
     if (!crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))) {
         return null; // Signature invalid or tampered!
     }
@@ -70,7 +69,64 @@ function verifySecureAccountToken(token) {
     }
 }
 
-// Middleware
+// Helper to extract Auth token from Header / Query / Body
+function getAuthToken(req) {
+    const authHeader = req.headers['authorization'];
+    if (authHeader && authHeader.startsWith('Bearer ')) {
+        return authHeader.substring(7);
+    }
+    if (req.headers['x-access-token']) {
+        return req.headers['x-access-token'];
+    }
+    if (req.body && req.body.token) {
+        return req.body.token;
+    }
+    return null;
+}
+
+// Middleware: Authentication Guard
+async function authMiddleware(req, res, next) {
+    try {
+        const token = getAuthToken(req);
+        const userId = verifySecureAccountToken(token);
+        if (!userId) {
+            return res.status(401).json({ success: false, requireAuth: true, error: 'Authentication required. Please log in.' });
+        }
+        const user = await db.getUserById(userId);
+        if (!user) {
+            return res.status(401).json({ success: false, requireAuth: true, error: 'User account not found.' });
+        }
+        req.user = user;
+        next();
+    } catch (err) {
+        res.status(401).json({ success: false, requireAuth: true, error: 'Invalid authentication token.' });
+    }
+}
+
+// Middleware: Optional Authentication (attaches req.user if valid token provided)
+async function optionalAuthMiddleware(req, res, next) {
+    try {
+        const token = getAuthToken(req);
+        const userId = verifySecureAccountToken(token);
+        if (userId) {
+            const user = await db.getUserById(userId);
+            if (user) req.user = user;
+        }
+    } catch (e) {}
+    next();
+}
+
+// Middleware: Admin / SuperAdmin Guard
+async function adminMiddleware(req, res, next) {
+    authMiddleware(req, res, () => {
+        if (req.user.role !== 'admin' && req.user.role !== 'superadmin') {
+            return res.status(403).json({ success: false, error: 'Access denied: Admin authorization required.' });
+        }
+        next();
+    });
+}
+
+// Middleware setup
 app.use(cors());
 app.use(express.json({ limit: '50mb' }));
 app.use(express.urlencoded({ extended: true, limit: '50mb' }));
@@ -137,9 +193,122 @@ app.get('/downloads/vocara-android.apk', (req, res) => {
     res.status(404).send('APK file not found on server');
 });
 
-// --- REST API Endpoints ---
+// --- AUTHENTICATION ENDPOINTS ---
 
-// Get all recorded sounds
+// Register new user
+app.post('/api/auth/register', async (req, res) => {
+    try {
+        const { name, email, password } = req.body;
+        if (!name || !email || !password) {
+            return res.status(400).json({ success: false, error: 'Name, email, and password are required.' });
+        }
+        if (password.length < 6) {
+            return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+        }
+
+        const existing = await db.getUserByEmail(email);
+        if (existing) {
+            return res.status(400).json({ success: false, error: 'An account with this email address already exists.' });
+        }
+
+        const user = await db.createUser({ name, email, password, role: 'user', plan: 'free', credits: 1 });
+        const token = generateSecureAccountToken(user.id);
+        res.json({ success: true, token, user });
+    } catch (err) {
+        console.error('Registration error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Login user
+app.post('/api/auth/login', async (req, res) => {
+    try {
+        const { email, password } = req.body;
+        if (!email || !password) {
+            return res.status(400).json({ success: false, error: 'Email and password are required.' });
+        }
+
+        const userWithPass = await db.getUserByEmail(email);
+        if (!userWithPass || !db.verifyPassword(password, userWithPass.password_hash)) {
+            return res.status(401).json({ success: false, error: 'Invalid email or password credentials.' });
+        }
+
+        const token = generateSecureAccountToken(userWithPass.id);
+        const { password_hash, ...user } = userWithPass;
+        res.json({ success: true, token, user });
+    } catch (err) {
+        console.error('Login error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Get Current Logged In User Profile
+app.get('/api/auth/me', authMiddleware, (req, res) => {
+    res.json({ success: true, user: req.user });
+});
+
+// --- MEMBER DASHBOARD & PLAN SELECTION ENDPOINTS ---
+
+// Select / Upgrade Plan
+app.post('/api/user/select-plan', authMiddleware, async (req, res) => {
+    try {
+        const { plan } = req.body;
+        const validPlans = ['essential', 'lifetime', 'pro'];
+        if (!validPlans.includes(plan)) {
+            return res.status(400).json({ success: false, error: 'Invalid plan selected.' });
+        }
+
+        let credits = 10;
+        if (plan === 'lifetime') credits = 99999;
+        else if (plan === 'pro') credits = 100;
+
+        await db.updateUser(req.user.id, { plan, credits });
+        const updatedUser = await db.getUserById(req.user.id);
+        res.json({ success: true, message: `Successfully upgraded to ${plan.toUpperCase()} plan!`, user: updatedUser });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Get User's Saved Sounds
+app.get('/api/user/sounds', authMiddleware, async (req, res) => {
+    try {
+        const sounds = await db.getSoundsByUserId(req.user.id);
+        res.json({ success: true, sounds });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Get User's Saved Tattoo Designs / Stencils
+app.get('/api/user/designs', authMiddleware, async (req, res) => {
+    try {
+        const designs = await db.getDesignsByUserId(req.user.id);
+        res.json({ success: true, designs });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Save User Tattoo Design Stencil
+app.post('/api/user/designs', authMiddleware, async (req, res) => {
+    try {
+        const { title, sound_id, image_url } = req.body;
+        if (!title || !image_url) {
+            return res.status(400).json({ success: false, error: 'Design title and image data are required.' });
+        }
+        const id = 'dsg_' + Date.now().toString(36) + '_' + Math.random().toString(36).substring(2, 6);
+        const designData = { id, user_id: req.user.id, sound_id: sound_id || null, title, image_url, created_at: Date.now() };
+        await db.saveDesign(designData);
+        res.json({ success: true, design: designData });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// --- PUBLIC REST API ENDPOINTS ---
+
+// Get all recorded sounds (Public Gallery)
 app.get('/api/sounds', async (req, res) => {
     try {
         const sounds = await db.getAllSounds();
@@ -163,22 +332,6 @@ app.get('/api/sounds/:id', async (req, res) => {
     }
 });
 
-// Self-service Sound Code lookup by email or phone
-app.post('/api/sounds/lookup', async (req, res) => {
-    try {
-        const { query } = req.body;
-        if (!query || query.length < 3) {
-            return res.status(400).json({ success: false, error: 'Query too short' });
-        }
-        
-        // Search sounds matching contact query
-        const sounds = await db.searchSoundsByContact ? await db.searchSoundsByContact(query) : [];
-        res.json({ success: true, sounds });
-    } catch (err) {
-        res.status(500).json({ success: false, error: err.message });
-    }
-});
-
 // Helper to generate clean unique 6-char sound code
 function generateSoundCode() {
     const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -189,9 +342,28 @@ function generateSoundCode() {
     return code;
 }
 
-// Upload new recorded sound (Multipart OR Base64 JSON)
-app.post('/api/sounds', upload.single('audio'), async (req, res) => {
+// Gated Sound Creation Endpoint (Multipart OR Base64 JSON)
+// Require Account Creation for Sound Generation!
+app.post('/api/sounds', optionalAuthMiddleware, upload.single('audio'), async (req, res) => {
     try {
+        // Enforce Authentication for Sound Generation
+        if (!req.user) {
+            return res.status(401).json({
+                success: false,
+                requireAuth: true,
+                error: 'Please create a free account to engrave sound memories and generate tattoo stencils.'
+            });
+        }
+
+        // Check user plan / credits if free plan
+        if (req.user.plan === 'free' && req.user.credits <= 0) {
+            return res.status(402).json({
+                success: false,
+                requirePlan: true,
+                error: 'You have reached the limit of free sound engravings. Please select a plan in your Dashboard to continue.'
+            });
+        }
+
         let filename = '';
         let mimeType = 'audio/webm';
 
@@ -200,7 +372,6 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
             mimeType = req.file.mimetype;
             try { fs.copyFileSync(req.file.path, path.join(publicAudioDir, filename)); } catch (e) {}
         } else if (req.body.audioBase64) {
-            // Handle base64 fallback from mobile / web recorder (strip any data:*;base64, header cleanly)
             const base64Data = req.body.audioBase64.replace(/^data:.*?;base64,/, '');
             mimeType = req.body.mimeType || 'audio/webm';
             let ext = '.webm';
@@ -226,6 +397,7 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
 
         const soundData = {
             id,
+            user_id: req.user.id,
             label,
             filename,
             duration,
@@ -236,6 +408,12 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
         };
 
         await db.saveSound(soundData);
+
+        // Decrement credit if on free plan
+        if (req.user.plan === 'free') {
+            await db.decrementCredits(req.user.id);
+        }
+
         res.json({ success: true, sound: soundData });
     } catch (err) {
         console.error('Error saving sound:', err);
@@ -243,7 +421,7 @@ app.post('/api/sounds', upload.single('audio'), async (req, res) => {
     }
 });
 
-// Enhanced Correlation matching function (Normalized Pearson Correlation)
+// Pearson Correlation matching function
 function pearsonCorrelation(a, b) {
     const n = Math.min(a.length, b.length);
     if (n === 0) return 0;
@@ -281,10 +459,8 @@ let onnxSession = null;
     }
 })();
 
-// Helper to convert 64-bin fingerprint or 2D array into ONNX Float32 Tensor (1, 1, 128, 128)
 function fingerprintToTensor(fp) {
     const tensorData = new Float32Array(128 * 128);
-    // Fill white canvas background (1.0 normalized)
     tensorData.fill(1.0);
     
     const cy = 64;
@@ -296,7 +472,7 @@ function fingerprintToTensor(fp) {
         const xEnd = Math.floor((i + 1) * barW);
         for (let x = xStart; x < xEnd && x < 128; x++) {
             for (let y = Math.max(0, cy - barH); y <= Math.min(127, cy + barH); y++) {
-                tensorData[y * 128 + x] = -1.0; // Dark ink waveform line (-1.0 in [-1, 1] scale)
+                tensorData[y * 128 + x] = -1.0;
             }
         }
     }
@@ -318,12 +494,11 @@ async function extractOnnxEmbedding(fp) {
     }
 }
 
-// Scan API Endpoint (Handles fingerprint matching and/or sound code lookup)
+// 100% FREE PUBLIC Tattoo Camera & Photo Scan API Endpoint
 app.post('/api/scan', async (req, res) => {
     try {
         const { fingerprint, soundCode } = req.body;
 
-        // 1. Direct Sound Code match if present
         if (soundCode) {
             const matchByCode = await db.getSoundByCode(soundCode);
             if (matchByCode) {
@@ -336,7 +511,6 @@ app.post('/api/scan', async (req, res) => {
             }
         }
 
-        // 2. ONNX AI Embedding Cosine Similarity Match
         if (fingerprint && Array.isArray(fingerprint) && fingerprint.length > 0) {
             const queryEmb = await extractOnnxEmbedding(fingerprint);
             const allSounds = await db.getAllSounds();
@@ -357,7 +531,6 @@ app.post('/api/scan', async (req, res) => {
                     }
                 }
 
-                // Fallback / ensemble with Pearson correlation if ONNX score isn't available
                 if (score < 0.1) {
                     const fpCandidates = [s.fingerprint, s.fingerprint.map(v => 1 - v)];
                     for (const candidateFp of fpCandidates) {
@@ -386,7 +559,6 @@ app.post('/api/scan', async (req, res) => {
                 }
             }
 
-            // Sort candidates descending by match score
             candidateMatches.sort((a, b) => b.score - a.score);
             const top5 = candidateMatches.slice(0, 5);
 
@@ -408,18 +580,86 @@ app.post('/api/scan', async (req, res) => {
     }
 });
 
-// Delete sound endpoint
-app.delete('/api/sounds/:id', async (req, res) => {
+// Delete sound endpoint (User or Admin)
+app.delete('/api/sounds/:id', optionalAuthMiddleware, async (req, res) => {
     try {
         const sound = await db.getSoundById(req.params.id);
-        if (sound) {
+        if (!sound) {
+            return res.status(404).json({ success: false, error: 'Sound not found' });
+        }
+
+        // Permit deletion if sound owner or admin
+        if (req.user && (req.user.id === sound.user_id || req.user.role === 'admin' || req.user.role === 'superadmin')) {
             const filePath = path.join(uploadsDir, sound.filename);
             if (fs.existsSync(filePath)) {
-                fs.unlinkSync(filePath);
+                try { fs.unlinkSync(filePath); } catch (e) {}
             }
             await db.deleteSound(req.params.id);
+            return res.json({ success: true, message: 'Sound deleted successfully.' });
         }
-        res.json({ success: true });
+
+        res.status(403).json({ success: false, error: 'Unauthorized to delete this sound.' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// --- SUPER ADMIN ENDPOINTS ---
+
+// Admin: Get all registered users
+app.get('/api/admin/users', adminMiddleware, async (req, res) => {
+    try {
+        const users = await db.getAllUsers();
+        res.json({ success: true, users });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Grant credits / upgrade plan / change role
+app.post('/api/admin/users/:id/grant', adminMiddleware, async (req, res) => {
+    try {
+        const { plan, credits, role } = req.body;
+        const updates = {};
+        if (plan !== undefined) updates.plan = plan;
+        if (credits !== undefined) updates.credits = parseInt(credits, 10);
+        if (role !== undefined) updates.role = role;
+
+        await db.updateUser(req.params.id, updates);
+        const updatedUser = await db.getUserById(req.params.id);
+        res.json({ success: true, user: updatedUser });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Delete user
+app.delete('/api/admin/users/:id', adminMiddleware, async (req, res) => {
+    try {
+        if (req.params.id === req.user.id) {
+            return res.status(400).json({ success: false, error: 'Cannot delete your own admin account.' });
+        }
+        await db.deleteUser(req.params.id);
+        res.json({ success: true, message: 'User account deleted.' });
+    } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Admin: Get system metrics & global media audit
+app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
+    try {
+        const stats = await db.getStats();
+        const allSounds = await db.getAllSounds();
+        const allDesigns = await db.getAllDesigns();
+        res.json({
+            success: true,
+            stats,
+            totalSounds: allSounds.length,
+            totalDesigns: allDesigns.length,
+            sounds: allSounds,
+            designs: allDesigns
+        });
     } catch (err) {
         res.status(500).json({ success: false, error: err.message });
     }
