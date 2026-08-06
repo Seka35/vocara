@@ -578,30 +578,18 @@
 
             toast('Processing audio file & extracting fingerprint...');
             try {
-                const arrayBuffer = await file.arrayBuffer();
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-                const duration = audioBuffer.duration;
-
-                const rawData = audioBuffer.getChannelData(0);
-                const fingerprint = Visualizer.compute64Fingerprint(rawData);
-
-                currentRecordingData = {
-                    blob: file,
-                    duration,
-                    fingerprint,
-                    mime: file.type || 'audio/webm'
-                };
+                const data = await Recorder.processAudioFile(file);
+                currentRecordingData = data;
                 currentSoundCode = generateCode();
 
                 waveShell.style.display = 'block';
                 saveRow.style.display = 'flex';
-                recStatus.textContent = `Audio file "${file.name}" loaded (${duration.toFixed(1)}s)`;
+                recStatus.textContent = `Audio file "${file.name}" loaded (${data.duration.toFixed(1)}s)`;
 
                 setupPreSavePlayer(currentRecordingData, currentSoundCode);
                 toast('Audio file imported successfully!');
             } catch (err) {
-                toast('Error decoding audio file.');
+                toast('Error decoding audio file: ' + (err.message || err));
             }
         });
     }
