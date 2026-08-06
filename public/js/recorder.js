@@ -12,15 +12,35 @@ const Recorder = (function () {
     let recordStream = null;
     let recordStartTs = 0;
     let timerInterval = null;
+    let isRecordingState = false;
 
+    let onStartCb = null;
     let onTimerUpdateCb = null;
     let onCompleteCb = null;
     let onErrorCb = null;
 
-    function setCallbacks(callbacks) {
-        onTimerUpdateCb = callbacks.onTimerUpdate;
-        onCompleteCb = callbacks.onComplete;
+    function init(callbacks) {
+        onStartCb = callbacks.onStart;
+        onCompleteCb = callbacks.onStop || callbacks.onComplete;
+        onTimerUpdateCb = callbacks.onTimer || callbacks.onTimerUpdate;
         onErrorCb = callbacks.onError;
+    }
+
+    function setCallbacks(callbacks) {
+        onTimerUpdateCb = callbacks.onTimerUpdate || callbacks.onTimer;
+        onCompleteCb = callbacks.onComplete || callbacks.onStop;
+        onErrorCb = callbacks.onError;
+        onStartCb = callbacks.onStart;
+    }
+
+    async function toggleRecording() {
+        if (!isRecordingState) {
+            const ok = await start();
+            return ok;
+        } else {
+            stop();
+            return true;
+        }
     }
 
     async function start() {
@@ -46,6 +66,9 @@ const Recorder = (function () {
         mediaRecorder.onstop = handleStop;
         mediaRecorder.start();
 
+        isRecordingState = true;
+        if (onStartCb) onStartCb();
+
         recordStartTs = Date.now();
         timerInterval = setInterval(() => {
             const elapsed = Date.now() - recordStartTs;
@@ -64,6 +87,7 @@ const Recorder = (function () {
             recordStream.getTracks().forEach(t => t.stop());
         }
         clearInterval(timerInterval);
+        isRecordingState = false;
     }
 
     async function handleStop() {
@@ -147,6 +171,9 @@ const Recorder = (function () {
     }
 
     return {
+        init,
+        toggleRecording,
+        isRecording: () => isRecordingState,
         setCallbacks,
         start,
         stop,
