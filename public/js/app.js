@@ -103,17 +103,18 @@
                 </button>
             `;
 
-            document.getElementById('hdrMemberBtn').onclick = () => switchTab('member');
+            document.getElementById('hdrMemberBtn').onclick = openMemberModal;
             if (document.getElementById('hdrAdminBtn')) {
-                document.getElementById('hdrAdminBtn').onclick = () => switchTab('admin');
+                document.getElementById('hdrAdminBtn').onclick = openAdminModal;
             }
             document.getElementById('hdrLogoutBtn').onclick = () => {
                 authToken = null;
                 currentUser = null;
                 localStorage.removeItem('vocara_token');
                 toast('Signed out successfully.');
+                closeMemberModal();
+                closeAdminModal();
                 updateUserHeaderUI();
-                switchTab('engrave');
             };
         } else {
             if (navAdmin) navAdmin.style.display = 'none';
@@ -130,6 +131,36 @@
     }
 
     // --- MODALS CONTROL ---
+
+    function openMemberModal() {
+        if (!currentUser) {
+            openAuthModal('register');
+            return;
+        }
+        const modal = document.getElementById('memberModal');
+        if (modal) modal.classList.add('open');
+        fetchMemberDashboard();
+    }
+
+    function closeMemberModal() {
+        const modal = document.getElementById('memberModal');
+        if (modal) modal.classList.remove('open');
+    }
+
+    function openAdminModal() {
+        if (!currentUser || (currentUser.role !== 'admin' && currentUser.role !== 'superadmin')) {
+            toast('Access denied. Super Admin role required.');
+            return;
+        }
+        const modal = document.getElementById('adminModal');
+        if (modal) modal.classList.add('open');
+        fetchAdminPanel();
+    }
+
+    function closeAdminModal() {
+        const modal = document.getElementById('adminModal');
+        if (modal) modal.classList.remove('open');
+    }
 
     function openAuthModal(mode = 'register') {
         const modal = document.getElementById('authModal');
@@ -171,6 +202,12 @@
 
     const closePlanBtn = document.getElementById('closePlanModal');
     if (closePlanBtn) closePlanBtn.onclick = closePlanModal;
+
+    const closeMemberBtn = document.getElementById('closeMemberModal');
+    if (closeMemberBtn) closeMemberBtn.onclick = closeMemberModal;
+
+    const closeAdminBtn = document.getElementById('closeAdminModal');
+    if (closeAdminBtn) closeAdminBtn.onclick = closeAdminModal;
 
     document.getElementById('authTabRegister').onclick = () => {
         document.getElementById('authTabRegister').classList.add('active');
@@ -1082,6 +1119,8 @@
         Scanner.stopCamera(camVideo);
         if (camVideo) camVideo.srcObject = null;
         if (stopCamBtn) stopCamBtn.style.display = 'none';
+        const startCamBtn = document.getElementById('startCamBtn');
+        if (startCamBtn) startCamBtn.style.display = 'inline-flex';
         if (autoScanBadge) autoScanBadge.style.display = 'none';
     }
 
@@ -1090,6 +1129,8 @@
         const ok = await Scanner.startCamera(camVideo);
         if (ok) {
             if (stopCamBtn) stopCamBtn.style.display = 'inline-flex';
+            const startCamBtn = document.getElementById('startCamBtn');
+            if (startCamBtn) startCamBtn.style.display = 'none';
             if (autoScanBadge) autoScanBadge.style.display = 'flex';
 
             fetch('/api/sounds')
@@ -1269,6 +1310,13 @@
         resultAudio.play().catch(() => {});
         toast(`Motif Recognized: "${sound.label}"! Reliving sound memory...`, 4000);
         resultBox.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+
+    const startCamBtn = document.getElementById('startCamBtn');
+    if (startCamBtn) {
+        startCamBtn.addEventListener('click', () => {
+            startLiveCameraScanner();
+        });
     }
 
     if (stopCamBtn) {
