@@ -51,6 +51,19 @@ npm install --production
 mkdir -p uploads/audio public/downloads
 chmod -R 755 uploads public/downloads
 
+# Ensure .env file exists
+if [ ! -f .env ]; then
+    echo -e "${CYAN}Creating .env configuration file from .env.example...${NC}"
+    if [ -f .env.example ]; then
+        cp .env.example .env
+    else
+        cat <<EOF > .env
+PORT=${PORT}
+JWT_SECRET=vocara_vps_production_secret_key_2026
+EOF
+    fi
+fi
+
 # 4. Create Nginx Configuration
 echo -e "${CYAN}[3/6] Configuring Nginx Reverse Proxy for ${DOMAIN} on port ${PORT}...${NC}"
 

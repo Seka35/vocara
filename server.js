@@ -1,9 +1,14 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
 const fs = require('fs');
 const multer = require('multer');
+const Stripe = require('stripe');
 const db = require('./db');
+
+const stripeSecret = process.env.STRIPE_SECRET_KEY || '';
+const stripe = Stripe(stripeSecret);
 
 const app = express();
 const PORT = process.env.PORT || 4892;
@@ -266,6 +271,62 @@ app.post('/api/user/select-plan', authMiddleware, async (req, res) => {
         const updatedUser = await db.getUserById(req.user.id);
         res.json({ success: true, message: `Successfully upgraded to ${plan.toUpperCase()} plan!`, user: updatedUser });
     } catch (err) {
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Create Stripe PaymentIntent for In-App Checkout
+app.post('/api/create-payment-intent', authMiddleware, async (req, res) => {
+    try {
+        const { plan } = req.body;
+        let amount = 1499; // Starter Pass: $14.99 USD
+        if (plan === 'lifetime') amount = 4999; // Immortal Pass: $49.99 USD
+
+        const paymentIntent = await stripe.paymentIntents.create({
+            amount,
+            currency: 'usd',
+            metadata: {
+                userId: req.user.id,
+                plan: plan || 'essential'
+            },
+            automatic_payment_methods: { enabled: true }
+        });
+
+        res.json({
+            success: true,
+            clientSecret: paymentIntent.client_secret,
+            publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51U1JsLRU52o5cW8gvcz9OtLNGb8vwYKI9D4uT7uY6lOg67q34YwDRGLtEdWf7xg0Q6Ngf2ugHItFxaWd9oxTAEeo001LqSAdo5'
+        });
+    } catch (err) {
+        console.error('Stripe PaymentIntent error:', err);
+        res.status(500).json({ success: false, error: err.message });
+    }
+});
+
+// Confirm Payment & Activate Subscription Plan
+app.post('/api/confirm-payment', authMiddleware, async (req, res) => {
+    try {
+        const { paymentIntentId, plan } = req.body;
+
+        if (paymentIntentId) {
+            const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
+            if (paymentIntent.status !== 'succeeded') {
+                return res.status(400).json({ success: false, error: 'Payment status is not completed.' });
+            }
+        }
+
+        let credits = 10;
+        if (plan === 'lifetime') credits = 99999;
+
+        await db.updateUser(req.user.id, { plan: plan || 'essential', credits });
+        const updatedUser = await db.getUserById(req.user.id);
+        res.json({
+            success: true,
+            message: `Payment confirmed! ${plan.toUpperCase()} plan activated.`,
+            user: updatedUser
+        });
+    } catch (err) {
+        console.error('Confirm payment error:', err);
         res.status(500).json({ success: false, error: err.message });
     }
 });

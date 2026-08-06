@@ -267,15 +267,23 @@
         }
     };
 
-    // Global Plan Selection Handler
+    // Global In-App Stripe Elements Checkout Handler
+    let stripeInstance = null;
+    let stripeElements = null;
+    let activeCheckoutPlan = null;
+
     window.selectPlan = async function (plan) {
         if (!currentUser || !authToken) {
             openAuthModal('register');
+            toast('Please create an account or sign in to choose a plan.');
             return;
         }
 
+        activeCheckoutPlan = plan;
+        toast('Initializing secure Stripe payment...');
+
         try {
-            const res = await fetch('/api/user/select-plan', {
+            const res = await fetch('/api/create-payment-intent', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -283,20 +291,126 @@
                 },
                 body: JSON.stringify({ plan })
             });
+
             const data = await res.json();
-            if (data.success) {
-                currentUser = data.user;
-                closePlanModal();
-                updateUserHeaderUI();
-                toast(data.message || `Subscribed to ${plan.toUpperCase()} plan!`);
-                if (document.getElementById('panel-member').classList.contains('active')) {
-                    fetchMemberDashboard();
-                }
-            } else {
-                toast(data.error || 'Plan activation failed.');
+            if (!data.success || !data.clientSecret) {
+                toast('Failed to initialize payment: ' + (data.error || 'Unknown error'));
+                return;
             }
+
+            const plansGrid = document.getElementById('plansGrid');
+            const stripeContainer = document.getElementById('stripeCheckoutContainer');
+            const stripeTitle = document.getElementById('stripePlanTitle');
+            const stripeSubtitle = document.getElementById('stripePlanSubtitle');
+
+            if (stripeTitle) stripeTitle.textContent = `Checkout — ${plan === 'lifetime' ? 'Immortal Pass ($49.99)' : 'Starter Pass ($14.99)'}`;
+            if (stripeSubtitle) stripeSubtitle.textContent = `Unlimited sound tattoo engravings & stencils • 256-bit SSL encrypted payment`;
+
+            if (plansGrid) plansGrid.style.display = 'none';
+            if (stripeContainer) stripeContainer.style.display = 'block';
+
+            if (!stripeInstance && window.Stripe) {
+                stripeInstance = Stripe(data.publishableKey);
+            }
+
+            if (stripeInstance) {
+                const appearance = {
+                    theme: 'night',
+                    variables: {
+                        colorPrimary: '#ff6b00',
+                        colorBackground: '#14141c',
+                        colorText: '#ffffff',
+                        colorDanger: '#ef4444',
+                        fontFamily: 'Inter, system-ui, sans-serif',
+                        borderRadius: '8px'
+                    }
+                };
+
+                stripeElements = stripeInstance.elements({ clientSecret: data.clientSecret, appearance });
+                const paymentElement = stripeElements.create('payment');
+                const paymentElWrap = document.getElementById('payment-element');
+                paymentElWrap.innerHTML = '';
+                paymentElement.mount('#payment-element');
+            }
+
+            document.getElementById('cancel-payment-btn').onclick = () => {
+                if (stripeContainer) stripeContainer.style.display = 'none';
+                if (plansGrid) plansGrid.style.display = 'grid';
+            };
+
+            const paymentForm = document.getElementById('payment-form');
+            paymentForm.onsubmit = async (e) => {
+                e.preventDefault();
+                const submitBtn = document.getElementById('submit-payment-btn');
+                const msgBox = document.getElementById('payment-message');
+                submitBtn.disabled = true;
+                submitBtn.innerHTML = `<span>Processing Secure Payment...</span>`;
+
+                try {
+                    let paymentIntentId = null;
+                    if (stripeInstance && stripeElements) {
+                        const result = await stripeInstance.confirmPayment({
+                            elements: stripeElements,
+                            confirmParams: {
+                                return_url: window.location.href,
+                            },
+                            redirect: 'if_required'
+                        });
+
+                        if (result.error) {
+                            if (msgBox) {
+                                msgBox.style.display = 'block';
+                                msgBox.style.background = 'rgba(239,68,68,0.15)';
+                                msgBox.style.color = '#fca5a5';
+                                msgBox.textContent = result.error.message;
+                            }
+                            submitBtn.disabled = false;
+                            submitBtn.innerHTML = `<span>Pay Now &amp; Activate Plan</span>`;
+                            return;
+                        }
+
+                        if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+                            paymentIntentId = result.paymentIntent.id;
+                        }
+                    }
+
+                    const confRes = await fetch('/api/confirm-payment', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${authToken}`
+                        },
+                        body: JSON.stringify({ paymentIntentId, plan: activeCheckoutPlan })
+                    });
+
+                    const confData = await confRes.json();
+                    if (confData.success) {
+                        currentUser = confData.user;
+                        closePlanModal();
+                        if (stripeContainer) stripeContainer.style.display = 'none';
+                        if (plansGrid) plansGrid.style.display = 'grid';
+                        updateUserHeaderUI();
+                        toast(`🎉 Payment successful! Activated ${activeCheckoutPlan.toUpperCase()} plan!`);
+                        if (document.getElementById('panel-member').classList.contains('active')) {
+                            fetchMemberDashboard();
+                        }
+                    } else {
+                        if (msgBox) {
+                            msgBox.style.display = 'block';
+                            msgBox.style.background = 'rgba(239,68,68,0.15)';
+                            msgBox.style.color = '#fca5a5';
+                            msgBox.textContent = confData.error || 'Payment confirmation failed.';
+                        }
+                    }
+                } catch (err) {
+                    toast('Error processing payment.');
+                } finally {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = `<span>Pay Now &amp; Activate Plan</span>`;
+                }
+            };
         } catch (e) {
-            toast('Server error during plan selection.');
+            toast('Server error during payment initialization.');
         }
     };
 
