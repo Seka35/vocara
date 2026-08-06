@@ -303,7 +303,7 @@
             const stripeTitle = document.getElementById('stripePlanTitle');
             const stripeSubtitle = document.getElementById('stripePlanSubtitle');
 
-            if (stripeTitle) stripeTitle.textContent = `Checkout — ${plan === 'lifetime' ? 'Immortal Pass ($49.99)' : 'Starter Pass ($14.99)'}`;
+            if (stripeTitle) stripeTitle.textContent = `Checkout — ${plan === 'lifetime' ? 'Immortal Pass ($89.00)' : 'Starter Pass ($24.99)'}`;
             if (stripeSubtitle) stripeSubtitle.textContent = `Unlimited sound tattoo engravings & stencils • 256-bit SSL encrypted payment`;
 
             if (plansGrid) plansGrid.style.display = 'none';

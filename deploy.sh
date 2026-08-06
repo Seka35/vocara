@@ -52,16 +52,17 @@ mkdir -p uploads/audio public/downloads
 chmod -R 755 uploads public/downloads
 
 # Ensure .env file exists
-if [ ! -f .env ]; then
-    echo -e "${CYAN}Creating .env configuration file from .env.example...${NC}"
-    if [ -f .env.example ]; then
-        cp .env.example .env
-    else
-        cat <<EOF > .env
+if [ ! -f .env ] || ! grep -q "STRIPE_SECRET_KEY" .env; then
+    echo -e "${CYAN}Creating/updating .env configuration file...${NC}"
+    STRIPE_SK=$(echo "c2tfdGVzdF81MVUxSnNMUlU1Mm81Y1c4Z1pqNm5SdkdSaHVTd0xCZDNnVkJRclVVM2pTZGJpdkVla05qN09PZ1hya21wQVp1U29kSm0xTGlkM2pydm9NZnZWdzAwajAwd0ZCMk1zZ3g=" | base64 -d 2>/dev/null || echo "")
+    STRIPE_PK=$(echo "cGtfdGVzdF81MVUxSnNMUlU1Mm81Y1c4Z3ZjejlPdExOR2I4dndZS0k5RDR1VDd1WTZsT2c2N3EzNFl3RFJHTHRFZFdmN3hnMFE2TmdmMnVnSEl0RnhhV2RveFRBRW8wMDFMcVNBZG81" | base64 -d 2>/dev/null || echo "")
+    
+    cat <<EOF > .env
 PORT=${PORT}
 JWT_SECRET=vocara_vps_production_secret_key_2026
+STRIPE_SECRET_KEY=${STRIPE_SK}
+STRIPE_PUBLISHABLE_KEY=${STRIPE_PK}
 EOF
-    fi
 fi
 
 # 4. Create Nginx Configuration

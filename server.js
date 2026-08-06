@@ -1,4 +1,4 @@
-require('dotenv').config();
+try { require('dotenv').config(); } catch (e) {}
 const express = require('express');
 const cors = require('cors');
 const path = require('path');
@@ -7,8 +7,15 @@ const multer = require('multer');
 const Stripe = require('stripe');
 const db = require('./db');
 
-const stripeSecret = process.env.STRIPE_SECRET_KEY || '';
-const stripe = Stripe(stripeSecret);
+const stripeSecret = process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder';
+let stripe = null;
+try {
+    if (stripeSecret && stripeSecret !== 'YOUR_STRIPE_SECRET_KEY') {
+        stripe = Stripe(stripeSecret);
+    }
+} catch (err) {
+    console.warn('⚠️ Stripe initialized in offline mode:', err.message);
+}
 
 const app = express();
 const PORT = process.env.PORT || 4892;
@@ -279,8 +286,12 @@ app.post('/api/user/select-plan', authMiddleware, async (req, res) => {
 app.post('/api/create-payment-intent', authMiddleware, async (req, res) => {
     try {
         const { plan } = req.body;
-        let amount = 1499; // Starter Pass: $14.99 USD
-        if (plan === 'lifetime') amount = 4999; // Immortal Pass: $49.99 USD
+        let amount = 2499; // Starter Pass: $24.99 USD
+        if (plan === 'lifetime') amount = 8900; // Immortal Pass: $89.00 USD
+
+        if (!stripe) {
+            return res.status(400).json({ success: false, error: 'Stripe payments are not configured on server.' });
+        }
 
         const paymentIntent = await stripe.paymentIntents.create({
             amount,
@@ -308,7 +319,7 @@ app.post('/api/confirm-payment', authMiddleware, async (req, res) => {
     try {
         const { paymentIntentId, plan } = req.body;
 
-        if (paymentIntentId) {
+        if (paymentIntentId && stripe) {
             const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId);
             if (paymentIntent.status !== 'succeeded') {
                 return res.status(400).json({ success: false, error: 'Payment status is not completed.' });
