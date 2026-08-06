@@ -977,6 +977,38 @@ body {
         width: 85%;
         height: 40%;
     }
+
+    /* ---- Icon-only buttons on mobile ---- */
+    /* Hide text spans in action buttons — keep SVG icons only */
+    #startCamBtn span,
+    #triggerPhotoUploadBtn span,
+    #stopCamBtn span,
+    #triggerAudioFileBtn span,
+    #downloadMotifBtn span,
+    #discardBtn span,
+    #preSavePlayBtn span {
+        display: none;
+    }
+
+    /* Make icon-only buttons compact squares instead of full-width */
+    #startCamBtn,
+    #triggerPhotoUploadBtn,
+    #stopCamBtn,
+    #triggerAudioFileBtn,
+    #downloadMotifBtn,
+    #discardBtn,
+    #preSavePlayBtn {
+        width: auto;
+        min-width: 48px;
+        padding: 12px;
+        flex: 1;
+        justify-content: center;
+    }
+
+    /* Save button keeps text — it's the main CTA */
+    #saveBtn {
+        width: 100%;
+    }
 }
 
 /* Accordion FAQ Styling */
