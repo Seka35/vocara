@@ -559,19 +559,31 @@
         },
         onError: (err) => {
             recBtn.classList.remove('recording');
-            recStatus.textContent = 'Recording failed or permission denied.';
-            toast('Microphone error: ' + err);
+            recStatus.textContent = 'Microphone permission blocked or unavailable. Click "Upload Audio File" below to select an MP3/WAV/M4A file!';
+            toast('Microphone error: ' + err + ' — You can also upload an audio file directly.');
         }
     });
 
     recBtn.addEventListener('click', () => {
+        if (!currentUser || !authToken) {
+            openAuthModal('register');
+            toast('Please create a free account first to record & engrave sound memories!');
+            return;
+        }
         Recorder.toggleRecording();
     });
 
     const triggerAudioFileBtn = document.getElementById('triggerAudioFileBtn');
     const audioFileInput = document.getElementById('audioFileInput');
     if (triggerAudioFileBtn && audioFileInput) {
-        triggerAudioFileBtn.addEventListener('click', () => audioFileInput.click());
+        triggerAudioFileBtn.addEventListener('click', () => {
+            if (!currentUser || !authToken) {
+                openAuthModal('register');
+                toast('Please create a free account first to upload & engrave sound memories!');
+                return;
+            }
+            audioFileInput.click();
+        });
         audioFileInput.addEventListener('change', async (e) => {
             const file = e.target.files && e.target.files[0];
             if (!file) return;
