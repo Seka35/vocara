@@ -88,24 +88,23 @@
             }
 
             widget.innerHTML = `
-                <div class="user-badge-group">
-                    <span class="user-name-text">${escapeHtml(currentUser.name)}</span>
-                    <span class="plan-badge-pill">${planName}</span>
-                    <span class="credits-badge-pill">${currentUser.credits} CREDITS</span>
+                <div class="hdr-logged-in">
+                    <div class="hdr-user-info">
+                        <span class="hdr-user-name">${escapeHtml(currentUser.name)}</span>
+                        <span class="plan-badge-pill">${planName}</span>
+                    </div>
+                    <button class="hdr-icon-btn" id="hdrMemberBtn" title="Dashboard">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </button>
+                    ${isAdmin ? `
+                    <button class="hdr-icon-btn hdr-icon-btn--admin" id="hdrAdminBtn" title="Admin Panel">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                    </button>
+                    ` : ''}
+                    <button class="hdr-icon-btn hdr-icon-btn--logout" id="hdrLogoutBtn" title="Sign Out">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+                    </button>
                 </div>
-                <button class="btn btn-secondary" id="hdrMemberBtn" style="padding:6px 12px; font-size:12px; min-height:36px; gap:6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-                    <span>Dashboard</span>
-                </button>
-                ${isAdmin ? `
-                <button class="btn btn-secondary" id="hdrAdminBtn" style="padding:6px 12px; font-size:12px; min-height:36px; border-color:var(--border-highlight); color:var(--primary); gap:6px;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-                    <span>Admin</span>
-                </button>
-                ` : ''}
-                <button class="btn btn-danger" id="hdrLogoutBtn" style="padding:6px 10px; font-size:12px; min-height:36px;" title="Sign Out">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
-                </button>
             `;
 
             document.getElementById('hdrMemberBtn').onclick = () => switchTab('member');
@@ -126,15 +125,16 @@
             if (navAdmin) navAdmin.style.display = 'none';
 
             widget.innerHTML = `
-                <button class="btn btn-primary" id="hdrLoginBtn" style="padding:8px 16px; font-size:13px; min-height:40px; gap:8px;">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
-                    <span>Sign In / Free Account</span>
+                <button class="hdr-icon-btn" id="hdrLoginBtn" title="Sign In / Free Account">
+                    <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    <span class="hdr-login-label">Sign In / Free Account</span>
                 </button>
             `;
 
             document.getElementById('hdrLoginBtn').onclick = () => openAuthModal('register');
         }
     }
+
 
     // --- MODALS CONTROL ---
 
