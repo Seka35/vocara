@@ -979,10 +979,8 @@ body {
     }
 
     /* ---- Icon-only buttons on mobile ---- */
-    /* Hide text spans in action buttons — keep SVG icons only */
-    #startCamBtn span,
+    /* Secondary helper buttons: icon only, no text */
     #triggerPhotoUploadBtn span,
-    #stopCamBtn span,
     #triggerAudioFileBtn span,
     #downloadMotifBtn span,
     #discardBtn span,
@@ -990,10 +988,8 @@ body {
         display: none;
     }
 
-    /* Make icon-only buttons compact squares instead of full-width */
-    #startCamBtn,
+    /* Make icon-only secondary buttons compact */
     #triggerPhotoUploadBtn,
-    #stopCamBtn,
     #triggerAudioFileBtn,
     #downloadMotifBtn,
     #discardBtn,
@@ -1003,6 +999,19 @@ body {
         padding: 12px;
         flex: 1;
         justify-content: center;
+    }
+
+    /* Camera control buttons keep their text — they are primary actions */
+    #startCamBtn {
+        flex: 1;
+        justify-content: center;
+        font-size: 13px;
+    }
+
+    #stopCamBtn {
+        width: 100%;
+        justify-content: center;
+        font-size: 13px;
     }
 
     /* Save button keeps text — it's the main CTA */
