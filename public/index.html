@@ -892,21 +892,24 @@
             <!-- Plan Cards Grid -->
             <div class="plans-grid" id="plansGrid">
                 <!-- Essential Plan -->
-                <div class="plan-card">
+                <div class="plan-card" style="position:relative;">
+                    <div style="position:absolute; top:-10px; left:16px; background:#10b981; color:#fff; font-size:10px; font-weight:800; padding:3px 10px; border-radius:12px; text-transform:uppercase; letter-spacing:1px; box-shadow:0 2px 8px rgba(16,185,129,0.4);">
+                        7-DAY FREE TRIAL
+                    </div>
                     <div>
-                        <div class="plan-name">Starter Pass</div>
-                        <div class="plan-price" style="display:flex; align-items:baseline; gap:8px;">
-                            <span>$24.99</span>
-                            <span style="text-decoration:line-through; color:var(--text-muted); font-size:15px; font-weight:500;">$39.99</span>
-                            <span class="badge" style="background:rgba(255,107,0,0.15); color:var(--primary); border-color:rgba(255,107,0,0.3); font-size:10px; padding:2px 6px;">-38%</span>
+                        <div class="plan-name" style="margin-top:4px;">Starter Pass</div>
+                        <div class="plan-price" style="display:flex; align-items:baseline; gap:6px;">
+                            <span>$0</span>
+                            <span style="font-size:13px; color:var(--text-muted); font-weight:400;">for 7 days</span>
                         </div>
+                        <p style="font-size:12px; color:var(--text-muted); margin:4px 0 12px 0; line-height:1.4;">Try risk-free. Card required, but won't be charged today. Then <strong>$24.99/year</strong>.</p>
                         <ul class="plan-feats">
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <strong style="color:#fff;">7 Days 100% Free Access</strong></li>
                             <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 10 Sound Engraving Credits</li>
-                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> High-Res PNG Stencils</li>
-                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> 1 Year Free Cloud Storage (then $9.99/yr)</li>
+                            <li class="plan-feat-item"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Cancel anytime before trial ends</li>
                         </ul>
                     </div>
-                    <button class="btn btn-secondary" onclick="window.selectPlan('starter')">Select Starter Pass</button>
+                    <button class="btn btn-secondary" onclick="window.selectPlan('starter')" style="border-color:#10b981; color:#10b981;">Start 7-Day Free Trial</button>
                 </div>
 
                 <!-- Lifetime Plan -->
