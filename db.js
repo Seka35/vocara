@@ -35,6 +35,8 @@ db.serialize(() => {
             role TEXT DEFAULT 'user',
             plan TEXT DEFAULT 'free',
             credits INTEGER DEFAULT 1,
+            stripe_customer_id TEXT,
+            stripe_subscription_id TEXT,
             created_at INTEGER NOT NULL
         )
     `);
@@ -58,6 +60,10 @@ db.serialize(() => {
     db.run(`ALTER TABLE sounds ADD COLUMN user_id TEXT`, (err) => {
         // Ignore column already exists error
     });
+
+    // Migrate stripe columns if users table existed without them
+    db.run(`ALTER TABLE users ADD COLUMN stripe_customer_id TEXT`, (err) => {});
+    db.run(`ALTER TABLE users ADD COLUMN stripe_subscription_id TEXT`, (err) => {});
 
     // 3. Designs Table (Tattoo visual stencils & design creations)
     db.run(`
@@ -122,7 +128,7 @@ const dbHelpers = {
 
     getUserById: (id) => {
         return new Promise((resolve, reject) => {
-            db.get(`SELECT id, name, email, role, plan, credits, created_at FROM users WHERE id = ?`, [id], (err, row) => {
+            db.get(`SELECT id, name, email, role, plan, credits, stripe_customer_id, stripe_subscription_id, created_at FROM users WHERE id = ?`, [id], (err, row) => {
                 if (err) return reject(err);
                 resolve(row || null);
             });
@@ -131,7 +137,7 @@ const dbHelpers = {
 
     getAllUsers: () => {
         return new Promise((resolve, reject) => {
-            db.all(`SELECT id, name, email, role, plan, credits, created_at FROM users ORDER BY created_at DESC`, [], (err, rows) => {
+            db.all(`SELECT id, name, email, role, plan, credits, stripe_customer_id, stripe_subscription_id, created_at FROM users ORDER BY created_at DESC`, [], (err, rows) => {
                 if (err) return reject(err);
                 resolve(rows || []);
             });
@@ -140,7 +146,7 @@ const dbHelpers = {
 
     updateUser: (id, updates) => {
         return new Promise((resolve, reject) => {
-            const allowed = ['name', 'role', 'plan', 'credits'];
+            const allowed = ['name', 'role', 'plan', 'credits', 'stripe_customer_id', 'stripe_subscription_id'];
             const setClause = [];
             const values = [];
 

@@ -281,35 +281,112 @@ app.post('/api/user/select-plan', authMiddleware, async (req, res) => {
         res.status(500).json({ success: false, error: err.message });
     }
 });
+// --- STRIPE HELPERS ---
 
-// Create Stripe PaymentIntent for In-App Checkout
+async function getOrCreateStripeCustomer(user) {
+    if (user.stripe_customer_id) return user.stripe_customer_id;
+    if (!stripe) return null;
+    const customer = await stripe.customers.create({
+        email: user.email,
+        name: user.name,
+        metadata: { userId: user.id }
+    });
+    await db.updateUser(user.id, { stripe_customer_id: customer.id });
+    return customer.id;
+}
+
+let starterSubscriptionPriceId = null;
+let starterSetupPriceId = null;
+
+async function initStripePrices() {
+    if (!stripe) return;
+    try {
+        const prices = await stripe.prices.list({ limit: 100, active: true });
+        const subPrice = prices.data.find(p => p.lookup_key === 'vocara_starter_yearly');
+        if (subPrice) {
+            starterSubscriptionPriceId = subPrice.id;
+        } else {
+            const product = await stripe.products.create({ name: 'Vocara Cloud Storage (Yearly)' });
+            const newPrice = await stripe.prices.create({
+                unit_amount: 999,
+                currency: 'usd',
+                recurring: { interval: 'year' },
+                product: product.id,
+                lookup_key: 'vocara_starter_yearly'
+            });
+            starterSubscriptionPriceId = newPrice.id;
+        }
+
+        const setupPrice = prices.data.find(p => p.lookup_key === 'vocara_starter_setup');
+        if (setupPrice) {
+            starterSetupPriceId = setupPrice.id;
+        } else {
+            const productSetup = await stripe.products.create({ name: 'Vocara Starter Pass (Setup Fee)' });
+            const newSetupPrice = await stripe.prices.create({
+                unit_amount: 2499,
+                currency: 'usd',
+                product: productSetup.id,
+                lookup_key: 'vocara_starter_setup'
+            });
+            starterSetupPriceId = newSetupPrice.id;
+        }
+    } catch (e) {
+        console.warn('Stripe pricing init warning:', e.message);
+    }
+}
+initStripePrices();
+
+// Create Stripe PaymentIntent or Subscription for In-App Checkout
 app.post('/api/create-payment-intent', authMiddleware, async (req, res) => {
     try {
         const { plan } = req.body;
-        let amount = 2499; // Starter Pass: $24.99 USD
-        if (plan === 'lifetime') amount = 8900; // Immortal Pass: $89.00 USD
 
         if (!stripe) {
             return res.status(400).json({ success: false, error: 'Stripe payments are not configured on server.' });
         }
 
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount,
-            currency: 'usd',
-            metadata: {
-                userId: req.user.id,
-                plan: plan || 'essential'
-            },
-            automatic_payment_methods: { enabled: true }
+        if (plan === 'lifetime') {
+            const paymentIntent = await stripe.paymentIntents.create({
+                amount: 8900,
+                currency: 'usd',
+                metadata: { userId: req.user.id, plan: 'lifetime' },
+                automatic_payment_methods: { enabled: true }
+            });
+
+            return res.json({
+                success: true,
+                clientSecret: paymentIntent.client_secret,
+                publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51U1JsLRU52o5cW8gvcz9OtLNGb8vwYKI9D4uT7uY6lOg67q34YwDRGLtEdWf7xg0Q6Ngf2ugHItFxaWd9oxTAEeo001LqSAdo5'
+            });
+        }
+
+        // Starter plan uses a Subscription
+        if (!starterSubscriptionPriceId || !starterSetupPriceId) {
+            await initStripePrices();
+        }
+
+        const customerId = await getOrCreateStripeCustomer(req.user);
+
+        const subscription = await stripe.subscriptions.create({
+            customer: customerId,
+            items: [{ price: starterSubscriptionPriceId }],
+            trial_period_days: 365,
+            add_invoice_items: [{ price: starterSetupPriceId }],
+            payment_behavior: 'default_incomplete',
+            payment_settings: { save_default_payment_method: 'on_subscription' },
+            expand: ['latest_invoice.payment_intent'],
+            metadata: { userId: req.user.id, plan: 'starter' }
         });
+
+        await db.updateUser(req.user.id, { stripe_subscription_id: subscription.id });
 
         res.json({
             success: true,
-            clientSecret: paymentIntent.client_secret,
+            clientSecret: subscription.latest_invoice.payment_intent.client_secret,
             publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51U1JsLRU52o5cW8gvcz9OtLNGb8vwYKI9D4uT7uY6lOg67q34YwDRGLtEdWf7xg0Q6Ngf2ugHItFxaWd9oxTAEeo001LqSAdo5'
         });
     } catch (err) {
-        console.error('Stripe PaymentIntent error:', err);
+        console.error('Stripe PaymentIntent/Subscription error:', err);
         res.status(500).json({ success: false, error: err.message });
     }
 });
@@ -329,7 +406,7 @@ app.post('/api/confirm-payment', authMiddleware, async (req, res) => {
         let credits = 10;
         if (plan === 'lifetime') credits = 99999;
 
-        await db.updateUser(req.user.id, { plan: plan || 'essential', credits });
+        await db.updateUser(req.user.id, { plan: plan || 'starter', credits });
         const updatedUser = await db.getUserById(req.user.id);
         res.json({
             success: true,
@@ -340,6 +417,23 @@ app.post('/api/confirm-payment', authMiddleware, async (req, res) => {
         console.error('Confirm payment error:', err);
         res.status(500).json({ success: false, error: err.message });
     }
+});
+
+// Basic Stripe Webhook Endpoint
+app.post('/api/webhook', async (req, res) => {
+    const event = req.body;
+    try {
+        if (event.type === 'invoice.payment_failed') {
+            const invoice = event.data.object;
+            console.log('Payment failed for subscription:', invoice.subscription);
+            // In a full implementation, find user by subscription ID and downgrade them.
+        } else if (event.type === 'customer.subscription.deleted') {
+            console.log('Subscription canceled:', event.data.object.id);
+        }
+    } catch (err) {
+        console.error('Webhook error:', err);
+    }
+    res.json({ received: true });
 });
 
 // Get User's Saved Sounds
