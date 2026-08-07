@@ -347,8 +347,8 @@
             const stripeTitle = document.getElementById('stripePlanTitle');
             const stripeSubtitle = document.getElementById('stripePlanSubtitle');
 
-            if (stripeTitle) stripeTitle.textContent = `Checkout - ${plan === 'lifetime' ? 'Immortal Pass ($89.00)' : 'Starter Pass ($24.99)'}`;
-            if (stripeSubtitle) stripeSubtitle.textContent = `Unlimited sound tattoo engravings & stencils • 256-bit SSL encrypted payment`;
+            if (stripeTitle) stripeTitle.textContent = plan === 'lifetime' ? 'Checkout - Immortal Pass ($89.00)' : 'Starter Pass (7-Day Free Trial)';
+            if (stripeSubtitle) stripeSubtitle.textContent = plan === 'lifetime' ? 'Unlimited sound tattoo engravings & stencils • One-time payment' : 'Total due today: $0.00 • $24.99/year after 7 days • Cancel anytime';
 
             if (plansGrid) plansGrid.style.display = 'none';
             if (stripeContainer) stripeContainer.style.display = 'block';
