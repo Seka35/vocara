@@ -1452,8 +1452,8 @@
                 // Force reflow
                 void heroReviewBadge.offsetWidth;
                 heroReviewBadge.classList.add('review-anim-in');
-            }, 400); // Wait for snappy flip-out to finish
-        }, 6000); // Change review every 6 seconds
+            }, 300); // Wait for snappy flip-out to finish
+        }, 1500); // Change review every 1.5 seconds (effectively 1s read time)
     }
 
     // Initialize Application

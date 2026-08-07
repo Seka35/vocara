@@ -1610,10 +1610,10 @@ details.faq-item[open] {
 
 /* Modern Review Rotation Animation (Snappy 3D Flip) */
 .review-anim-out {
-    animation: reviewFlipOut 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
+    animation: reviewFlipOut 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
 }
 .review-anim-in {
-    animation: reviewFlipIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
+    animation: reviewFlipIn 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
 @keyframes reviewFlipOut {
