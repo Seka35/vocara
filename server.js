@@ -425,9 +425,21 @@ app.post('/api/webhook', async (req, res) => {
         if (event.type === 'invoice.payment_failed') {
             const invoice = event.data.object;
             console.log('Payment failed for subscription:', invoice.subscription);
-            // In a full implementation, find user by subscription ID and downgrade them.
+            if (invoice.subscription) {
+                const user = await db.getUserByStripeSubscriptionId(invoice.subscription);
+                if (user) {
+                    await db.updateUser(user.id, { stripe_subscription_id: null, plan: 'free' });
+                    console.log(`Downgraded user ${user.id} due to payment failure on sub ${invoice.subscription}`);
+                }
+            }
         } else if (event.type === 'customer.subscription.deleted') {
-            console.log('Subscription canceled:', event.data.object.id);
+            const subscription = event.data.object;
+            console.log('Subscription canceled:', subscription.id);
+            const user = await db.getUserByStripeSubscriptionId(subscription.id);
+            if (user) {
+                await db.updateUser(user.id, { stripe_subscription_id: null, plan: 'free' });
+                console.log(`Downgraded user ${user.id} due to subscription cancellation: ${subscription.id}`);
+            }
         }
     } catch (err) {
         console.error('Webhook error:', err);

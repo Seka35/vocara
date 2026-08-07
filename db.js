@@ -135,6 +135,15 @@ const dbHelpers = {
         });
     },
 
+    getUserByStripeSubscriptionId: (subscriptionId) => {
+        return new Promise((resolve, reject) => {
+            db.get(`SELECT id, name, email, role, plan, credits, stripe_customer_id, stripe_subscription_id, created_at FROM users WHERE stripe_subscription_id = ?`, [subscriptionId], (err, row) => {
+                if (err) return reject(err);
+                resolve(row || null);
+            });
+        });
+    },
+
     getAllUsers: () => {
         return new Promise((resolve, reject) => {
             db.all(`SELECT id, name, email, role, plan, credits, stripe_customer_id, stripe_subscription_id, created_at FROM users ORDER BY created_at DESC`, [], (err, rows) => {
