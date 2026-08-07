@@ -856,29 +856,40 @@ body {
     
     .tab-nav {
         position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
+        bottom: 24px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: auto;
         margin: 0 !important;
-        border-radius: 0;
-        border-width: 1px 0 0 0;
+        border-radius: 50px;
+        border: 1px solid rgba(255, 107, 0, 0.3);
         z-index: 1000;
-        padding: 12px 16px 28px; /* Safe area inset for modern phones */
+        padding: 8px;
         backdrop-filter: blur(20px);
-        background: rgba(12, 12, 16, 0.95);
+        background: rgba(12, 12, 16, 0.85);
         display: flex;
-        justify-content: space-around;
+        justify-content: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+    
+    .tab-btn[data-tab="engrave"] {
+        display: none !important;
     }
     
     .tab-btn {
         flex-direction: row;
         justify-content: center;
         align-items: center;
-        padding: 10px;
+        padding: 0;
         min-height: auto;
-        border-radius: 12px;
-        flex: 1;
-        max-width: 70px;
+        border-radius: 50%;
+        flex: none;
+        width: 56px;
+        height: 56px;
+        max-width: none;
+        background: var(--primary) !important;
+        color: white !important;
+        box-shadow: 0 4px 14px var(--primary-glow) !important;
     }
     
     .tab-btn span {
