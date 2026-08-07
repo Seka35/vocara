@@ -1424,6 +1424,36 @@
     window.openAuthModal = openAuthModal;
     window.openPlanModal = openPlanModal;
 
+    // --- Hero Review Rotation Animation ---
+    const heroReviews = [
+        { name: "Marc D.", title: "\"I Love You Daddy\"", text: "\"I scanned it, and hearing it from my arm brought me to tears.\"", img: "assets/profile/homme-45ans.webp" },
+        { name: "Sarah L.", title: "Wedding Vows", text: "\"Having our vows engraved on my skin is the most romantic thing ever.\"", img: "assets/profile/femme-27ans.webp" },
+        { name: "Robert T.", title: "Grandson's Laugh", text: "\"I carry my little guy's laugh everywhere I go now. Brilliant technology.\"", img: "assets/profile/homme-60ans.webp" },
+        { name: "Emma W.", title: "Perfect Stencil", text: "\"My tattoo artist was amazed by the high-resolution vector stencil!\"", img: "assets/profile/femme-34ans.webp" }
+    ];
+    let currentReviewIndex = 0;
+    const heroReviewBadge = document.getElementById('heroReviewBadge');
+    
+    if (heroReviewBadge) {
+        setInterval(() => {
+            heroReviewBadge.classList.remove('review-anim-in');
+            heroReviewBadge.classList.add('review-anim-out');
+            
+            setTimeout(() => {
+                currentReviewIndex = (currentReviewIndex + 1) % heroReviews.length;
+                const rev = heroReviews[currentReviewIndex];
+                
+                document.getElementById('heroReviewName').textContent = rev.name;
+                document.getElementById('heroReviewTitle').textContent = rev.title;
+                document.getElementById('heroReviewText').textContent = rev.text;
+                document.getElementById('heroReviewAvatar').src = rev.img;
+                
+                heroReviewBadge.classList.remove('review-anim-out');
+                heroReviewBadge.classList.add('review-anim-in');
+            }, 600); // Wait for slide-out animation to finish
+        }, 6000); // Change review every 6 seconds
+    }
+
     // Initialize Application
     checkAuth();
     fetchGallery();
