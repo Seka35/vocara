@@ -1449,8 +1449,10 @@
                 document.getElementById('heroReviewAvatar').src = rev.img;
                 
                 heroReviewBadge.classList.remove('review-anim-out');
+                // Force reflow
+                void heroReviewBadge.offsetWidth;
                 heroReviewBadge.classList.add('review-anim-in');
-            }, 600); // Wait for slide-out animation to finish
+            }, 400); // Wait for snappy flip-out to finish
         }, 6000); // Change review every 6 seconds
     }
 

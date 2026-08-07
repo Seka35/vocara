@@ -1608,20 +1608,20 @@ details.faq-item[open] {
     border-color: var(--primary);
 }
 
-/* Modern Review Rotation Animation */
+/* Modern Review Rotation Animation (Snappy 3D Flip) */
 .review-anim-out {
-    animation: reviewSlideUpOut 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: reviewFlipOut 0.4s cubic-bezier(0.55, 0.085, 0.68, 0.53) forwards;
 }
 .review-anim-in {
-    animation: reviewSlideUpIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    animation: reviewFlipIn 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards;
 }
 
-@keyframes reviewSlideUpOut {
-    0% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
-    100% { transform: translateY(-15px) scale(0.95); opacity: 0; filter: blur(5px); }
+@keyframes reviewFlipOut {
+    0% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
+    100% { transform: perspective(400px) rotateX(90deg); opacity: 0; }
 }
 
-@keyframes reviewSlideUpIn {
-    0% { transform: translateY(15px) scale(0.95); opacity: 0; filter: blur(5px); }
-    100% { transform: translateY(0) scale(1); opacity: 1; filter: blur(0); }
+@keyframes reviewFlipIn {
+    0% { transform: perspective(400px) rotateX(-90deg); opacity: 0; }
+    100% { transform: perspective(400px) rotateX(0deg); opacity: 1; }
 }
