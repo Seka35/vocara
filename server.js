@@ -302,17 +302,17 @@ async function initStripePrices() {
     if (!stripe) return;
     try {
         const prices = await stripe.prices.list({ limit: 100, active: true });
-        const subPrice = prices.data.find(p => p.lookup_key === 'vocara_starter_yearly');
+        const subPrice = prices.data.find(p => p.lookup_key === 'vocara_starter_yearly_v2');
         if (subPrice) {
             starterSubscriptionPriceId = subPrice.id;
         } else {
-            const product = await stripe.products.create({ name: 'Vocara Cloud Storage (Yearly)' });
+            const product = await stripe.products.create({ name: 'Vocara Starter Pass (Yearly)' });
             const newPrice = await stripe.prices.create({
-                unit_amount: 999,
+                unit_amount: 2499,
                 currency: 'usd',
                 recurring: { interval: 'year' },
                 product: product.id,
-                lookup_key: 'vocara_starter_yearly'
+                lookup_key: 'vocara_starter_yearly_v2'
             });
             starterSubscriptionPriceId = newPrice.id;
         }
@@ -370,11 +370,10 @@ app.post('/api/create-payment-intent', authMiddleware, async (req, res) => {
         const subscription = await stripe.subscriptions.create({
             customer: customerId,
             items: [{ price: starterSubscriptionPriceId }],
-            trial_period_days: 365,
-            add_invoice_items: [{ price: starterSetupPriceId }],
+            trial_period_days: 7,
             payment_behavior: 'default_incomplete',
             payment_settings: { save_default_payment_method: 'on_subscription' },
-            expand: ['latest_invoice.payment_intent'],
+            expand: ['latest_invoice.payment_intent', 'pending_setup_intent'],
             metadata: { userId: req.user.id, plan: 'starter' }
         });
 
@@ -382,7 +381,7 @@ app.post('/api/create-payment-intent', authMiddleware, async (req, res) => {
 
         res.json({
             success: true,
-            clientSecret: subscription.latest_invoice.payment_intent.client_secret,
+            clientSecret: subscription.pending_setup_intent ? subscription.pending_setup_intent.client_secret : (subscription.latest_invoice && subscription.latest_invoice.payment_intent ? subscription.latest_invoice.payment_intent.client_secret : null),
             publishableKey: process.env.STRIPE_PUBLISHABLE_KEY || 'pk_test_51U1JsLRU52o5cW8gvcz9OtLNGb8vwYKI9D4uT7uY6lOg67q34YwDRGLtEdWf7xg0Q6Ngf2ugHItFxaWd9oxTAEeo001LqSAdo5'
         });
     } catch (err) {

@@ -327,32 +327,38 @@
 
                 <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap:24px;">
                     <!-- Essential Plan -->
-                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column;">
+                    <div style="background:rgba(255,255,255,0.02); border:1px solid var(--border-color); border-radius:var(--radius-lg); padding:28px; display:flex; flex-direction:column; position:relative;">
+                        <div style="position:absolute; top:-12px; left:20px; background:#10b981; color:#fff; font-size:11px; font-weight:800; padding:4px 12px; border-radius:12px; text-transform:uppercase; letter-spacing:1px; box-shadow:0 4px 12px rgba(16,185,129,0.4);">
+                            7-DAY FREE TRIAL
+                        </div>
                         <div style="font-size:14px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:8px;">Starter Pass</div>
                         <div style="display:flex; align-items:baseline; gap:6px; margin-bottom:16px; flex-wrap:wrap;">
-                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$24.99</span>
-                            <span style="font-size:14px; text-decoration:line-through; color:var(--text-dim);">$39.99</span>
-                            <span style="font-size:11px; background:rgba(255,107,0,0.15); color:var(--primary); border:1px solid rgba(255,107,0,0.3); padding:2px 8px; border-radius:12px; font-weight:700;">-38% OFF</span>
+                            <span style="font-size:36px; font-weight:900; color:#ffffff;">$0</span>
+                            <span style="font-size:14px; color:var(--text-muted);">for 7 days</span>
                         </div>
-                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Perfect for trying your first sound tattoo stencil with 10 sound engraving credits included.</p>
+                        <p style="font-size:13px; color:var(--text-muted); margin-bottom:20px; line-height:1.5;">Try Vocara risk-free. Your card is required to prevent spam, but won't be charged today. Then just <strong>$24.99/year</strong>.</p>
 
                         <ul style="list-style:none; padding:0; margin:0 0 24px 0; font-size:13px; color:var(--text-light); line-height:2.2;">
+                            <li style="display:flex; align-items:center; gap:8px;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                                <span><strong style="color:#fff;">7 Days 100% Free Access</strong></span>
+                            </li>
                             <li style="display:flex; align-items:center; gap:8px;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                                 <span>10 High-Precision Tattoo Stencils (PNG)</span>
                             </li>
                             <li style="display:flex; align-items:center; gap:8px;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>1 Year Free Cloud Storage (then $9.99/yr)</span>
+                                <span>Instant Camera Scanner Access</span>
                             </li>
                             <li style="display:flex; align-items:center; gap:8px;">
                                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#ff6b00" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-                                <span>Instant Camera Scanner Access</span>
+                                <span>Cancel anytime in 1 click</span>
                             </li>
                         </ul>
-
-                        <button class="btn btn-secondary" onclick="window.selectPlan('starter')" style="margin-top:auto; width:100%; border-color:var(--border-highlight); color:var(--primary);">
-                            Select Starter Pass
+                        
+                        <button class="btn btn-secondary" onclick="window.selectPlan('starter')" style="margin-top:auto; width:100%; border-color:#10b981; color:#10b981;">
+                            Start 7-Day Free Trial
                         </button>
                     </div>
 
