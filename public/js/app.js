@@ -1,5 +1,5 @@
 /**
- * Vocara Main App Logic — Espace Membre, Freemium/Paid Model & Super Admin Panel
+ * Vocara Main App Logic - Espace Membre, Freemium/Paid Model & Super Admin Panel
  */
 (function () {
     "use strict";
@@ -347,7 +347,7 @@
             const stripeTitle = document.getElementById('stripePlanTitle');
             const stripeSubtitle = document.getElementById('stripePlanSubtitle');
 
-            if (stripeTitle) stripeTitle.textContent = `Checkout — ${plan === 'lifetime' ? 'Immortal Pass ($89.00)' : 'Starter Pass ($24.99)'}`;
+            if (stripeTitle) stripeTitle.textContent = `Checkout - ${plan === 'lifetime' ? 'Immortal Pass ($89.00)' : 'Starter Pass ($24.99)'}`;
             if (stripeSubtitle) stripeSubtitle.textContent = `Unlimited sound tattoo engravings & stencils • 256-bit SSL encrypted payment`;
 
             if (plansGrid) plansGrid.style.display = 'none';
@@ -560,7 +560,7 @@
         onError: (err) => {
             recBtn.classList.remove('recording');
             recStatus.textContent = 'Microphone permission blocked or unavailable. Click "Upload Audio File" below to select an MP3/WAV/M4A file!';
-            toast('Microphone error: ' + err + ' — You can also upload an audio file directly.');
+            toast('Microphone error: ' + err + '. You can also upload an audio file directly.');
         }
     });
 
@@ -741,7 +741,7 @@
             const res = await fetch('/api/sounds');
             const data = await res.json();
             if (!data.success || !data.sounds || data.sounds.length === 0) {
-                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">No engraved sounds yet — record your first sound above!</div>';
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:var(--text-muted); padding:30px;">No engraved sounds yet - record your first sound above!</div>';
                 return;
             }
 
@@ -1260,10 +1260,10 @@
         const autoBadge = document.getElementById('autoScanBadge');
         if (autoBadge) {
             autoBadge.style.color = '#10b981';
-            autoBadge.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981;"></span><span>✓ MATCH CONFIRMED — PLAYING SOUND MEMORY</span>`;
+            autoBadge.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#10b981; border-radius:50%; box-shadow:0 0 10px #10b981;"></span><span>✓ MATCH CONFIRMED - PLAYING SOUND MEMORY</span>`;
         }
 
-        document.getElementById('resultHeader').textContent = 'MATCH FOUND — SOUND MEMORY RETRIEVED';
+        document.getElementById('resultHeader').textContent = 'MATCH FOUND - SOUND MEMORY RETRIEVED';
         document.getElementById('resultTitle').textContent = sound.label;
         document.getElementById('resultMeta').textContent = `Match Confidence: ${(confidence * 100).toFixed(0)}% • Sound Code: ${sound.sound_code}`;
 
@@ -1312,7 +1312,7 @@
                     const b = document.getElementById('autoScanBadge');
                     if (b) {
                         b.style.color = '#ff6b00';
-                        b.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#ff6b00; border-radius:50%; box-shadow:0 0 10px #ff6b00; animation:pulse 1.2s infinite;"></span><span>AUTO SCANNING LIVE — ALIGN TATTOO IN TARGET AREA</span>`;
+                        b.innerHTML = `<span style="display:inline-block; width:10px; height:10px; background:#ff6b00; border-radius:50%; box-shadow:0 0 10px #ff6b00; animation:pulse 1.2s infinite;"></span><span>AUTO SCANNING LIVE - ALIGN TATTOO IN TARGET AREA</span>`;
                     }
                     startLiveCameraScanner();
                 }

@@ -101,7 +101,7 @@ body {
     text-transform: uppercase;
 }
 
-/* Header Widget — Icon Buttons */
+/* Header Widget - Icon Buttons */
 .hdr-logged-in {
     display: flex;
     align-items: center;
@@ -562,7 +562,7 @@ body {
 }
 
 .cam-target-box.success::after {
-    content: "MATCH CONFIRMED — TARGET LOCKED ✓" !important;
+    content: "MATCH CONFIRMED - TARGET LOCKED ✓" !important;
     color: #10b981 !important;
     font-weight: 900 !important;
     letter-spacing: 1.5px !important;
@@ -1054,7 +1054,7 @@ body {
         justify-content: center;
     }
 
-    /* Camera control buttons keep their text — they are primary actions */
+    /* Camera control buttons keep their text - they are primary actions */
     #startCamBtn {
         flex: 1;
         justify-content: center;
@@ -1067,7 +1067,7 @@ body {
         font-size: 13px;
     }
 
-    /* Save button keeps text — it's the main CTA */
+    /* Save button keeps text - it's the main CTA */
     #saveBtn {
         width: 100%;
     }
