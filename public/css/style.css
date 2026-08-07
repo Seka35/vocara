@@ -508,7 +508,7 @@ body {
 .cam-wrapper {
     position: relative;
     width: 100%;
-    aspect-ratio: 4/3;
+    aspect-ratio: 21/9; /* Wide cinematic ratio instead of 4/3 */
     background: #030712;
     border-radius: var(--radius-md);
     overflow: hidden;
@@ -533,8 +533,8 @@ body {
 }
 
 .cam-target-box {
-    width: 75%;
-    height: 35%;
+    width: 85%;
+    height: 60%;
     border: 2px dashed var(--accent);
     border-radius: var(--radius-sm);
     box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.4);
